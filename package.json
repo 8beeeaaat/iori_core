@@ -2,12 +2,21 @@
   "name": "iori_core",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "src"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "ts-node src/index",
-    "build": "run-p build:*",
+    "lint": "run-p lint:*",
+    "lint:eslint": "eslint --fix '**/*.{ts,html,md}'",
+    "build": "rimraf ./dist && run-p build:*",
     "build:esbuild": "ts-node build.ts",
-    "build:types": "tsc --declaration --emitDeclarationOnly --declarationDir './dist'",
+    "build:types": "tsc",
     "test": "vitest"
   },
   "repository": {
@@ -31,10 +40,14 @@
     "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
     "globals": "^15.0.0",
+    "jsdom": "^24.0.0",
     "npm-run-all": "^4.1.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.6.0",
     "vitest": "^1.5.0"
+  },
+  "dependencies": {
+    "crypt": "^0.0.2"
   }
 }
