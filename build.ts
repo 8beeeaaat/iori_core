@@ -1,11 +1,8 @@
-const { build } = require('esbuild');
-const { dependencies } = require('./package.json');
-
-const entryFile = 'src/index.ts';
-const shared = {
+import { BuildOptions, build } from 'esbuild';
+const entryFile = './src/index.ts';
+const shared: BuildOptions = {
   bundle: true,
   entryPoints: [entryFile],
-  external: dependencies ? Object.keys(dependencies) : [],
   logLevel: 'info',
   minify: true,
   sourcemap: false,
@@ -15,12 +12,12 @@ build({
   ...shared,
   format: 'esm',
   outfile: './dist/index.esm.js',
-  target: ['ES6'],
+  target: ['ES2020'],
 });
 
 build({
   ...shared,
   format: 'cjs',
   outfile: './dist/index.cjs.js',
-  target: ['ES6'],
+  target: ['ES2020'],
 });
