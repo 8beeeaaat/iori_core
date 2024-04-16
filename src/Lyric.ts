@@ -1,16 +1,10 @@
+import { WordTimeline } from './Constants';
 import { Paragraph } from './Paragraph';
-import { Word, WordTimeline } from './Word';
-
-export const TIMING_TYPE = {
-  Line: 'Line',
-  Word: 'Word',
-} as const;
-export type TimingType = 'Line' | 'Word';
+import { Word } from './Word';
 
 export type LyricArgs = {
   initID?: boolean;
   resourceID: string;
-  timingType: TimingType;
   duration: number;
   timelines: Map<number, Map<number, Map<number, WordTimeline>>>;
 };
@@ -18,14 +12,12 @@ export type LyricArgs = {
 export class Lyric {
   id: string;
   resourceID: string;
-  timingType: TimingType;
   paragraphByPosition: Map<number, Paragraph>;
   duration: number;
 
   constructor(props: LyricArgs) {
     this.id = props.initID ? `lyric-${crypto.randomUUID()}` : '';
     this.resourceID = props.resourceID;
-    this.timingType = props.timingType;
     this.duration = Number(props.duration.toFixed(2));
     this.paragraphByPosition = new Map();
 

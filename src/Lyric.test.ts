@@ -58,7 +58,6 @@ describe('Lyric', () => {
           ]),
         ],
       ]),
-      timingType: 'Word',
       resourceID: 'lyric1',
     });
   });

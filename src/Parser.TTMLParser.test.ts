@@ -3,7 +3,7 @@
  */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { TTMLParser } from './ttml';
+import { TTMLParser } from './Parser.TTMLParser';
 
 describe('TTMLParser', () => {
   let parser: TTMLParser;
@@ -19,7 +19,6 @@ describe('TTMLParser', () => {
     );
     const result = parser.parse(xml, 'syllable');
     expect(result.resourceID).toBe('syllable');
-    expect(result.timingType).toBe('Word');
     expect(result.duration).toBe(213.99);
     expect(result.voids().length).toBe(59);
   });
@@ -31,7 +30,6 @@ describe('TTMLParser', () => {
     );
     const result = parser.parse(xml, 'line');
     expect(result.resourceID).toBe('line');
-    expect(result.timingType).toBe('Line');
     expect(result.duration).toBe(209.47);
     expect(result.voids().length).toBe(32);
   });

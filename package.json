@@ -1,6 +1,6 @@
 {
   "name": "iori_core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -46,8 +46,5 @@
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.6.0",
     "vitest": "^1.5.0"
-  },
-  "dependencies": {
-    "crypt": "^0.0.2"
   }
 }

@@ -1,16 +1,19 @@
-import * as char from './entities/Char';
-import * as line from './entities/Line';
-import * as lyric from './entities/Lyric';
-import * as paragraph from './entities/Paragraph';
-import * as word from './entities/Word';
-
-import * as ttmlParser from './lib/parser/ttml';
+import * as char from './Char';
+import * as constants from './Constants';
+import * as line from './Line';
+import * as lyric from './Lyric';
+import * as paragraph from './Paragraph';
+import * as ttmlParser from './Parser.TTMLParser';
+import * as word from './Word';
 
 export namespace Iori {
-  export const Char = char;
-  export const Line = line;
-  export const Lyric = lyric;
-  export const Paragraph = paragraph;
-  export const Word = word;
-  export const TTMLParser = ttmlParser;
+  export const Char = char.Char;
+  export const Line = line.Line;
+  export const Lyric = lyric.Lyric;
+  export const Paragraph = paragraph.Paragraph;
+  export const Word = word.Word;
+  export const TTMLParser = ttmlParser.TTMLParser;
+  export const Constants = constants; // Add a declaration statement for the Constants export.
 }
+
+export default Iori;

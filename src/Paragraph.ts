@@ -1,73 +1,76 @@
-import { Word, WordTimeline } from './Word';
-export type LineArgs = {
+import { WordTimeline } from './Constants';
+import { Line } from './Line';
+import { Word } from './Word';
+
+export type ParagraphArgs = {
   position: number;
-  timelines: Map<number, WordTimeline>;
+  timelines: Map<number, Map<number, WordTimeline>>;
 };
 
-export class Line {
+export class Paragraph {
   id: string;
-  wordByPosition: Map<number, Word>;
+  lineByPosition: Map<number, Line>;
   position: number;
   begin: number;
   end: number;
 
-  constructor(props: LineArgs) {
+  constructor(props: ParagraphArgs) {
     this.id = '';
     this.position = props.position;
     this.begin = 0;
     this.end = 0;
-    this.wordByPosition = new Map();
+    this.lineByPosition = new Map();
 
     this.init(props);
   }
 
-  private init(props: LineArgs) {
-    this.id = `line-${crypto.randomUUID()}`;
+  private init(props: ParagraphArgs) {
+    this.id = `paragraph-${crypto.randomUUID()}`;
 
-    this.wordByPosition = Array.from(props.timelines).reduce<Map<number, Word>>(
-      (acc, [position, wordTimeline]) => {
+    this.lineByPosition = Array.from(props.timelines).reduce<Map<number, Line>>(
+      (acc, [position, timelines]) => {
         acc.set(
           position,
-          new Word({
+          new Line({
             position,
-            timeline: wordTimeline,
+            timelines,
           })
         );
         return acc;
       },
-      this.wordByPosition
+      this.lineByPosition
     );
 
-    this.begin = this.wordByPosition.get(1)?.begin || 0;
-    this.end = this.wordByPosition.get(this.wordByPosition.size)?.end || 0;
+    this.begin = this.lineByPosition.get(1)?.begin || 0;
+    this.end = this.lineByPosition.get(this.lineByPosition.size)?.end || 0;
   }
 
-  public betweenDuration(c: Line): number {
+  public betweenDuration(c: Paragraph): number {
     if (this.id === c.id) {
-      throw new Error('Can not compare between the same line');
+      throw new Error('Can not compare between the same paragraph');
     }
     return c.begin > this.end ? c.begin - this.end : this.begin - c.end;
   }
 
-  public wordAt(position: number): Word | undefined {
-    return this.wordByPosition.get(position);
+  public lineAt(position: number): Line | undefined {
+    return this.lineByPosition.get(position);
   }
 
   public allWords(): Word[] {
-    return Array.from(this.wordByPosition.values());
+    return Array.from(this.lineByPosition.values()).reduce<Word[]>(
+      (acc, line) => {
+        acc.push(...line.allWords());
+        return acc;
+      },
+      []
+    );
   }
 
   public duration(): number {
     if (this.begin >= this.end) {
-      throw new Error('Can not calculate duration of a invalid line');
+      throw new Error('Can not calculate duration of a invalid paragraph');
     }
     return this.end - this.begin;
-  }
-
-  public text(): string {
-    return Array.from(this.wordByPosition.values())
-      .map((word) => `${word.text()}${word.hasWhitespace ? ' ' : ''}`)
-      .join('');
   }
 
   public voids(): { begin: number; end: number; duration: number }[] {
