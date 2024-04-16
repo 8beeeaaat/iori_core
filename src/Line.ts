@@ -68,7 +68,12 @@ export class Line {
 
   public text(): string {
     return Array.from(this.wordByPosition.values())
-      .map((word) => `${word.text()}${word.hasWhitespace ? ' ' : ''}`)
+      .map(
+        (word) =>
+          `${word.text()}${word.hasWhitespace ? ' ' : ''}${
+            word.hasNewLine ? `\n` : ''
+          }`
+      )
       .join('');
   }
 

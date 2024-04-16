@@ -32,6 +32,15 @@ describe('Line', () => {
             begin: 1.5,
             end: 2,
             text: 'apple',
+            hasNewLine: true,
+          },
+        ],
+        [
+          4,
+          {
+            begin: 2,
+            end: 2.5,
+            text: 'an',
           },
         ],
       ]),
@@ -66,9 +75,9 @@ describe('Line', () => {
         ]),
       });
 
-      expect(line.betweenDuration(other)).toBe(1);
+      expect(line.betweenDuration(other)).toBe(0.5);
 
-      expect(other.betweenDuration(line)).toBe(1);
+      expect(other.betweenDuration(line)).toBe(0.5);
     });
   });
 
@@ -105,13 +114,13 @@ describe('Line', () => {
       ).toThrow('Can not calculate duration of a invalid line');
     });
     it('should return the duration of the line', () => {
-      expect(line.duration()).toBe(1.8);
+      expect(line.duration()).toBe(2.3);
     });
   });
 
   describe('text', () => {
     it('should return the text of the line', () => {
-      expect(line.text()).toBe('an red apple');
+      expect(line.text()).toBe(`an red apple\nan`);
     });
   });
 
