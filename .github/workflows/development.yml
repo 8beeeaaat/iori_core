@@ -5,9 +5,9 @@ name: Development CI
 
 on:
   push:
-    branches: ['development']
+    branches: ['*', '*/*', '**', '!main']
   pull_request:
-    branches: ['development']
+    branches: ['*', '*/*', '**', '!main']
 
 jobs:
   test:
@@ -28,4 +28,5 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - run: npm ci
+      - run: npm run lint
       - run: npm test

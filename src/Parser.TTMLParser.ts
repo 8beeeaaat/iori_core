@@ -1,4 +1,4 @@
-import { TIMING_TYPE, WordTimeline } from './Constants';
+import { WordTimeline } from './Constants';
 import { LineArgs } from './Line';
 import { Lyric, LyricArgs } from './Lyric';
 import { ParagraphArgs } from './Paragraph';
