@@ -13,6 +13,7 @@ export class Word {
   begin: number;
   end: number;
   hasWhitespace: boolean;
+  hasNewLine: boolean;
 
   constructor(props: WordArgs) {
     this.id = '';
@@ -21,6 +22,7 @@ export class Word {
     this.end = props.timeline.end;
     this.charByPosition = new Map();
     this.hasWhitespace = props.timeline.hasWhitespace || false;
+    this.hasNewLine = props.timeline.hasNewLine || false;
 
     this.init(props);
   }

@@ -15,4 +15,5 @@ export type WordTimeline = {
   begin: number;
   end: number;
   hasWhitespace?: boolean;
+  hasNewLine?: boolean;
 };
