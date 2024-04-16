@@ -78,3 +78,5 @@ export class Word {
       .join('');
   }
 }
+
+export default Word;

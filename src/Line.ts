@@ -119,3 +119,5 @@ export class Line {
     return voids.some(({ begin, end }) => now >= begin && now <= end);
   }
 }
+
+export default Line;

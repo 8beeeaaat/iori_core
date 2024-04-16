@@ -1,5 +1,5 @@
 import { WordTimeline } from './Constants';
-import { Line } from './Line';
+import Line from './Line';
 import { Word } from './Word';
 
 export type ParagraphArgs = {
@@ -115,3 +115,5 @@ export class Paragraph {
     return voids.some(({ begin, end }) => now >= begin && now <= end);
   }
 }
+
+export default Paragraph;

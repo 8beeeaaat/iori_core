@@ -133,3 +133,5 @@ export class TTMLParser {
     };
   }
 }
+
+export default TTMLParser;

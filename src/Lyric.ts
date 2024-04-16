@@ -95,3 +95,5 @@ export class Lyric {
     return voids.some(({ begin, end }) => now >= begin && now <= end);
   }
 }
+
+export default Lyric;

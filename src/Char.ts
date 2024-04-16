@@ -107,3 +107,5 @@ export class Char {
     return this.type !== c.type;
   }
 }
+
+export default Char;
