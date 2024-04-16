@@ -1,12 +1,7 @@
-import { LineArgs } from '../../entities/Line';
-import {
-  Lyric,
-  LyricArgs,
-  TIMING_TYPE,
-  TimingType,
-} from '../../entities/Lyric';
-import { ParagraphArgs } from '../../entities/Paragraph';
-import { WordTimeline } from '../../entities/Word';
+import { TIMING_TYPE, WordTimeline } from './Constants';
+import { LineArgs } from './Line';
+import { Lyric, LyricArgs } from './Lyric';
+import { ParagraphArgs } from './Paragraph';
 
 const isElementNode = (n: Node) => Node.ELEMENT_NODE === n.nodeType;
 
@@ -34,6 +29,11 @@ const getTime = (e: Element): { begin: number; end: number } => {
   };
 };
 
+const TIMING_TYPE = {
+  Line: 'Line',
+  Word: 'Word',
+} as const;
+
 export class TTMLParser {
   constructor() {}
 
@@ -43,49 +43,40 @@ export class TTMLParser {
     );
     const timelines: LyricArgs['timelines'] = new Map();
     const paragraphs = ttml.querySelectorAll('div');
-    let retTimingType: TimingType = TIMING_TYPE.Line;
 
     paragraphs.forEach((paragraphElm, paragraphIndex) => {
-      const { lineTimelines, timingType } =
-        this.parseParagraphTimelines(paragraphElm);
-      retTimingType = timingType;
+      const { lineTimelines } = this.parseParagraphTimelines(paragraphElm);
       timelines.set(paragraphIndex + 1, lineTimelines);
     });
 
     return new Lyric({
       resourceID,
       duration,
-      timingType: retTimingType,
       timelines,
     });
   }
 
   private parseParagraphTimelines(paragraphElm: HTMLDivElement): {
     lineTimelines: ParagraphArgs['timelines'];
-    timingType: TimingType;
   } {
     if (!isElementNode(paragraphElm) || !confirmTag('div')(paragraphElm)) {
       throw new Error('Invalid TTML format');
     }
     const lines = paragraphElm.querySelectorAll('p');
     const lineTimelines: ParagraphArgs['timelines'] = new Map();
-    let retTimingType: TimingType = TIMING_TYPE.Line;
 
     lines.forEach((lineElm, lineIndex) => {
-      const { wordTimelines, timingType } = this.parseLineTimelines(lineElm);
-      retTimingType = timingType;
+      const { wordTimelines } = this.parseLineTimelines(lineElm);
       lineTimelines.set(lineIndex + 1, wordTimelines);
     });
 
     return {
       lineTimelines,
-      timingType: retTimingType,
     };
   }
 
   private parseLineTimelines(lineElm: HTMLParagraphElement): {
     wordTimelines: LineArgs['timelines'];
-    timingType: TimingType;
   } {
     if (!isElementNode(lineElm) || !confirmTag('p')(lineElm)) {
       throw new Error('Invalid TTML format');
@@ -105,7 +96,6 @@ export class TTMLParser {
       if (lineElm.textContent === null) {
         return {
           wordTimelines,
-          timingType,
         };
       }
       const texts = lineElm.textContent.split(' ');
@@ -124,24 +114,22 @@ export class TTMLParser {
 
       return {
         wordTimelines,
-        timingType,
-      };
-    } else {
-      lineElm.querySelectorAll('span').forEach((spanElm, wordIndex) => {
-        const { begin, end } = getTime(spanElm);
-        wordTimelines.set(wordIndex + 1, {
-          begin,
-          end,
-          text: spanElm.textContent || '',
-          hasWhitespace:
-            spanElm.nextSibling !== null && spanElm.nextSibling.nodeType === 3, // There is a whitespace between the next span element
-        });
-      });
-
-      return {
-        wordTimelines,
-        timingType,
       };
     }
+
+    lineElm.querySelectorAll('span').forEach((spanElm, wordIndex) => {
+      const { begin, end } = getTime(spanElm);
+      wordTimelines.set(wordIndex + 1, {
+        begin,
+        end,
+        text: spanElm.textContent || '',
+        hasWhitespace:
+          spanElm.nextSibling !== null && spanElm.nextSibling.nodeType === 3, // There is a whitespace between the next span element
+      });
+    });
+
+    return {
+      wordTimelines,
+    };
   }
 }

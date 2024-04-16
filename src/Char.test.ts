@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { CHAR_TYPES, Char } from './Char';
+import { Char } from './Char';
+import { CHAR_TYPES } from './Constants';
 
 describe('Char', () => {
   let whitespaceChar: Char;

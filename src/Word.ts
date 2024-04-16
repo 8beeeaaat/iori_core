@@ -1,11 +1,5 @@
 import { Char } from './Char';
-
-export type WordTimeline = {
-  text: string;
-  begin: number;
-  end: number;
-  hasWhitespace?: boolean;
-};
+import { WordTimeline } from './Constants';
 
 export type WordArgs = {
   position: number;
