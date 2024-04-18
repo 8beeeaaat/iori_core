@@ -13,8 +13,7 @@ describe('Line', () => {
           {
             begin: 0.2,
             end: 0.5,
-            text: 'an',
-            hasWhitespace: true,
+            text: '開か',
           },
         ],
         [
@@ -22,8 +21,8 @@ describe('Line', () => {
           {
             begin: 0.65,
             end: 1,
-            text: 'red',
-            hasWhitespace: true,
+            text: 'ない',
+            hasNewLine: true,
           },
         ],
         [
@@ -31,16 +30,33 @@ describe('Line', () => {
           {
             begin: 1.5,
             end: 2,
-            text: 'apple',
+            text: 'カーテン',
             hasNewLine: true,
           },
         ],
         [
           4,
           {
-            begin: 2,
-            end: 2.5,
-            text: 'an',
+            begin: 2.5,
+            end: 3,
+            text: '割れ',
+          },
+        ],
+        [
+          5,
+          {
+            begin: 3,
+            end: 3.2,
+            text: 'た',
+            hasNewLine: true,
+          },
+        ],
+        [
+          6,
+          {
+            begin: 3.2,
+            end: 3.5,
+            text: 'カップ',
           },
         ],
       ]),
@@ -75,15 +91,15 @@ describe('Line', () => {
         ]),
       });
 
-      expect(line.betweenDuration(other)).toBe(0.5);
+      expect(line.betweenDuration(other)).toBe(-4.8);
 
-      expect(other.betweenDuration(line)).toBe(0.5);
+      expect(other.betweenDuration(line)).toBe(-0.5);
     });
   });
 
   describe('wordAt', () => {
-    it('should return the Word of "red"', () => {
-      expect(line.wordAt(2)?.text()).toBe('red');
+    it('should return the Word of "割れ", because space removed', () => {
+      expect(line.wordAt(4)?.text()).toBe('割れ');
     });
   });
 
@@ -114,13 +130,13 @@ describe('Line', () => {
       ).toThrow('Can not calculate duration of a invalid line');
     });
     it('should return the duration of the line', () => {
-      expect(line.duration()).toBe(2.3);
+      expect(line.duration()).toBe(3.3);
     });
   });
 
   describe('text', () => {
     it('should return the text of the line', () => {
-      expect(line.text()).toBe(`an red apple\nan`);
+      expect(line.text()).toBe(`開かない\nカーテン\n割れた\nカップ`);
     });
   });
 
@@ -137,6 +153,11 @@ describe('Line', () => {
           duration: 0.5,
           end: 1.5,
         },
+        {
+          begin: 2,
+          duration: 0.5,
+          end: 2.5,
+        },
       ]);
     });
   });
@@ -147,6 +168,34 @@ describe('Line', () => {
     });
     it('not void', () => {
       expect(line.isVoid(1.6)).toBe(false);
+    });
+  });
+
+  describe('wordGridPositionByWordID', () => {
+    it('is void', () => {
+      const map = line.wordGridPositionByWordID();
+      expect(map.size).toBe(6);
+      // 開か ない
+      // カーテン
+      // 割れ た
+      // カップ
+
+      const targetWord1 = line.wordByPosition.get(1);
+      expect(targetWord1?.text()).toBe('開か');
+
+      const targetWord4 = line.wordByPosition.get(4);
+      expect(targetWord4?.text()).toBe('割れ');
+
+      expect(map.get(targetWord1?.id || '')).toStrictEqual({
+        row: 1,
+        column: 1,
+        word: targetWord1,
+      });
+      expect(map.get(targetWord4?.id || '')).toStrictEqual({
+        row: 3,
+        column: 1,
+        word: targetWord4,
+      });
     });
   });
 });

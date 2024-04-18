@@ -1,12 +1,13 @@
-import { WordTimeline } from './Constants';
-import { Paragraph } from './Paragraph';
+import Line, { LineArgs } from './Line';
+import { Paragraph, ParagraphArgs } from './Paragraph';
 import { Word } from './Word';
 
 export type LyricArgs = {
   initID?: boolean;
   resourceID: string;
   duration: number;
-  timelines: Map<number, Map<number, Map<number, WordTimeline>>>;
+  timelines: Map<number, ParagraphArgs['timelines']>;
+  tokenizer?: (lineArgs: LineArgs) => LineArgs;
 };
 
 export class Lyric {
@@ -33,6 +34,7 @@ export class Lyric {
         new Paragraph({
           position,
           timelines,
+          tokenizer: props.tokenizer,
         })
       );
       return acc;
@@ -47,6 +49,16 @@ export class Lyric {
     return Array.from(this.paragraphByPosition.values()).reduce<Word[]>(
       (acc, paragraph) => {
         acc.push(...paragraph.allWords());
+        return acc;
+      },
+      []
+    );
+  }
+
+  public allLines(): Line[] {
+    return Array.from(this.paragraphByPosition.values()).reduce<Line[]>(
+      (acc, paragraph) => {
+        acc.push(...paragraph.allLines());
         return acc;
       },
       []
