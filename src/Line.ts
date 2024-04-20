@@ -27,12 +27,27 @@ export class Line {
     this.id = `line-${crypto.randomUUID()}`;
 
     this.wordByPosition = Array.from(props.timelines).reduce<Map<number, Word>>(
-      (acc, [position, wordTimeline]) => {
+      (acc, [position, tl]) => {
+        const isWhitespace = /^\s+$/.test(tl.text);
+        if (isWhitespace) {
+          return acc;
+        }
+
+        const nextTl = props.timelines.get(position + 1);
+        const nextIsWhitespace = /^\s+$/.test(nextTl?.text || '');
+
         acc.set(
-          position,
+          acc.size + 1,
           new Word({
-            position,
-            timeline: wordTimeline,
+            position: acc.size + 1,
+            timeline: {
+              ...tl,
+              hasWhitespace: tl.hasWhitespace
+                ? true
+                : tl.hasNewLine
+                ? false
+                : nextIsWhitespace,
+            },
           })
         );
         return acc;
@@ -55,6 +70,14 @@ export class Line {
     return this.wordByPosition.get(position);
   }
 
+  public wordPosition(wordID: string): number | undefined {
+    for (const [position, word] of this.wordByPosition) {
+      if (word.id === wordID) {
+        return position;
+      }
+    }
+  }
+
   public allWords(): Word[] {
     return Array.from(this.wordByPosition.values());
   }
@@ -67,7 +90,7 @@ export class Line {
   }
 
   public text(): string {
-    return Array.from(this.wordByPosition.values())
+    return this.allWords()
       .map(
         (word) =>
           `${word.text()}${word.hasWhitespace ? ' ' : ''}${
@@ -117,6 +140,45 @@ export class Line {
   public isVoid(now: number): boolean {
     const voids = this.voids();
     return voids.some(({ begin, end }) => now >= begin && now <= end);
+  }
+
+  public wordGridPositionByWordID(): Map<
+    string,
+    {
+      row: number;
+      column: number;
+      word: Word;
+    }
+  > {
+    const words = this.wordByPosition;
+    const map = new Map<
+      string,
+      {
+        row: number;
+        column: number;
+        word: Word;
+      }
+    >();
+
+    let row = 1;
+    let column = 0;
+
+    for (const [position, word] of words) {
+      const prevWord = words.get(Number(position) - 1);
+      if (prevWord?.hasNewLine) {
+        row++;
+        column = 1;
+      } else {
+        column++;
+      }
+      map.set(word.id, {
+        row,
+        column,
+        word,
+      });
+    }
+
+    return map;
   }
 }
 

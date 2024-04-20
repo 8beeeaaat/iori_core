@@ -1,6 +1,6 @@
 {
-  "name": "iori_core",
-  "version": "1.0.5",
+  "name": "@iori/core",
+  "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -37,6 +37,7 @@
   "homepage": "https://github.com/8beeeaaat/iori_core#readme",
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@types/kuromoji": "^0.1.3",
     "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
     "globals": "^15.0.0",
@@ -46,5 +47,8 @@
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.6.0",
     "vitest": "^1.5.0"
+  },
+  "dependencies": {
+    "kuromoji": "^0.1.2"
   }
 }

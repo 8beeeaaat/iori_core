@@ -67,27 +67,27 @@ export class Char {
     return 'other';
   }
 
-  private isWhitespace(): boolean {
+  public isWhitespace(): boolean {
     return /^\s+$/.test(this.text);
   }
 
-  private isAlphabet(): boolean {
+  public isAlphabet(): boolean {
     return /^[a-zA-Z]+$/.test(this.text);
   }
 
-  private isNumber(): boolean {
+  public isNumber(): boolean {
     return /^[0-9]+$/.test(this.text);
   }
 
-  private isKanji(): boolean {
+  public isKanji(): boolean {
     return /^[\u4E00-\u9FFF]+$/.test(this.text);
   }
 
-  private isHiragana(): boolean {
+  public isHiragana(): boolean {
     return /^[\u3040-\u309F]+$/.test(this.text);
   }
 
-  private isKatakana(): boolean {
+  public isKatakana(): boolean {
     return /^[\u30A0-\u30FF]+$/.test(this.text);
   }
 

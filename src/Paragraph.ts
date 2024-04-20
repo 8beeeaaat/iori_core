@@ -1,10 +1,10 @@
-import { WordTimeline } from './Constants';
-import Line from './Line';
+import Line, { LineArgs } from './Line';
 import { Word } from './Word';
 
 export type ParagraphArgs = {
   position: number;
-  timelines: Map<number, Map<number, WordTimeline>>;
+  timelines: Map<number, LineArgs['timelines']>;
+  tokenizer?: (lineArgs: LineArgs) => LineArgs;
 };
 
 export class Paragraph {
@@ -29,13 +29,16 @@ export class Paragraph {
 
     this.lineByPosition = Array.from(props.timelines).reduce<Map<number, Line>>(
       (acc, [position, timelines]) => {
-        acc.set(
-          position,
-          new Line({
-            position,
-            timelines,
-          })
-        );
+        const args: LineArgs = props.tokenizer
+          ? props.tokenizer({
+              position,
+              timelines,
+            })
+          : {
+              position,
+              timelines,
+            };
+        acc.set(position, new Line(args));
         return acc;
       },
       this.lineByPosition
@@ -64,6 +67,10 @@ export class Paragraph {
       },
       []
     );
+  }
+
+  public allLines(): Line[] {
+    return Array.from(this.lineByPosition.values());
   }
 
   public duration(): number {
