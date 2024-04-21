@@ -6,6 +6,7 @@ describe('Word', () => {
 
   beforeEach(() => {
     word = new Word({
+      lineID: '1',
       position: 1,
       timeline: {
         begin: 0,
@@ -22,6 +23,7 @@ describe('Word', () => {
     });
     it('should return the duration between two words', () => {
       const other = new Word({
+        lineID: '1',
         position: 1,
         timeline: {
           begin: 2,
@@ -44,6 +46,7 @@ describe('Word', () => {
     it('should throw error for word with the same begin and end', () => {
       expect(() =>
         new Word({
+          lineID: '1',
           position: 1,
           timeline: {
             begin: 1,
@@ -55,6 +58,7 @@ describe('Word', () => {
 
       expect(() =>
         new Word({
+          lineID: '1',
           position: 1,
           timeline: {
             begin: 2,

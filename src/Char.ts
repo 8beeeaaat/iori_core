@@ -1,6 +1,7 @@
 import { CharType } from './Constants';
 
 export type CharArgs = {
+  wordID: string;
   position: number;
   text: string;
   begin: number;
@@ -9,6 +10,7 @@ export type CharArgs = {
 
 export class Char {
   id: string;
+  wordID: string;
   text: string;
   type: CharType;
   position: number;
@@ -17,6 +19,7 @@ export class Char {
 
   constructor(props: CharArgs) {
     this.id = '';
+    this.wordID = props.wordID;
     this.position = props.position;
     this.text = props.text;
     this.begin = props.begin;

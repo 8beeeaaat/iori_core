@@ -2,13 +2,15 @@ import Line, { LineArgs } from './Line';
 import { Word } from './Word';
 
 export type ParagraphArgs = {
+  lyricID: string;
   position: number;
   timelines: Map<number, LineArgs['timelines']>;
-  tokenizer?: (lineArgs: LineArgs) => LineArgs;
+  tokenizer?: (lineArgs: LineArgs) => Map<number, LineArgs>;
 };
 
 export class Paragraph {
   id: string;
+  lyricID: string;
   lineByPosition: Map<number, Line>;
   position: number;
   begin: number;
@@ -16,6 +18,7 @@ export class Paragraph {
 
   constructor(props: ParagraphArgs) {
     this.id = '';
+    this.lyricID = props.lyricID;
     this.position = props.position;
     this.begin = 0;
     this.end = 0;
@@ -29,16 +32,29 @@ export class Paragraph {
 
     this.lineByPosition = Array.from(props.timelines).reduce<Map<number, Line>>(
       (acc, [position, timelines]) => {
-        const args: LineArgs = props.tokenizer
-          ? props.tokenizer({
+        if (props.tokenizer) {
+          const result = props.tokenizer({ position, timelines });
+          Array.from(result).forEach(([, args]) => {
+            const lastLine = acc.get(acc.size);
+            const position = lastLine ? lastLine.position + 1 : acc.size + 1;
+            acc.set(
               position,
-              timelines,
-            })
-          : {
-              position,
-              timelines,
-            };
-        acc.set(position, new Line(args));
+              new Line({
+                position,
+                timelines: args.timelines,
+              })
+            );
+          });
+          return acc;
+        }
+
+        acc.set(
+          position,
+          new Line({
+            position,
+            timelines,
+          })
+        );
         return acc;
       },
       this.lineByPosition
@@ -59,10 +75,10 @@ export class Paragraph {
     return this.lineByPosition.get(position);
   }
 
-  public allWords(): Word[] {
+  public words(): Word[] {
     return Array.from(this.lineByPosition.values()).reduce<Word[]>(
       (acc, line) => {
-        acc.push(...line.allWords());
+        acc.push(...line.words());
         return acc;
       },
       []
@@ -73,6 +89,15 @@ export class Paragraph {
     return Array.from(this.lineByPosition.values());
   }
 
+  public averageLineDuration(): number {
+    const durations = Array.from(this.lineByPosition.values()).map((line) =>
+      line.duration()
+    );
+    return (
+      durations.reduce((sum, duration) => sum + duration, 0) / durations.length
+    );
+  }
+
   public duration(): number {
     if (this.begin >= this.end) {
       throw new Error('Can not calculate duration of a invalid paragraph');
@@ -81,12 +106,12 @@ export class Paragraph {
   }
 
   public voids(): { begin: number; end: number; duration: number }[] {
-    const allWords = this.allWords();
+    const words = this.words();
 
-    return allWords.reduce<{ begin: number; end: number; duration: number }[]>(
+    return words.reduce<{ begin: number; end: number; duration: number }[]>(
       (acc, word, index) => {
         const isFirstWord = index === 0;
-        const isLastWord = index === allWords.length - 1;
+        const isLastWord = index === words.length - 1;
 
         if (isFirstWord && word.begin > this.begin) {
           acc.push({
@@ -102,7 +127,7 @@ export class Paragraph {
             duration: Number((this.end - word.end).toFixed(2)),
           });
         }
-        const prevWord = allWords[index - 1];
+        const prevWord = words[index - 1];
         if (prevWord && word.begin - prevWord.end > 0) {
           acc.push({
             begin: prevWord.end,

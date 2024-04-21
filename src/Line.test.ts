@@ -98,8 +98,8 @@ describe('Line', () => {
   });
 
   describe('wordAt', () => {
-    it('should return the Word of "割れ", because space removed', () => {
-      expect(line.wordAt(4)?.text()).toBe('割れ');
+    it('should return the Word of "割れた", because space removed', () => {
+      expect(line.wordAt(3)?.text()).toBe('割れた');
     });
   });
 
@@ -144,11 +144,6 @@ describe('Line', () => {
     it('should return between paragraphs', () => {
       expect(line.voids()).toStrictEqual([
         {
-          begin: 0.5,
-          duration: 0.15,
-          end: 0.65,
-        },
-        {
           begin: 1,
           duration: 0.5,
           end: 1.5,
@@ -174,17 +169,17 @@ describe('Line', () => {
   describe('wordGridPositionByWordID', () => {
     it('is void', () => {
       const map = line.wordGridPositionByWordID();
-      expect(map.size).toBe(6);
+      expect(map.size).toBe(4);
       // 開か ない
       // カーテン
       // 割れ た
       // カップ
 
       const targetWord1 = line.wordByPosition.get(1);
-      expect(targetWord1?.text()).toBe('開か');
+      expect(targetWord1?.text()).toBe('開かない');
 
       const targetWord4 = line.wordByPosition.get(4);
-      expect(targetWord4?.text()).toBe('割れ');
+      expect(targetWord4?.text()).toBe('カップ');
 
       expect(map.get(targetWord1?.id || '')).toStrictEqual({
         row: 1,
@@ -192,7 +187,7 @@ describe('Line', () => {
         word: targetWord1,
       });
       expect(map.get(targetWord4?.id || '')).toStrictEqual({
-        row: 3,
+        row: 4,
         column: 1,
         word: targetWord4,
       });

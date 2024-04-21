@@ -1,9 +1,16 @@
 {
-  "name": "@iori/core",
-  "version": "0.0.1",
+  "name": "@ioris/core",
+  "version": "0.0.2",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.cjs",
+    "node": "./dist/index.mjs",
+    "default": "./dist/index.cjs"
+  },
   "directories": {
     "lib": "src"
   },
@@ -22,6 +29,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/8beeeaaat/iori_core.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "music",

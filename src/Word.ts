@@ -2,12 +2,14 @@ import { Char } from './Char';
 import { WordTimeline } from './Constants';
 
 export type WordArgs = {
+  lineID: string;
   position: number;
   timeline: WordTimeline;
 };
 
 export class Word {
   id: string;
+  lineID: string;
   charByPosition: Map<number, Char>;
   position: number;
   begin: number;
@@ -17,6 +19,7 @@ export class Word {
 
   constructor(props: WordArgs) {
     this.id = '';
+    this.lineID = props.lineID;
     this.position = props.position;
     this.begin = props.timeline.begin;
     this.end = props.timeline.end;
@@ -38,6 +41,7 @@ export class Word {
         acc.set(
           position,
           new Char({
+            wordID: this.id,
             position,
             text: char,
             begin: this.begin + index * durationByChar,
@@ -59,6 +63,10 @@ export class Word {
 
   public charAt(position: number): Char | undefined {
     return this.charByPosition.get(position);
+  }
+
+  public chars() {
+    return Array.from(this.charByPosition.values());
   }
 
   public duration(): number {

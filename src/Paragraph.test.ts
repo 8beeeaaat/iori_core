@@ -6,6 +6,7 @@ describe('Paragraph', () => {
 
   beforeEach(() => {
     paragraph = new Paragraph({
+      lyricID: '1',
       position: 1,
       timelines: new Map([
         [
@@ -128,6 +129,7 @@ describe('Paragraph', () => {
     it('should throw error for paragraph with the same begin and end', () => {
       expect(() =>
         new Paragraph({
+          lyricID: '1',
           position: 1,
           timelines: new Map(),
         }).duration()
