@@ -13,6 +13,11 @@ const shared: BuildOptions = {
 build({
   ...shared,
   format: 'esm',
-  outfile: './dist/index.js',
-  target: ['ES2020'],
+  outfile: './dist/index.mjs',
+});
+
+build({
+  ...shared,
+  format: 'cjs',
+  outfile: './dist/index.cjs',
 });

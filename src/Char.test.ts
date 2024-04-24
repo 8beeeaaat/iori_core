@@ -12,36 +12,42 @@ describe('Char', () => {
 
   beforeEach(() => {
     whitespaceChar = new Char({
+      wordID: '1',
       position: 1,
       text: ' ',
       begin: 0,
       end: 1,
     });
     twoBytesWhitespaceChar = new Char({
+      wordID: '1',
       position: 1,
       text: '　',
       begin: 1,
       end: 2,
     });
     alphabetChar = new Char({
+      wordID: '1',
       position: 1,
       text: 'A',
       begin: 0,
       end: 1,
     });
     numberChar = new Char({
+      wordID: '1',
       position: 1,
       text: '1',
       begin: 2,
       end: 3,
     });
     kanjiChar = new Char({
+      wordID: '1',
       position: 1,
       text: '漢',
       begin: 10,
       end: 12.5,
     });
     hiraganaChar = new Char({
+      wordID: '1',
       position: 1,
       text: 'あ',
       begin: 10,
@@ -65,6 +71,7 @@ describe('Char', () => {
     it('should throw error for characters with the same begin and end', () => {
       expect(() =>
         new Char({
+          wordID: '1',
           position: 1,
           text: ' ',
           begin: 1,
@@ -74,6 +81,7 @@ describe('Char', () => {
 
       expect(() =>
         new Char({
+          wordID: '1',
           position: 1,
           text: ' ',
           begin: 2,
@@ -178,6 +186,7 @@ describe('Char', () => {
   describe('type Other', () => {
     it('should return true for other characters', () => {
       const otherChar = new Char({
+        wordID: '1',
         position: 1,
         text: '!',
         begin: 1,

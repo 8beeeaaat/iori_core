@@ -1,9 +1,11 @@
+import Char from './Char';
 import { WordTimeline } from './Constants';
 import { Word } from './Word';
 
 export type LineArgs = {
   position: number;
   timelines: Map<number, WordTimeline>;
+  jointNearWord?: boolean;
 };
 
 export class Line {
@@ -34,19 +36,45 @@ export class Line {
         }
 
         const nextTl = props.timelines.get(position + 1);
-        const nextIsWhitespace = /^\s+$/.test(nextTl?.text || '');
+        const nextIsWhitespace = nextTl ? /^\s+$/.test(nextTl.text) : false;
+        const hasWhitespace = tl.hasWhitespace || nextIsWhitespace;
+
+        // 近接していたら同じ単語として扱う
+        if (props.jointNearWord !== false) {
+          const lastWord = acc.get(acc.size);
+          if (
+            lastWord &&
+            lastWord.end - tl.begin <= 0.1 &&
+            !lastWord.hasNewLine &&
+            !lastWord.hasWhitespace
+          ) {
+            acc.set(
+              acc.size,
+              new Word({
+                lineID: this.id,
+                position: acc.size,
+                timeline: {
+                  begin: lastWord.begin,
+                  end: tl.end,
+                  text: lastWord.text() + tl.text,
+                  hasNewLine: tl.hasNewLine,
+                  hasWhitespace,
+                },
+              })
+            );
+
+            return acc;
+          }
+        }
 
         acc.set(
           acc.size + 1,
           new Word({
+            lineID: this.id,
             position: acc.size + 1,
             timeline: {
               ...tl,
-              hasWhitespace: tl.hasWhitespace
-                ? true
-                : tl.hasNewLine
-                ? false
-                : nextIsWhitespace,
+              hasWhitespace,
             },
           })
         );
@@ -70,16 +98,20 @@ export class Line {
     return this.wordByPosition.get(position);
   }
 
-  public wordPosition(wordID: string): number | undefined {
-    for (const [position, word] of this.wordByPosition) {
+  public word(wordID: string): Word | undefined {
+    for (const [, word] of this.wordByPosition) {
       if (word.id === wordID) {
-        return position;
+        return word;
       }
     }
   }
 
-  public allWords(): Word[] {
+  public words(): Word[] {
     return Array.from(this.wordByPosition.values());
+  }
+
+  public chars(): Char[] {
+    return this.words().flatMap((word) => word.chars());
   }
 
   public duration(): number {
@@ -90,10 +122,10 @@ export class Line {
   }
 
   public text(): string {
-    return this.allWords()
+    return this.words()
       .map(
         (word) =>
-          `${word.text()}${word.hasWhitespace ? ' ' : ''}${
+          `${word.text()}${word.hasWhitespace && !word.hasNewLine ? ' ' : ''}${
             word.hasNewLine ? `\n` : ''
           }`
       )
@@ -101,12 +133,12 @@ export class Line {
   }
 
   public voids(): { begin: number; end: number; duration: number }[] {
-    const allWords = this.allWords();
+    const words = this.words();
 
-    return allWords.reduce<{ begin: number; end: number; duration: number }[]>(
+    return words.reduce<{ begin: number; end: number; duration: number }[]>(
       (acc, word, index) => {
         const isFirstWord = index === 0;
-        const isLastWord = index === allWords.length - 1;
+        const isLastWord = index === words.length - 1;
 
         if (isFirstWord && word.begin > this.begin) {
           acc.push({
@@ -122,7 +154,7 @@ export class Line {
             duration: Number((this.end - word.end).toFixed(2)),
           });
         }
-        const prevWord = allWords[index - 1];
+        const prevWord = words[index - 1];
         if (prevWord && word.begin - prevWord.end > 0) {
           acc.push({
             begin: prevWord.end,
@@ -135,6 +167,114 @@ export class Line {
       },
       []
     );
+  }
+
+  public firstWord(): Word {
+    return this.wordByPosition.get(1)!;
+  }
+
+  public lastWord(): Word {
+    return this.wordByPosition.get(this.wordByPosition.size)!;
+  }
+
+  public currentWord(now: number, offset: number): Word | undefined {
+    return Array.from(this.wordByPosition.values()).find(
+      (word) => word.begin <= now + offset && now + offset <= word.end
+    );
+  }
+
+  public prevWord(now: number, offset: number): Word | undefined {
+    return Array.from(this.wordByPosition.values())
+      .sort((a, b) => b.begin - a.begin)
+      .find((word) => word.begin < now + offset);
+  }
+
+  public rowWords(row: number): Word[] {
+    const map = this.wordGridPositionByWordID();
+    return Array.from(map.values())
+      .filter((v) => v.row === row)
+      .map((v) => v.word);
+  }
+
+  public nextWord(now: number, offset: number): Word | undefined {
+    return Array.from(this.wordByPosition.values())
+      .sort((a, b) => a.begin - b.begin)
+      .find((word) => word.begin > now + offset);
+  }
+
+  public maxRowPosition() {
+    return Math.max(
+      ...Array.from(this.wordGridPositionByWordID().values()).map((v) => v.row)
+    );
+  }
+
+  public charPositions(): Map<
+    string,
+    {
+      row: number;
+      column: number;
+      inLinePosition: number;
+    }
+  > {
+    const chars = this.chars();
+    const allWords = this.words();
+    const wordPositionMap = this.wordGridPositionByWordID();
+    const map = new Map<
+      string,
+      {
+        row: number;
+        column: number;
+        inLinePosition: number;
+      }
+    >();
+    chars.forEach((char) => {
+      const position = this._getCharPosition(
+        char,
+        chars,
+        allWords,
+        wordPositionMap
+      );
+      map.set(char.id, position);
+    });
+
+    return map;
+  }
+
+  private _getCharPosition(
+    char: Char,
+    allChars: Char[],
+    allWords: Word[],
+    wordPositionMap: ReturnType<Line['wordGridPositionByWordID']>
+  ): {
+    row: number;
+    column: number;
+    inLinePosition: number;
+  } {
+    const word = allWords.find((w) => w.id === char.wordID);
+    if (!word) {
+      throw new Error('word not found');
+    }
+    const inLinePosition = allChars.findIndex((c) => c.id === char.id) + 1;
+    const wordPosition = wordPositionMap.get(word.id);
+    if (!wordPosition) {
+      throw new Error('wordPosition not found');
+    }
+    const sameRowWords = allWords.filter(
+      (w) =>
+        wordPositionMap.get(w.id)?.row === wordPosition.row &&
+        w.begin < word.begin
+    );
+
+    const charColumnPosition =
+      sameRowWords.reduce<number>((sum, w) => {
+        return sum + w.charByPosition.size;
+      }, 0) + char.position;
+
+    return {
+      row: wordPosition.row,
+      column: charColumnPosition,
+      inLinePosition,
+    };
   }
 
   public isVoid(now: number): boolean {
@@ -164,7 +304,7 @@ export class Line {
     let column = 0;
 
     for (const [position, word] of words) {
-      const prevWord = words.get(Number(position) - 1);
+      const prevWord = words.get(position - 1);
       if (prevWord?.hasNewLine) {
         row++;
         column = 1;
