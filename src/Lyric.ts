@@ -65,7 +65,7 @@ export class Lyric {
   }
 
   public linePositionInLyric(line: Line) {
-    return Object.values(this.lines()).findIndex((l) => l.id === line.id) + 1;
+    return Array.from(this.lines()).findIndex((l) => l.id === line.id) + 1;
   }
 
   public linePositionInParagraph(line: Line) {

@@ -64,6 +64,7 @@ describe('Paragraph', () => {
     });
     it('should return the duration between two paragraphs', () => {
       const other = new Paragraph({
+        lyricID: '1',
         position: 2,
         timelines: new Map([
           [
