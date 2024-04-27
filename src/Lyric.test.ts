@@ -7,57 +7,36 @@ describe('Lyric', () => {
   beforeEach(() => {
     lyric = new Lyric({
       duration: 10,
-      timelines: new Map([
+      timelines: [
         [
-          1,
-          new Map([
-            [
-              1,
-              new Map([
-                [
-                  1,
-                  {
-                    begin: 0.5,
-                    end: 1,
-                    text: 'foo',
-                    hasWhitespace: true,
-                  },
-                ],
-                [
-                  2,
-                  {
-                    begin: 1,
-                    end: 1.5,
-                    text: 'bar',
-                  },
-                ],
-              ]),
-            ],
-            [
-              2,
-              new Map([
-                [
-                  1,
-                  {
-                    begin: 2,
-                    end: 2.5,
-                    text: 'an',
-                    hasWhitespace: true,
-                  },
-                ],
-                [
-                  2,
-                  {
-                    begin: 2.5,
-                    end: 3,
-                    text: 'apple',
-                  },
-                ],
-              ]),
-            ],
-          ]),
+          [
+            {
+              begin: 0.5,
+              end: 1,
+              text: 'foo',
+              hasWhitespace: true,
+            },
+            {
+              begin: 1,
+              end: 1.5,
+              text: 'bar',
+            },
+          ],
+          [
+            {
+              begin: 2,
+              end: 2.5,
+              text: 'an',
+              hasWhitespace: true,
+            },
+            {
+              begin: 2.5,
+              end: 3,
+              text: 'apple',
+            },
+          ],
         ],
-      ]),
+      ],
       resourceID: 'lyric1',
     });
   });

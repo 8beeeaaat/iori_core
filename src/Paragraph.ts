@@ -4,7 +4,7 @@ import { Word } from './Word';
 export type ParagraphArgs = {
   lyricID: string;
   position: number;
-  timelines: Map<number, LineArgs['timelines']>;
+  timelines: LineArgs['timelines'][];
   tokenizer?: (lineArgs: LineArgs) => Map<number, LineArgs>;
 };
 
@@ -30,8 +30,9 @@ export class Paragraph {
   private init(props: ParagraphArgs) {
     this.id = `paragraph-${crypto.randomUUID()}`;
 
-    this.lineByPosition = Array.from(props.timelines).reduce<Map<number, Line>>(
-      (acc, [position, timelines]) => {
+    this.lineByPosition = props.timelines.reduce<Map<number, Line>>(
+      (acc, timelines, index) => {
+        const position = index + 1;
         if (props.tokenizer) {
           const result = props.tokenizer({ position, timelines });
           Array.from(result).forEach(([, args]) => {
@@ -113,26 +114,28 @@ export class Paragraph {
         const isFirstWord = index === 0;
         const isLastWord = index === words.length - 1;
 
-        if (isFirstWord && word.begin > this.begin) {
+        if (isFirstWord && word.timeline.begin > this.begin) {
           acc.push({
             begin: this.begin,
-            end: word.begin,
-            duration: Number(word.begin.toFixed(2)),
+            end: word.timeline.begin,
+            duration: Number(word.timeline.begin.toFixed(2)),
           });
         }
-        if (isLastWord && this.end - word.end > 0) {
+        if (isLastWord && this.end - word.timeline.end > 0) {
           acc.push({
-            begin: word.end,
+            begin: word.timeline.end,
             end: this.end,
-            duration: Number((this.end - word.end).toFixed(2)),
+            duration: Number((this.end - word.timeline.end).toFixed(2)),
           });
         }
         const prevWord = words[index - 1];
-        if (prevWord && word.begin - prevWord.end > 0) {
+        if (prevWord && word.timeline.begin - prevWord.timeline.end > 0) {
           acc.push({
-            begin: prevWord.end,
-            end: word.begin,
-            duration: Number((word.begin - prevWord.end).toFixed(2)),
+            begin: prevWord.timeline.end,
+            end: word.timeline.begin,
+            duration: Number(
+              (word.timeline.begin - prevWord.timeline.end).toFixed(2)
+            ),
           });
         }
 

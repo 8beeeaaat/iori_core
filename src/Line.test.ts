@@ -7,59 +7,41 @@ describe('Line', () => {
   beforeEach(() => {
     line = new Line({
       position: 1,
-      timelines: new Map([
-        [
-          1,
-          {
-            begin: 0.2,
-            end: 0.5,
-            text: '開か',
-          },
-        ],
-        [
-          2,
-          {
-            begin: 0.65,
-            end: 1,
-            text: 'ない',
-            hasNewLine: true,
-          },
-        ],
-        [
-          3,
-          {
-            begin: 1.5,
-            end: 2,
-            text: 'カーテン',
-            hasNewLine: true,
-          },
-        ],
-        [
-          4,
-          {
-            begin: 2.5,
-            end: 3,
-            text: '割れ',
-          },
-        ],
-        [
-          5,
-          {
-            begin: 3,
-            end: 3.2,
-            text: 'た',
-            hasNewLine: true,
-          },
-        ],
-        [
-          6,
-          {
-            begin: 3.2,
-            end: 3.5,
-            text: 'カップ',
-          },
-        ],
-      ]),
+      timelines: [
+        {
+          begin: 0.2,
+          end: 0.5,
+          text: '開か',
+        },
+        {
+          begin: 0.65,
+          end: 1,
+          text: 'ない',
+          hasNewLine: true,
+        },
+        {
+          begin: 1.5,
+          end: 2,
+          text: 'カーテン',
+          hasNewLine: true,
+        },
+        {
+          begin: 2.5,
+          end: 3,
+          text: '割れ',
+        },
+        {
+          begin: 3,
+          end: 3.2,
+          text: 'た',
+          hasNewLine: true,
+        },
+        {
+          begin: 3.2,
+          end: 3.5,
+          text: 'カップ',
+        },
+      ],
     });
   });
   describe('between duration', () => {
@@ -71,24 +53,18 @@ describe('Line', () => {
     it('should return the duration between two lines', () => {
       const other = new Line({
         position: 2,
-        timelines: new Map([
-          [
-            1,
-            {
-              begin: 3,
-              end: 4,
-              text: 'foo',
-            },
-          ],
-          [
-            2,
-            {
-              begin: 4,
-              end: 5,
-              text: 'bar',
-            },
-          ],
-        ]),
+        timelines: [
+          {
+            begin: 3,
+            end: 4,
+            text: 'foo',
+          },
+          {
+            begin: 4,
+            end: 5,
+            text: 'bar',
+          },
+        ],
       });
 
       expect(line.betweenDuration(other)).toBe(-4.8);
@@ -108,24 +84,18 @@ describe('Line', () => {
       expect(() =>
         new Line({
           position: 1,
-          timelines: new Map([
-            [
-              1,
-              {
-                begin: 1,
-                end: 1.5,
-                text: 'foo',
-              },
-            ],
-            [
-              2,
-              {
-                begin: 0,
-                end: 0.5,
-                text: 'bar',
-              },
-            ],
-          ]),
+          timelines: [
+            {
+              begin: 1,
+              end: 1.5,
+              text: 'foo',
+            },
+            {
+              begin: 0,
+              end: 0.5,
+              text: 'bar',
+            },
+          ],
         }).duration()
       ).toThrow('Can not calculate duration of a invalid line');
     });

@@ -1,6 +1,13 @@
 # @ioris/core
 
-This package provides the core functionality for the @ioris ecosystem for managing music lyrics. For specific features and usage, please refer to the documentation of each module.
+This package provides the core functionality for the [@ioris](https://www.npmjs.com/search?q=%40ioris) ecosystem for managing music lyrics.
+For specific features and usage, please refer to the documentation of each module.
+
+## Example
+
+`cd ./example && npm run dev`
+
+<img alt="demo" src="./example/demo.png" width="800" />
 
 ## Plugins
 

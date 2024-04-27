@@ -1,3 +1,4 @@
+import { WordTimeline } from './Constants';
 import Line, { LineArgs } from './Line';
 import { Paragraph, ParagraphArgs } from './Paragraph';
 import { Word } from './Word';
@@ -6,7 +7,7 @@ export type LyricArgs = {
   initID?: boolean;
   resourceID: string;
   duration: number;
-  timelines: Map<number, ParagraphArgs['timelines']>;
+  timelines: ParagraphArgs['timelines'][];
   tokenizer?: (lineArgs: LineArgs) => Map<number, LineArgs>;
   offsetSec?: number;
 };
@@ -28,20 +29,22 @@ export class Lyric {
   }
 
   private init(props: LyricArgs) {
-    this.paragraphByPosition = Array.from(props.timelines).reduce<
-      Map<number, Paragraph>
-    >((acc, [position, timelines]) => {
-      acc.set(
-        position,
-        new Paragraph({
-          lyricID: this.id,
+    this.paragraphByPosition = props.timelines.reduce<Map<number, Paragraph>>(
+      (acc, timelines, index) => {
+        const position = index + 1;
+        acc.set(
           position,
-          timelines,
-          tokenizer: props.tokenizer,
-        })
-      );
-      return acc;
-    }, this.paragraphByPosition);
+          new Paragraph({
+            lyricID: this.id,
+            position,
+            timelines,
+            tokenizer: props.tokenizer,
+          })
+        );
+        return acc;
+      },
+      this.paragraphByPosition
+    );
   }
 
   public paragraphAt(position: number): Paragraph | undefined {
@@ -171,26 +174,28 @@ export class Lyric {
         const isFirstWord = index === 0;
         const isLastWord = index === words.length - 1;
 
-        if (isFirstWord && word.begin > 0) {
+        if (isFirstWord && word.timeline.begin > 0) {
           acc.push({
             begin: 0,
-            end: word.begin,
-            duration: Number(word.begin.toFixed(2)),
+            end: word.timeline.begin,
+            duration: Number(word.timeline.begin.toFixed(2)),
           });
         }
-        if (isLastWord && this.duration - word.end > 0) {
+        if (isLastWord && this.duration - word.timeline.end > 0) {
           acc.push({
-            begin: word.end,
+            begin: word.timeline.end,
             end: this.duration,
-            duration: Number((this.duration - word.end).toFixed(2)),
+            duration: Number((this.duration - word.timeline.end).toFixed(2)),
           });
         }
         const prevWord = words[index - 1];
-        if (prevWord && word.begin - prevWord.end > 0) {
+        if (prevWord && word.timeline.begin - prevWord.timeline.end > 0) {
           acc.push({
-            begin: prevWord.end,
-            end: word.begin,
-            duration: Number((word.begin - prevWord.end).toFixed(2)),
+            begin: prevWord.timeline.end,
+            end: word.timeline.begin,
+            duration: Number(
+              (word.timeline.begin - prevWord.timeline.end).toFixed(2)
+            ),
           });
         }
 
@@ -203,6 +208,18 @@ export class Lyric {
   public isVoid(now: number): boolean {
     const voids = this.voids();
     return voids.some(({ begin, end }) => now >= begin && now <= end);
+  }
+
+  public timelines(): WordTimeline[][][] {
+    return Array.from(this.paragraphByPosition.values()).map((paragraph) => {
+      return Array.from(paragraph.lineByPosition.values()).map((line) => {
+        return Array.from(line.wordByPosition.values()).map((word) => {
+          return {
+            ...word.timeline,
+          };
+        });
+      });
+    });
   }
 }
 
