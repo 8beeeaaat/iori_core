@@ -1,5 +1,4 @@
 import { BuildOptions, build } from 'esbuild';
-import { dependencies } from './package.json';
 const entryFile = './src/index.ts';
 const shared: BuildOptions = {
   bundle: true,
@@ -7,7 +6,6 @@ const shared: BuildOptions = {
   logLevel: 'info',
   minify: true,
   sourcemap: true,
-  external: Object.keys(dependencies),
 };
 
 build({

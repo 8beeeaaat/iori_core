@@ -12,20 +12,14 @@ export class Word {
   lineID: string;
   charByPosition: Map<number, Char>;
   position: number;
-  begin: number;
-  end: number;
-  hasWhitespace: boolean;
-  hasNewLine: boolean;
+  timeline: WordTimeline;
 
   constructor(props: WordArgs) {
     this.id = '';
     this.lineID = props.lineID;
     this.position = props.position;
-    this.begin = props.timeline.begin;
-    this.end = props.timeline.end;
+    this.timeline = props.timeline;
     this.charByPosition = new Map();
-    this.hasWhitespace = props.timeline.hasWhitespace || false;
-    this.hasNewLine = props.timeline.hasNewLine || false;
 
     this.init(props);
   }
@@ -44,8 +38,8 @@ export class Word {
             wordID: this.id,
             position,
             text: char,
-            begin: this.begin + index * durationByChar,
-            end: this.begin + position * durationByChar,
+            begin: this.timeline.begin + index * durationByChar,
+            end: this.timeline.begin + position * durationByChar,
           })
         );
         return acc;
@@ -58,7 +52,9 @@ export class Word {
     if (this.id === c.id) {
       throw new Error('Can not compare between the same word');
     }
-    return c.begin > this.end ? c.begin - this.end : this.begin - c.end;
+    return c.timeline.begin > this.timeline.end
+      ? c.timeline.begin - this.timeline.end
+      : this.timeline.begin - c.timeline.end;
   }
 
   public charAt(position: number): Char | undefined {
@@ -70,10 +66,10 @@ export class Word {
   }
 
   public duration(): number {
-    if (this.begin >= this.end) {
+    if (this.timeline.begin >= this.timeline.end) {
       throw new Error('Can not calculate duration of a invalid word');
     }
-    return this.end - this.begin;
+    return this.timeline.end - this.timeline.begin;
   }
 
   public durationByChar(): number {

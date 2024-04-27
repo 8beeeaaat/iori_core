@@ -8,52 +8,34 @@ describe('Paragraph', () => {
     paragraph = new Paragraph({
       lyricID: '1',
       position: 1,
-      timelines: new Map([
+      timelines: [
         [
-          1,
-          new Map([
-            [
-              1,
-              {
-                begin: 1.1,
-                end: 1.2,
-                text: 'foo',
-                hasWhitespace: true,
-              },
-            ],
-            [
-              2,
-              {
-                begin: 1.3,
-                end: 1.5,
-                text: 'bar',
-              },
-            ],
-          ]),
+          {
+            begin: 1.1,
+            end: 1.2,
+            text: 'foo',
+            hasWhitespace: true,
+          },
+          {
+            begin: 1.3,
+            end: 1.5,
+            text: 'bar',
+          },
         ],
         [
-          2,
-          new Map([
-            [
-              1,
-              {
-                begin: 2,
-                end: 2.5,
-                text: 'an',
-                hasWhitespace: true,
-              },
-            ],
-            [
-              2,
-              {
-                begin: 2.5,
-                end: 3,
-                text: 'apple',
-              },
-            ],
-          ]),
+          {
+            begin: 2,
+            end: 2.5,
+            text: 'an',
+            hasWhitespace: true,
+          },
+          {
+            begin: 2.5,
+            end: 3,
+            text: 'apple',
+          },
         ],
-      ]),
+      ],
     });
   });
   describe('between duration', () => {
@@ -66,52 +48,34 @@ describe('Paragraph', () => {
       const other = new Paragraph({
         lyricID: '1',
         position: 2,
-        timelines: new Map([
+        timelines: [
           [
-            1,
-            new Map([
-              [
-                1,
-                {
-                  begin: 10,
-                  end: 10.5,
-                  text: 'foo',
-                  hasWhitespace: true,
-                },
-              ],
-              [
-                2,
-                {
-                  begin: 10.5,
-                  end: 11,
-                  text: 'bar',
-                },
-              ],
-            ]),
+            {
+              begin: 10,
+              end: 10.5,
+              text: 'foo',
+              hasWhitespace: true,
+            },
+            {
+              begin: 10.5,
+              end: 11,
+              text: 'bar',
+            },
           ],
           [
-            2,
-            new Map([
-              [
-                1,
-                {
-                  begin: 12,
-                  end: 12.5,
-                  text: 'an',
-                  hasWhitespace: true,
-                },
-              ],
-              [
-                2,
-                {
-                  begin: 12.5,
-                  end: 13,
-                  text: 'apple',
-                },
-              ],
-            ]),
+            {
+              begin: 12,
+              end: 12.5,
+              text: 'an',
+              hasWhitespace: true,
+            },
+            {
+              begin: 12.5,
+              end: 13,
+              text: 'apple',
+            },
           ],
-        ]),
+        ],
       });
 
       expect(paragraph.betweenDuration(other)).toBe(7);
@@ -132,7 +96,7 @@ describe('Paragraph', () => {
         new Paragraph({
           lyricID: '1',
           position: 1,
-          timelines: new Map(),
+          timelines: [],
         }).duration()
       ).toThrow('Can not calculate duration of a invalid paragraph');
     });

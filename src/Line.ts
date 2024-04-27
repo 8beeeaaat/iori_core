@@ -4,7 +4,7 @@ import { Word } from './Word';
 
 export type LineArgs = {
   position: number;
-  timelines: Map<number, WordTimeline>;
+  timelines: WordTimeline[];
   jointNearWord?: boolean;
 };
 
@@ -28,14 +28,14 @@ export class Line {
   private init(props: LineArgs) {
     this.id = `line-${crypto.randomUUID()}`;
 
-    this.wordByPosition = Array.from(props.timelines).reduce<Map<number, Word>>(
-      (acc, [position, tl]) => {
+    this.wordByPosition = props.timelines.reduce<Map<number, Word>>(
+      (acc, tl, index) => {
         const isWhitespace = /^\s+$/.test(tl.text);
         if (isWhitespace) {
           return acc;
         }
 
-        const nextTl = props.timelines.get(position + 1);
+        const nextTl = props.timelines[index + 1];
         const nextIsWhitespace = nextTl ? /^\s+$/.test(nextTl.text) : false;
         const hasWhitespace = tl.hasWhitespace || nextIsWhitespace;
 
@@ -44,9 +44,9 @@ export class Line {
           const lastWord = acc.get(acc.size);
           if (
             lastWord &&
-            lastWord.end - tl.begin <= 0.1 &&
-            !lastWord.hasNewLine &&
-            !lastWord.hasWhitespace
+            lastWord.timeline.end - tl.begin <= 0.1 &&
+            !lastWord.timeline.hasNewLine &&
+            !lastWord.timeline.hasWhitespace
           ) {
             acc.set(
               acc.size,
@@ -54,7 +54,7 @@ export class Line {
                 lineID: this.id,
                 position: acc.size,
                 timeline: {
-                  begin: lastWord.begin,
+                  begin: lastWord.timeline.begin,
                   end: tl.end,
                   text: lastWord.text() + tl.text,
                   hasNewLine: tl.hasNewLine,
@@ -83,8 +83,9 @@ export class Line {
       this.wordByPosition
     );
 
-    this.begin = this.wordByPosition.get(1)?.begin || 0;
-    this.end = this.wordByPosition.get(this.wordByPosition.size)?.end || 0;
+    this.begin = this.wordByPosition.get(1)?.timeline.begin || 0;
+    this.end =
+      this.wordByPosition.get(this.wordByPosition.size)?.timeline.end || 0;
   }
 
   public betweenDuration(c: Line): number {
@@ -125,9 +126,9 @@ export class Line {
     return this.words()
       .map(
         (word) =>
-          `${word.text()}${word.hasWhitespace && !word.hasNewLine ? ' ' : ''}${
-            word.hasNewLine ? `\n` : ''
-          }`
+          `${word.text()}${
+            word.timeline.hasWhitespace && !word.timeline.hasNewLine ? ' ' : ''
+          }${word.timeline.hasNewLine ? `\n` : ''}`
       )
       .join('');
   }
@@ -140,26 +141,28 @@ export class Line {
         const isFirstWord = index === 0;
         const isLastWord = index === words.length - 1;
 
-        if (isFirstWord && word.begin > this.begin) {
+        if (isFirstWord && word.timeline.begin > this.begin) {
           acc.push({
             begin: this.begin,
-            end: word.begin,
-            duration: Number(word.begin.toFixed(2)),
+            end: word.timeline.begin,
+            duration: Number(word.timeline.begin.toFixed(2)),
           });
         }
-        if (isLastWord && this.end - word.end > 0) {
+        if (isLastWord && this.end - word.timeline.end > 0) {
           acc.push({
-            begin: word.end,
+            begin: word.timeline.end,
             end: this.end,
-            duration: Number((this.end - word.end).toFixed(2)),
+            duration: Number((this.end - word.timeline.end).toFixed(2)),
           });
         }
         const prevWord = words[index - 1];
-        if (prevWord && word.begin - prevWord.end > 0) {
+        if (prevWord && word.timeline.begin - prevWord.timeline.end > 0) {
           acc.push({
-            begin: prevWord.end,
-            end: word.begin,
-            duration: Number((word.begin - prevWord.end).toFixed(2)),
+            begin: prevWord.timeline.end,
+            end: word.timeline.begin,
+            duration: Number(
+              (word.timeline.begin - prevWord.timeline.end).toFixed(2)
+            ),
           });
         }
 
@@ -177,16 +180,17 @@ export class Line {
     return this.wordByPosition.get(this.wordByPosition.size)!;
   }
 
-  public currentWord(now: number, offset: number): Word | undefined {
+  public currentWord(now: number, offset = 0): Word | undefined {
     return Array.from(this.wordByPosition.values()).find(
-      (word) => word.begin <= now + offset && now + offset <= word.end
+      (word) =>
+        word.timeline.begin <= now + offset && now + offset <= word.timeline.end
     );
   }
 
-  public prevWord(now: number, offset: number): Word | undefined {
+  public prevWord(now: number, offset = 0): Word | undefined {
     return Array.from(this.wordByPosition.values())
-      .sort((a, b) => b.begin - a.begin)
-      .find((word) => word.begin < now + offset);
+      .sort((a, b) => b.timeline.begin - a.timeline.begin)
+      .find((word) => word.timeline.begin < now + offset);
   }
 
   public rowWords(row: number): Word[] {
@@ -196,10 +200,10 @@ export class Line {
       .map((v) => v.word);
   }
 
-  public nextWord(now: number, offset: number): Word | undefined {
+  public nextWord(now: number, offset = 0): Word | undefined {
     return Array.from(this.wordByPosition.values())
-      .sort((a, b) => a.begin - b.begin)
-      .find((word) => word.begin > now + offset);
+      .sort((a, b) => a.timeline.begin - b.timeline.begin)
+      .find((word) => word.timeline.begin > now + offset);
   }
 
   public maxRowPosition() {
@@ -262,7 +266,7 @@ export class Line {
     const sameRowWords = allWords.filter(
       (w) =>
         wordPositionMap.get(w.id)?.row === wordPosition.row &&
-        w.begin < word.begin
+        w.timeline.begin < word.timeline.begin
     );
 
     const charColumnPosition =
@@ -305,7 +309,7 @@ export class Line {
 
     for (const [position, word] of words) {
       const prevWord = words.get(position - 1);
-      if (prevWord?.hasNewLine) {
+      if (prevWord?.timeline.hasNewLine) {
         row++;
         column = 1;
       } else {
