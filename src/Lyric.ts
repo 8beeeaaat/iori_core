@@ -128,20 +128,23 @@ export class Lyric {
       .find((p) => p.end < now + this.offsetSec);
   }
 
-  public currentWord(now: number) {
-    return this.currentLine(now)?.currentWord(now, this.offsetSec);
+  public currentWord(now: number, equal = false) {
+    return this.currentLine(now)?.currentWord(now, {
+      equal,
+      offset: this.offsetSec,
+    });
   }
 
   public nextWord(now: number) {
     return (
-      this.currentLine(now)?.nextWord(now, this.offsetSec) ||
+      this.currentLine(now)?.nextWord(now, { offset: this.offsetSec }) ||
       this.nextLine(now)?.firstWord()
     );
   }
 
   public prevWord(now: number) {
     return (
-      this.currentLine(now)?.prevWord(now, this.offsetSec) ||
+      this.currentLine(now)?.prevWord(now, { offset: this.offsetSec }) ||
       this.prevLine(now)?.lastWord()
     );
   }

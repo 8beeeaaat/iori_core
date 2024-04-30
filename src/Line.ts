@@ -180,14 +180,53 @@ export class Line {
     return this.wordByPosition.get(this.wordByPosition.size)!;
   }
 
-  public currentWord(now: number, offset = 0): Word | undefined {
-    return Array.from(this.wordByPosition.values()).find(
-      (word) =>
-        word.timeline.begin <= now + offset && now + offset <= word.timeline.end
+  public currentWord(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+      offset: 0,
+      equal: false,
+    }
+  ): Word | undefined {
+    const offset = options.offset || 0;
+    return Array.from(this.wordByPosition.values()).find((word) =>
+      options.equal
+        ? word.timeline.begin <= now + offset &&
+          now + offset <= word.timeline.end
+        : word.timeline.begin < now + offset && now + offset < word.timeline.end
     );
   }
 
-  public prevWord(now: number, offset = 0): Word | undefined {
+  public currentWords(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+      offset: 0,
+      equal: false,
+    }
+  ): Word[] {
+    const offset = options.offset || 0;
+    return Array.from(this.wordByPosition.values()).filter((word) =>
+      options.equal
+        ? word.timeline.begin <= now + offset &&
+          now + offset <= word.timeline.end
+        : word.timeline.begin < now + offset && now + offset < word.timeline.end
+    );
+  }
+
+  public prevWord(
+    now: number,
+    options: {
+      offset?: number;
+    } = {
+      offset: 0,
+    }
+  ): Word | undefined {
+    const offset = options.offset || 0;
     return Array.from(this.wordByPosition.values())
       .sort((a, b) => b.timeline.begin - a.timeline.begin)
       .find((word) => word.timeline.begin < now + offset);
@@ -200,7 +239,15 @@ export class Line {
       .map((v) => v.word);
   }
 
-  public nextWord(now: number, offset = 0): Word | undefined {
+  public nextWord(
+    now: number,
+    options: {
+      offset?: number;
+    } = {
+      offset: 0,
+    }
+  ): Word | undefined {
+    const offset = options.offset || 0;
     return Array.from(this.wordByPosition.values())
       .sort((a, b) => a.timeline.begin - b.timeline.begin)
       .find((word) => word.timeline.begin > now + offset);

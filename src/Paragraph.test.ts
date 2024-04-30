@@ -84,6 +84,59 @@ describe('Paragraph', () => {
     });
   });
 
+  describe('currentLine', () => {
+    it('should return the Line of "foo bar"', () => {
+      const line = paragraph.currentLine(1.3);
+      expect(line?.text()).toBe('foo bar');
+    });
+
+    it('should return undefined, because not found', () => {
+      const line = paragraph.currentLine(1);
+      expect(line).toBeUndefined();
+    });
+
+    it('should return undefined, because not equal', () => {
+      const line = paragraph.currentLine(1.1);
+      expect(line).toBeUndefined();
+    });
+
+    it('should return the Line of "foo bar"', () => {
+      let line = paragraph.currentLine(1.1, { offset: 0.01 });
+      expect(line?.text()).toBe('foo bar');
+
+      line = paragraph.currentLine(1.1, { equal: true });
+      expect(line?.text()).toBe('foo bar');
+    });
+  });
+
+  describe('currentLines', () => {
+    it('should return the Line of "foo bar"', () => {
+      const lines = paragraph.currentLines(1.3);
+      expect(lines.length).toBe(1);
+      expect(lines[0].text()).toBe('foo bar');
+    });
+
+    it('should return undefined, because not found', () => {
+      const lines = paragraph.currentLines(1);
+      expect(lines.length).toBe(0);
+    });
+
+    it('should return undefined, because not equal', () => {
+      const lines = paragraph.currentLines(1.1);
+      expect(lines.length).toBe(0);
+    });
+
+    it('should return the Line of "foo bar"', () => {
+      let lines = paragraph.currentLines(1.1, { offset: 0.01 });
+      expect(lines.length).toBe(1);
+      expect(lines[0].text()).toBe('foo bar');
+
+      lines = paragraph.currentLines(1.1, { equal: true });
+      expect(lines.length).toBe(1);
+      expect(lines[0].text()).toBe('foo bar');
+    });
+  });
+
   describe('lineAt', () => {
     it('should return the Line', () => {
       expect(paragraph.lineAt(2)?.text()).toBe('an apple');
