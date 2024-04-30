@@ -91,20 +91,20 @@ export class Lyric {
       .sort((a, b) => a.begin - b.begin);
   }
 
-  public currentParagraph(now: number) {
+  public currentParagraph(now: number, equal = false) {
     return this.paragraphs().find((paragraph) => {
-      return (
-        paragraph.begin <= now + this.offsetSec &&
-        now + this.offsetSec <= paragraph.end
-      );
+      return equal
+        ? paragraph.begin <= now + this.offsetSec &&
+            now + this.offsetSec <= paragraph.end
+        : paragraph.begin < now + this.offsetSec &&
+            now + this.offsetSec < paragraph.end;
     });
   }
 
-  public currentLine(now: number) {
-    return this.lines().find((line) => {
-      return (
-        line.begin <= now + this.offsetSec && now + this.offsetSec <= line.end
-      );
+  public currentLine(now: number, equal = false) {
+    return this.currentParagraph(now, equal)?.currentLine(now, {
+      offset: this.offsetSec,
+      equal,
     });
   }
 
@@ -129,7 +129,7 @@ export class Lyric {
   }
 
   public currentWord(now: number, equal = false) {
-    return this.currentLine(now)?.currentWord(now, {
+    return this.currentLine(now, equal)?.currentWord(now, {
       equal,
       offset: this.offsetSec,
     });
