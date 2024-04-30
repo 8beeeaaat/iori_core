@@ -72,6 +72,42 @@ export class Paragraph {
     return c.begin > this.end ? c.begin - this.end : this.begin - c.end;
   }
 
+  public currentLine(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+      offset: 0,
+      equal: false,
+    }
+  ): Line | undefined {
+    const offset = options.offset || 0;
+    return Array.from(this.lineByPosition.values()).find((line) =>
+      options.equal
+        ? line.begin <= now + offset && now + offset <= line.end
+        : line.begin < now + offset && now + offset < line.end
+    );
+  }
+
+  public currentLines(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+      offset: 0,
+      equal: false,
+    }
+  ): Line[] {
+    const offset = options.offset || 0;
+    return Array.from(this.lineByPosition.values()).filter((line) =>
+      options.equal
+        ? line.begin <= now + offset && now + offset <= line.end
+        : line.begin < now + offset && now + offset < line.end
+    );
+  }
+
   public lineAt(position: number): Line | undefined {
     return this.lineByPosition.get(position);
   }

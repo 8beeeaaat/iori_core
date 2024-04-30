@@ -73,6 +73,59 @@ describe('Line', () => {
     });
   });
 
+  describe('currentWord', () => {
+    it('should return the Word of "開かない"', () => {
+      const word = line.currentWord(0.3);
+      expect(word?.text()).toBe('開かない');
+    });
+
+    it('should return undefined, because not found', () => {
+      const word = line.currentWord(1.2);
+      expect(word).toBeUndefined();
+    });
+
+    it('should return undefined, because not equal', () => {
+      const word = line.currentWord(2.5);
+      expect(word).toBeUndefined();
+    });
+
+    it('should return the Word of "割れた"', () => {
+      let word = line.currentWord(2.5, { offset: 0.01 });
+      expect(word?.text()).toBe('割れた');
+
+      word = line.currentWord(2.5, { equal: true });
+      expect(word?.text()).toBe('割れた');
+    });
+  });
+
+  describe('currentWords', () => {
+    it('should return the Word of "開かない"', () => {
+      const words = line.currentWords(0.3);
+      expect(words.length).toBe(1);
+      expect(words[0].text()).toBe('開かない');
+    });
+
+    it('should return undefined, because not found', () => {
+      const words = line.currentWords(1.2);
+      expect(words.length).toBe(0);
+    });
+
+    it('should return undefined, because not equal', () => {
+      const words = line.currentWords(2.5);
+      expect(words.length).toBe(0);
+    });
+
+    it('should return the Word of "割れた"', () => {
+      let words = line.currentWords(2.5, { offset: 0.01 });
+      expect(words.length).toBe(1);
+      expect(words[0].text()).toBe('割れた');
+
+      words = line.currentWords(2.5, { equal: true });
+      expect(words.length).toBe(1);
+      expect(words[0].text()).toBe('割れた');
+    });
+  });
+
   describe('wordAt', () => {
     it('should return the Word of "割れた", because space removed', () => {
       expect(line.wordAt(3)?.text()).toBe('割れた');
