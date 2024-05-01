@@ -143,14 +143,14 @@ describe('Paragraph', () => {
     });
   });
 
-  describe('duration', () => {
-    it('should throw error for paragraph with the same begin and end', async () => {
-      const paragraph = await new Paragraph({
-        lyricID: '1',
-        position: 1,
-        timelines: [],
-      }).init();
-      expect(() => paragraph.duration()).toThrow(
+  describe('duration', async () => {
+    const other = await new Paragraph({
+      lyricID: '1',
+      position: 1,
+      timelines: [],
+    }).init();
+    it('should throw error for paragraph with the same begin and end', () => {
+      expect(() => other.duration()).toThrow(
         'Can not calculate duration of a invalid paragraph'
       );
     });
