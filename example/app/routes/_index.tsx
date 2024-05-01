@@ -1,6 +1,6 @@
 import { Lyric, LyricArgs } from '@ioris/core';
 import type { MetaFunction } from '@remix-run/node';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const meta: MetaFunction = () => {
   return [
@@ -72,22 +72,32 @@ const sampleLyric = new Lyric({
 });
 
 export default function Index() {
-  const [lyric, setLyric] = useState(sampleLyric);
-  const [editingTimeline, setEditingTimeline] = useState<
-    LyricArgs['timelines']
-  >(sampleLyric.timelines());
+  const [lyric, setLyric] = useState<Lyric>();
+  const [editingTimeline, setEditingTimeline] =
+    useState<LyricArgs['timelines']>();
   const [now, setNow] = useState(0);
+
+  useEffect(() => {
+    if (lyric) return;
+    (async () => {
+      const l = await sampleLyric.init();
+      setLyric(l);
+      setEditingTimeline(l.timelines());
+    })();
+  }, [lyric, sampleLyric]);
+
+  if (!lyric) return <div>Loading...</div>;
+
   const currentParagraph = lyric.currentParagraph(now);
   const currentLine = lyric.currentLine(now);
   const currentWord = currentLine?.currentWord(now);
 
-  const updateLyric = () => {
-    setLyric(
-      new Lyric({
-        ...lyric,
-        timelines: editingTimeline,
-      })
-    );
+  const updateLyric = async () => {
+    const l = await new Lyric({
+      ...lyric,
+      timelines: editingTimeline || [],
+    }).init();
+    setLyric(l);
   };
 
   return (
@@ -102,79 +112,83 @@ export default function Index() {
     >
       <div>
         <h1>Editor</h1>
-        {editingTimeline.map((paragraph, paragraphIndex) => (
-          <fieldset
-            key={paragraphIndex}
-            style={{
-              marginBottom: '2rem',
-            }}
-          >
-            <legend>Paragraph {paragraphIndex + 1}</legend>
-            {paragraph.map((line, lineIndex) => (
+        {editingTimeline
+          ? editingTimeline.map((paragraph, paragraphIndex) => (
               <fieldset
+                key={paragraphIndex}
                 style={{
-                  marginTop: '1rem',
+                  marginBottom: '2rem',
                 }}
-                key={`${paragraphIndex}-${lineIndex}`}
               >
-                <legend>Line {lineIndex + 1}</legend>
-                {line.map((word, wordIndex) => (
-                  <form
-                    key={`${paragraphIndex}-${lineIndex}-${wordIndex}`}
+                <legend>Paragraph {paragraphIndex + 1}</legend>
+                {paragraph.map((line, lineIndex) => (
+                  <fieldset
                     style={{
-                      display: 'grid',
-                      gap: '0.25rem',
-                      gridTemplateColumns: '4rem 1fr 4rem',
                       marginTop: '1rem',
                     }}
+                    key={`${paragraphIndex}-${lineIndex}`}
                   >
-                    <input
-                      type='number'
-                      min={0}
-                      max={lyric.duration}
-                      value={word.begin}
-                      onChange={(e) => {
-                        const newTimeline = [...editingTimeline];
-                        newTimeline[paragraphIndex][lineIndex][
-                          wordIndex
-                        ].begin = Number(e.target.value);
-                        setEditingTimeline(newTimeline);
-                        updateLyric();
-                      }}
-                    />
-                    <input
-                      key={wordIndex}
-                      type='text'
-                      value={word.text}
-                      onChange={(e) => {
-                        const newTimeline = [...editingTimeline];
-                        newTimeline[paragraphIndex][lineIndex][wordIndex] = {
-                          ...word,
-                          text: e.target.value,
-                        };
-                        setEditingTimeline(newTimeline);
-                        updateLyric();
-                      }}
-                    />
-                    <input
-                      type='number'
-                      min={0}
-                      max={lyric.duration}
-                      value={word.end}
-                      onChange={(e) => {
-                        const newTimeline = [...editingTimeline];
-                        newTimeline[paragraphIndex][lineIndex][wordIndex].end =
-                          Number(e.target.value);
-                        setEditingTimeline(newTimeline);
-                        updateLyric();
-                      }}
-                    />
-                  </form>
+                    <legend>Line {lineIndex + 1}</legend>
+                    {line.map((word, wordIndex) => (
+                      <form
+                        key={`${paragraphIndex}-${lineIndex}-${wordIndex}`}
+                        style={{
+                          display: 'grid',
+                          gap: '0.25rem',
+                          gridTemplateColumns: '4rem 1fr 4rem',
+                          marginTop: '1rem',
+                        }}
+                      >
+                        <input
+                          type='number'
+                          min={0}
+                          max={lyric.duration}
+                          value={word.begin}
+                          onChange={(e) => {
+                            const newTimeline = [...editingTimeline];
+                            newTimeline[paragraphIndex][lineIndex][
+                              wordIndex
+                            ].begin = Number(e.target.value);
+                            setEditingTimeline(newTimeline);
+                            updateLyric();
+                          }}
+                        />
+                        <input
+                          key={wordIndex}
+                          type='text'
+                          value={word.text}
+                          onChange={(e) => {
+                            const newTimeline = [...editingTimeline];
+                            newTimeline[paragraphIndex][lineIndex][wordIndex] =
+                              {
+                                ...word,
+                                text: e.target.value,
+                              };
+                            setEditingTimeline(newTimeline);
+                            updateLyric();
+                          }}
+                        />
+                        <input
+                          type='number'
+                          min={0}
+                          max={lyric.duration}
+                          value={word.end}
+                          onChange={(e) => {
+                            const newTimeline = [...editingTimeline];
+                            newTimeline[paragraphIndex][lineIndex][
+                              wordIndex
+                            ].end = Number(e.target.value);
+                            setEditingTimeline(newTimeline);
+                            updateLyric();
+                          }}
+                        />
+                      </form>
+                    ))}
+                  </fieldset>
                 ))}
               </fieldset>
-            ))}
-          </fieldset>
-        ))}
+            ))
+          : null}
       </div>
 
       <div>
