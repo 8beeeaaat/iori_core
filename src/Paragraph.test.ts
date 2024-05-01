@@ -4,8 +4,8 @@ import { Paragraph } from './Paragraph';
 describe('Paragraph', () => {
   let paragraph: Paragraph;
 
-  beforeEach(() => {
-    paragraph = new Paragraph({
+  beforeEach(async () => {
+    paragraph = await new Paragraph({
       lyricID: '1',
       position: 1,
       timelines: [
@@ -36,7 +36,7 @@ describe('Paragraph', () => {
           },
         ],
       ],
-    });
+    }).init();
   });
   describe('between duration', () => {
     it('should throw error for compare to own', () => {
@@ -44,8 +44,8 @@ describe('Paragraph', () => {
         'Can not compare between the same paragraph'
       );
     });
-    it('should return the duration between two paragraphs', () => {
-      const other = new Paragraph({
+    it('should return the duration between two paragraphs', async () => {
+      const other = await new Paragraph({
         lyricID: '1',
         position: 2,
         timelines: [
@@ -76,7 +76,7 @@ describe('Paragraph', () => {
             },
           ],
         ],
-      });
+      }).init();
 
       expect(paragraph.betweenDuration(other)).toBe(7);
 
@@ -144,14 +144,15 @@ describe('Paragraph', () => {
   });
 
   describe('duration', () => {
-    it('should throw error for paragraph with the same begin and end', () => {
-      expect(() =>
-        new Paragraph({
-          lyricID: '1',
-          position: 1,
-          timelines: [],
-        }).duration()
-      ).toThrow('Can not calculate duration of a invalid paragraph');
+    it('should throw error for paragraph with the same begin and end', async () => {
+      const paragraph = await new Paragraph({
+        lyricID: '1',
+        position: 1,
+        timelines: [],
+      }).init();
+      expect(() => paragraph.duration()).toThrow(
+        'Can not calculate duration of a invalid paragraph'
+      );
     });
     it('should return the duration of the line', () => {
       expect(paragraph.duration()).toBe(1.9);

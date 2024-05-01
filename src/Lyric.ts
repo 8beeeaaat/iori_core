@@ -1,5 +1,5 @@
 import { WordTimeline } from './Constants';
-import Line, { LineArgs } from './Line';
+import Line from './Line';
 import { Paragraph, ParagraphArgs } from './Paragraph';
 import { Word } from './Word';
 
@@ -8,7 +8,7 @@ export type LyricArgs = {
   resourceID: string;
   duration: number;
   timelines: ParagraphArgs['timelines'][];
-  tokenizer?: (lineArgs: LineArgs) => Map<number, LineArgs>;
+  tokenizer?: ParagraphArgs['tokenizer'];
   offsetSec?: number;
 };
 
@@ -18,6 +18,7 @@ export class Lyric {
   paragraphByPosition: Map<number, Paragraph>;
   duration: number;
   offsetSec: number;
+  _args: LyricArgs;
 
   constructor(props: LyricArgs) {
     this.id = props.initID ? `lyric-${crypto.randomUUID()}` : '';
@@ -25,26 +26,35 @@ export class Lyric {
     this.duration = Number(props.duration.toFixed(2));
     this.paragraphByPosition = new Map();
     this.offsetSec = props.offsetSec ?? 0;
-    this.init(props);
+    this._args = props;
   }
 
-  private init(props: LyricArgs) {
-    this.paragraphByPosition = props.timelines.reduce<Map<number, Paragraph>>(
+  public async init(): Promise<Lyric> {
+    const res = this._args.timelines.reduce<Array<Promise<Paragraph>>>(
       (acc, timelines, index) => {
         const position = index + 1;
-        acc.set(
+        const paragraph = new Paragraph({
+          lyricID: this.id,
           position,
-          new Paragraph({
-            lyricID: this.id,
-            position,
-            timelines,
-            tokenizer: props.tokenizer,
-          })
-        );
+          timelines,
+          tokenizer: this._args.tokenizer,
+        }).init();
+        acc.push(paragraph);
+        return acc;
+      },
+      []
+    );
+
+    const paragraphs = await Promise.all(res);
+    this.paragraphByPosition = paragraphs.reduce<Map<number, Paragraph>>(
+      (acc, paragraph) => {
+        acc.set(paragraph.position, paragraph);
         return acc;
       },
       this.paragraphByPosition
     );
+
+    return this;
   }
 
   public paragraphAt(position: number): Paragraph | undefined {
