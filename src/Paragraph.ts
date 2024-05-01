@@ -5,7 +5,7 @@ export type ParagraphArgs = {
   lyricID: string;
   position: number;
   timelines: LineArgs['timelines'][];
-  tokenizer?: (lineArgs: LineArgs) => Map<number, LineArgs>;
+  tokenizer?: (lineArgs: LineArgs) => Promise<Map<number, LineArgs>>;
 };
 
 export class Paragraph {
@@ -15,6 +15,7 @@ export class Paragraph {
   position: number;
   begin: number;
   end: number;
+  _args: ParagraphArgs;
 
   constructor(props: ParagraphArgs) {
     this.id = '';
@@ -23,46 +24,55 @@ export class Paragraph {
     this.begin = 0;
     this.end = 0;
     this.lineByPosition = new Map();
-
-    this.init(props);
+    this._args = props;
   }
 
-  private init(props: ParagraphArgs) {
+  public async init(): Promise<Paragraph> {
     this.id = `paragraph-${crypto.randomUUID()}`;
 
-    this.lineByPosition = props.timelines.reduce<Map<number, Line>>(
-      (acc, timelines, index) => {
-        const position = index + 1;
-        if (props.tokenizer) {
-          const result = props.tokenizer({ position, timelines });
-          Array.from(result).forEach(([, args]) => {
-            const lastLine = acc.get(acc.size);
-            const position = lastLine ? lastLine.position + 1 : acc.size + 1;
-            acc.set(
-              position,
-              new Line({
+    const res = this._args.timelines.reduce<
+      Array<Promise<Map<number, LineArgs>>>
+    >((acc, timelines, index) => {
+      const position = index + 1;
+      if (this._args.tokenizer) {
+        const tokenizer = this._args.tokenizer({ position, timelines });
+        acc.push(tokenizer);
+        return acc;
+      }
+      acc.push(
+        new Promise((resolve) => {
+          resolve(
+            new Map([
+              [
                 position,
-                timelines: args.timelines,
-              })
-            );
-          });
-          return acc;
-        }
+                {
+                  position,
+                  timelines,
+                },
+              ],
+            ])
+          );
+        })
+      );
+      return acc;
+    }, []);
 
+    const lineArgs = await Promise.all(res);
+    this.lineByPosition = lineArgs.reduce<Map<number, Line>>((acc, lineArg) => {
+      lineArg.forEach((lineArg) => {
         acc.set(
-          position,
+          lineArg.position,
           new Line({
-            position,
-            timelines,
+            ...lineArg,
           })
         );
-        return acc;
-      },
-      this.lineByPosition
-    );
+      });
+      return acc;
+    }, this.lineByPosition);
 
     this.begin = this.lineByPosition.get(1)?.begin || 0;
     this.end = this.lineByPosition.get(this.lineByPosition.size)?.end || 0;
+    return this;
   }
 
   public betweenDuration(c: Paragraph): number {
