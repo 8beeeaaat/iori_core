@@ -29,30 +29,32 @@ export class Lyric {
     this._args = props;
   }
 
-  public async init(): Promise<Lyric> {
-    const res = this._args.timelines.reduce<Array<Promise<Paragraph>>>(
-      (acc, timelines, index) => {
-        const position = index + 1;
-        const paragraph = new Paragraph({
+  public async init() {
+    const paragraphByPosition = this._args.timelines.reduce<
+      Map<number, Paragraph>
+    >((acc, timelines, index) => {
+      const position = index + 1;
+      acc.set(
+        position,
+        new Paragraph({
           lyricID: this.id,
           position,
           timelines,
           tokenizer: this._args.tokenizer,
-        }).init();
-        acc.push(paragraph);
-        return acc;
-      },
-      []
-    );
+        })
+      );
+      return acc;
+    }, new Map());
 
-    const paragraphs = await Promise.all(res);
-    this.paragraphByPosition = paragraphs.reduce<Map<number, Paragraph>>(
-      (acc, paragraph) => {
-        acc.set(paragraph.position, paragraph);
-        return acc;
-      },
-      this.paragraphByPosition
+    const paragraphs = await Promise.all(
+      Array.from(paragraphByPosition.values()).map((paragraph) => {
+        return paragraph.init();
+      })
     );
+    this.paragraphByPosition = paragraphs.reduce((acc, paragraph) => {
+      acc.set(paragraph.position, paragraph);
+      return acc;
+    }, new Map());
 
     return this;
   }

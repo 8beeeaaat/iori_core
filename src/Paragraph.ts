@@ -27,18 +27,19 @@ export class Paragraph {
     this._args = props;
   }
 
-  public async init(): Promise<Paragraph> {
+  public async init() {
     this.id = `paragraph-${crypto.randomUUID()}`;
 
-    const res = this._args.timelines.reduce<
+    const lineByPosition = this._args.timelines.reduce<
       Array<Promise<Map<number, LineArgs>>>
     >((acc, timelines, index) => {
       const position = index + 1;
       if (this._args.tokenizer) {
-        const tokenizer = this._args.tokenizer({ position, timelines });
-        acc.push(tokenizer);
+        const result = this._args.tokenizer({ position, timelines });
+        acc.push(result);
         return acc;
       }
+
       acc.push(
         new Promise((resolve) => {
           resolve(
@@ -57,18 +58,25 @@ export class Paragraph {
       return acc;
     }, []);
 
-    const lineArgs = await Promise.all(res);
-    this.lineByPosition = lineArgs.reduce<Map<number, Line>>((acc, lineArg) => {
-      lineArg.forEach((lineArg) => {
-        acc.set(
-          lineArg.position,
-          new Line({
-            ...lineArg,
-          })
-        );
-      });
-      return acc;
-    }, this.lineByPosition);
+    const resolved = await Promise.all(lineByPosition);
+
+    this.lineByPosition = resolved.reduce<Map<number, Line>>(
+      (acc, lineByPosition) => {
+        Array.from(lineByPosition).forEach(([, args]) => {
+          const lastLine = acc.get(acc.size);
+          const position = lastLine ? lastLine.position + 1 : acc.size + 1;
+          acc.set(
+            position,
+            new Line({
+              position,
+              timelines: args.timelines,
+            })
+          );
+        });
+        return acc;
+      },
+      new Map()
+    );
 
     this.begin = this.lineByPosition.get(1)?.begin || 0;
     this.end = this.lineByPosition.get(this.lineByPosition.size)?.end || 0;
