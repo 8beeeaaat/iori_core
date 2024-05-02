@@ -50,7 +50,7 @@ export class Word {
 
   public betweenDuration(c: Word): number {
     if (this.id === c.id) {
-      throw new Error('Can not compare between the same word');
+      throw new Error(`Can not compare between the same word: ${this.id}`);
     }
     return c.timeline.begin > this.timeline.end
       ? c.timeline.begin - this.timeline.end
@@ -67,7 +67,9 @@ export class Word {
 
   public duration(): number {
     if (this.timeline.begin >= this.timeline.end) {
-      throw new Error('Can not calculate duration of a invalid word');
+      throw new Error(
+        `Can not calculate duration of a invalid word: ${this.id} ${this.timeline.begin}-${this.timeline.end}`
+      );
     }
     return this.timeline.end - this.timeline.begin;
   }
