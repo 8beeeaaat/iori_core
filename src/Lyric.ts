@@ -5,6 +5,7 @@ import { Word } from './Word';
 
 export type LyricArgs = {
   initID?: boolean;
+  id?: string;
   resourceID: string;
   duration: number;
   timelines: ParagraphArgs['timelines'][];
@@ -21,7 +22,11 @@ export class Lyric {
   _args: LyricArgs;
 
   constructor(props: LyricArgs) {
-    this.id = props.initID ? `lyric-${crypto.randomUUID()}` : '';
+    this.id = props.id
+      ? props.id
+      : props.initID
+      ? `lyric-${crypto.randomUUID()}`
+      : '';
     this.resourceID = props.resourceID;
     this.duration = Number(props.duration.toFixed(2));
     this.paragraphByPosition = new Map();
