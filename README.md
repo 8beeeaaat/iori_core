@@ -5,7 +5,7 @@ For specific features and usage, please refer to the documentation of each modul
 
 ## Example
 
-`cd ./example && npm run dev`
+`npm install && npm run dev`
 
 <img alt="demo" src="./example/demo.png" width="800" />
 

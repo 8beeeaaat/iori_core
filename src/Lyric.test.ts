@@ -93,29 +93,37 @@ describe('Lyric', () => {
         [
           [
             {
+              wordID: lyric.currentWord(0.6)!.id,
               begin: 0.5,
               end: 1,
               text: 'foo',
+              hasNewLine: false,
               hasWhitespace: true,
             },
             {
+              wordID: lyric.currentWord(1.1)!.id,
               begin: 1,
               end: 1.5,
               text: 'bar',
+              hasNewLine: false,
               hasWhitespace: false,
             },
           ],
           [
             {
+              wordID: lyric.currentWord(2.1)!.id,
               begin: 2,
               end: 2.5,
               text: 'an',
+              hasNewLine: false,
               hasWhitespace: true,
             },
             {
+              wordID: lyric.currentWord(2.6)!.id,
               begin: 2.5,
               end: 3,
               text: 'apple',
+              hasNewLine: false,
               hasWhitespace: false,
             },
           ],
@@ -127,6 +135,7 @@ describe('Lyric', () => {
       expect(lyric.timelinesByLine()).toStrictEqual([
         [
           {
+            wordID: lyric.currentWord(0.6)!.id,
             begin: 0.5,
             end: 1.5,
             text: 'foo bar',
@@ -134,12 +143,82 @@ describe('Lyric', () => {
             hasNewLine: false,
           },
           {
+            wordID: lyric.currentWord(2.1)!.id,
             begin: 2,
             end: 3,
             text: 'an apple',
             hasWhitespace: false,
             hasNewLine: false,
           },
+        ],
+      ]);
+    });
+  });
+
+  describe('update timelines', () => {
+    it('should update the timelines', async () => {
+      const currentWords = lyric.words();
+      await lyric.update({
+        timelines: [
+          [
+            [
+              {
+                wordID: currentWords[0].id,
+                begin: 0.5,
+                end: 1,
+                text: '1',
+                hasWhitespace: true,
+              },
+              {
+                wordID: currentWords[1].id,
+                begin: 1,
+                end: 1.5,
+                text: '2',
+              },
+            ],
+            [
+              {
+                wordID: currentWords[2].id,
+                begin: 2,
+                end: 2.5,
+                text: '3',
+                hasWhitespace: true,
+              },
+            ],
+          ],
+        ],
+      });
+
+      expect(lyric.timelines()).toStrictEqual([
+        [
+          [
+            {
+              wordID: currentWords[0].id,
+              begin: 0.5,
+              end: 1,
+              text: '1',
+              hasNewLine: false,
+              hasWhitespace: true,
+            },
+            {
+              wordID: currentWords[1].id,
+              begin: 1,
+              end: 1.5,
+              text: '2',
+              hasNewLine: false,
+              hasWhitespace: false,
+            },
+          ],
+          [
+            {
+              wordID: currentWords[2].id,
+              begin: 2,
+              end: 2.5,
+              text: '3',
+              hasNewLine: false,
+              hasWhitespace: true,
+            },
+          ],
         ],
       ]);
     });

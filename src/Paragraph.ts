@@ -1,11 +1,21 @@
-import Line, { LineArgs } from './Line';
+import Line, { LineCreateArgs, LineUpdateArgs } from './Line';
 import { Word } from './Word';
 
-export type ParagraphArgs = {
+export type ParagraphCreateArgs = {
   lyricID: string;
   position: number;
-  timelines: LineArgs['timelines'][];
-  tokenizer?: (lineArgs: LineArgs) => Promise<Map<number, LineArgs>>;
+  timelines: LineCreateArgs['timelines'][];
+  tokenizer?: (
+    lineArgs: LineCreateArgs
+  ) => Promise<Map<number, LineCreateArgs>>;
+};
+
+export type ParagraphUpdateArgs = {
+  position: number;
+  timelines: LineUpdateArgs['timelines'][];
+  tokenizer?: (
+    lineArgs: LineUpdateArgs
+  ) => Promise<Map<number, LineUpdateArgs>>;
 };
 
 export class Paragraph {
@@ -13,16 +23,12 @@ export class Paragraph {
   lyricID: string;
   lineByPosition: Map<number, Line>;
   position: number;
-  begin: number;
-  end: number;
-  _args: ParagraphArgs;
+  _args: ParagraphCreateArgs;
 
-  constructor(props: ParagraphArgs) {
+  constructor(props: ParagraphCreateArgs) {
     this.id = '';
     this.lyricID = props.lyricID;
     this.position = props.position;
-    this.begin = 0;
-    this.end = 0;
     this.lineByPosition = new Map();
     this._args = props;
   }
@@ -30,8 +36,8 @@ export class Paragraph {
   public async init() {
     this.id = `paragraph-${crypto.randomUUID()}`;
 
-    const lineByPosition = this._args.timelines.reduce<
-      Array<Promise<Map<number, LineArgs>>>
+    const lineCreateArgsByPosition = this._args.timelines.reduce<
+      Array<Promise<Map<number, LineCreateArgs>>>
     >((acc, timelines, index) => {
       const position = index + 1;
       if (this._args.tokenizer) {
@@ -47,6 +53,7 @@ export class Paragraph {
               [
                 position,
                 {
+                  jointNearWord: true,
                   position,
                   timelines,
                 },
@@ -58,7 +65,7 @@ export class Paragraph {
       return acc;
     }, []);
 
-    const resolved = await Promise.all(lineByPosition);
+    const resolved = await Promise.all(lineCreateArgsByPosition);
 
     this.lineByPosition = resolved.reduce<Map<number, Line>>(
       (acc, lineByPosition) => {
@@ -68,8 +75,8 @@ export class Paragraph {
           acc.set(
             position,
             new Line({
+              ...args,
               position,
-              timelines: args.timelines,
             })
           );
         });
@@ -78,16 +85,84 @@ export class Paragraph {
       new Map()
     );
 
-    this.begin = this.lineByPosition.get(1)?.begin || 0;
-    this.end = this.lineByPosition.get(this.lineByPosition.size)?.end || 0;
     return this;
+  }
+
+  public async update(props: ParagraphUpdateArgs) {
+    this.position = props.position;
+
+    const lineUpdateCreateArgsByPosition = props.timelines.reduce<
+      Array<Promise<Map<number, LineUpdateArgs>>>
+    >((acc, timelines, index) => {
+      const position = index + 1;
+      if (props.tokenizer) {
+        const result = props.tokenizer({ position, timelines });
+        acc.push(result);
+        return acc;
+      }
+
+      acc.push(
+        new Promise((resolve) => {
+          resolve(
+            new Map([
+              [
+                position,
+                {
+                  jointNearWord: true,
+                  position,
+                  timelines,
+                },
+              ],
+            ])
+          );
+        })
+      );
+      return acc;
+    }, []);
+
+    const resolved = await Promise.all(lineUpdateCreateArgsByPosition);
+
+    this.lineByPosition = resolved.reduce<Map<number, Line>>(
+      (acc, lineByPosition) => {
+        Array.from(lineByPosition).forEach(([, args]) => {
+          const lastLine = acc.get(acc.size);
+          const position = lastLine ? lastLine.position + 1 : acc.size + 1;
+          const currentLine = this.lineByPosition.get(position);
+          if (!currentLine) {
+            acc.set(
+              position,
+              new Line({
+                ...args,
+                position,
+              })
+            );
+            return;
+          }
+          acc.set(position, currentLine.update(args));
+        });
+        return acc;
+      },
+      new Map()
+    );
+
+    return this;
+  }
+
+  public begin(): number {
+    return this.lineByPosition.get(1)?.begin() || 0;
+  }
+
+  public end(): number {
+    return this.lineByPosition.get(this.lineByPosition.size)?.end() || 0;
   }
 
   public betweenDuration(c: Paragraph): number {
     if (this.id === c.id) {
       throw new Error('Can not compare between the same paragraph');
     }
-    return c.begin > this.end ? c.begin - this.end : this.begin - c.end;
+    return c.begin() > this.end()
+      ? c.begin() - this.end()
+      : this.begin() - c.end();
   }
 
   public currentLine(
@@ -97,15 +172,14 @@ export class Paragraph {
       equal?: boolean;
     } = {
       offset: 0,
-      equal: false,
+      equal: true,
     }
   ): Line | undefined {
-    const offset = options.offset || 0;
-    return Array.from(this.lineByPosition.values()).find((line) =>
-      options.equal
-        ? line.begin <= now + offset && now + offset <= line.end
-        : line.begin < now + offset && now + offset < line.end
-    );
+    const offset = options.offset ?? 0;
+    const equal = options.equal ?? true;
+    return Array.from(this.lineByPosition.values())
+      .sort((a, b) => a.begin() - b.begin())
+      .find((line) => line.isCurrent(now, { offset, equal }));
   }
 
   public currentLines(
@@ -115,15 +189,14 @@ export class Paragraph {
       equal?: boolean;
     } = {
       offset: 0,
-      equal: false,
+      equal: true,
     }
   ): Line[] {
-    const offset = options.offset || 0;
-    return Array.from(this.lineByPosition.values()).filter((line) =>
-      options.equal
-        ? line.begin <= now + offset && now + offset <= line.end
-        : line.begin < now + offset && now + offset < line.end
-    );
+    const offset = options.offset ?? 0;
+    const equal = options.equal ?? true;
+    return Array.from(this.lineByPosition.values())
+      .sort((a, b) => a.begin() - b.begin())
+      .filter((line) => line.isCurrent(now, { offset, equal }));
   }
 
   public lineAt(position: number): Line | undefined {
@@ -154,10 +227,10 @@ export class Paragraph {
   }
 
   public duration(): number {
-    if (this.begin >= this.end) {
+    if (this.begin() >= this.end()) {
       throw new Error('Can not calculate duration of a invalid paragraph');
     }
-    return this.end - this.begin;
+    return this.end() - this.begin();
   }
 
   public voids(): { begin: number; end: number; duration: number }[] {
@@ -168,28 +241,26 @@ export class Paragraph {
         const isFirstWord = index === 0;
         const isLastWord = index === words.length - 1;
 
-        if (isFirstWord && word.timeline.begin > this.begin) {
+        if (isFirstWord && word.begin() > this.begin()) {
           acc.push({
-            begin: this.begin,
-            end: word.timeline.begin,
-            duration: Number(word.timeline.begin.toFixed(2)),
+            begin: this.begin(),
+            end: word.begin(),
+            duration: Number(word.begin().toFixed(2)),
           });
         }
-        if (isLastWord && this.end - word.timeline.end > 0) {
+        if (isLastWord && this.end() - word.end() > 0) {
           acc.push({
-            begin: word.timeline.end,
-            end: this.end,
-            duration: Number((this.end - word.timeline.end).toFixed(2)),
+            begin: word.end(),
+            end: this.end(),
+            duration: Number((this.end() - word.end()).toFixed(2)),
           });
         }
         const prevWord = words[index - 1];
-        if (prevWord && word.timeline.begin - prevWord.timeline.end > 0) {
+        if (prevWord && word.begin() - prevWord.end() > 0) {
           acc.push({
-            begin: prevWord.timeline.end,
-            end: word.timeline.begin,
-            duration: Number(
-              (word.timeline.begin - prevWord.timeline.end).toFixed(2)
-            ),
+            begin: prevWord.end(),
+            end: word.begin(),
+            duration: Number((word.begin() - prevWord.end()).toFixed(2)),
           });
         }
 

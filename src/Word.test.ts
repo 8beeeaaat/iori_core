@@ -15,6 +15,28 @@ describe('Word', () => {
       },
     });
   });
+
+  describe('update', () => {
+    it('should return the updated word', () => {
+      const updated = word.update({
+        position: 2,
+        timeline: {
+          wordID: '1',
+          begin: 1,
+          end: 2,
+          text: '123',
+        },
+      });
+      expect(updated.id).toStrictEqual(word.id);
+      expect(updated.timeline).toStrictEqual({
+        wordID: '1',
+        begin: 1,
+        end: 2,
+        text: '123',
+      });
+    });
+  });
+
   describe('between duration', () => {
     it('should throw error for compare to own', () => {
       expect(() => word.betweenDuration(word)).toThrow(
@@ -82,6 +104,143 @@ describe('Word', () => {
   describe('text', () => {
     it('should return the text of the word', () => {
       expect(word.text()).toBe('abcd');
+    });
+  });
+
+  describe('currentChar', () => {
+    it('should return the Word of "a"', () => {
+      expect(word.currentChar(0.2)?.text).toBe('a');
+    });
+
+    it('should return last matched current word', () => {
+      expect(word.currentChar(0.3)?.text).toBe('b');
+    });
+
+    it('should return undefined, because not found', () => {
+      expect(word.currentChar(1.1)).toBeUndefined();
+    });
+
+    it('should return undefined, because not equal', () => {
+      expect(word.currentChar(1, { equal: false })).toBeUndefined();
+    });
+
+    it('should return the Word of "b"', () => {
+      expect(word.currentChar(0.3, { offset: 0.01 })?.text).toBe('b');
+      expect(word.currentChar(0.3, { equal: true })?.text).toBe('b');
+    });
+  });
+
+  describe('currentChars', () => {
+    it('should return the Word of "a"', () => {
+      const chars = word.currentChars(0.2);
+      expect(chars.length).toBe(1);
+      expect(chars[0].text).toBe('a');
+    });
+
+    it('should return undefined, because not found', () => {
+      const chars = word.currentChars(1.2);
+      expect(chars.length).toBe(0);
+    });
+
+    it('should return undefined, because not equal', () => {
+      const chars = word.currentChars(1, {
+        equal: false,
+      });
+      expect(chars.length).toBe(0);
+    });
+
+    it('should return the Word of "b"', () => {
+      let chars = word.currentChars(0.3, { offset: 0.01 });
+      expect(chars.length).toBe(1);
+      expect(chars[0].text).toBe('b');
+
+      chars = word.currentChars(0.3, { equal: true });
+      expect(chars.length).toBe(1);
+      expect(chars[0].text).toBe('b');
+    });
+  });
+
+  describe('is current word', () => {
+    const otherWord = new Word({
+      lineID: '1',
+      position: 1,
+      timeline: {
+        begin: 1,
+        end: 2,
+        text: '',
+      },
+    });
+
+    it('should return true for current word', () => {
+      expect(word.isCurrent(0)).true;
+      expect(word.isCurrent(1)).true;
+      expect(word.isCurrent(2)).false;
+
+      expect(otherWord.isCurrent(0)).false;
+      expect(otherWord.isCurrent(1)).true;
+      expect(otherWord.isCurrent(2)).true;
+    });
+
+    it('offset option', () => {
+      expect(
+        word.isCurrent(0, {
+          offset: 1,
+        })
+      ).true;
+      expect(
+        word.isCurrent(1, {
+          offset: 1,
+        })
+      ).false;
+      expect(
+        word.isCurrent(2, {
+          offset: 1,
+        })
+      ).false;
+
+      expect(
+        otherWord.isCurrent(0, {
+          offset: -1,
+        })
+      ).false;
+      expect(
+        otherWord.isCurrent(1, {
+          offset: -1,
+        })
+      ).false;
+      expect(
+        otherWord.isCurrent(2, {
+          offset: -1,
+        })
+      ).true;
+    });
+
+    it('equal option', () => {
+      expect(
+        word.isCurrent(0, {
+          equal: false,
+        })
+      ).false;
+
+      expect(
+        word.isCurrent(0.1, {
+          equal: false,
+        })
+      ).true;
+
+      expect(
+        word.isCurrent(0, {
+          offset: 1,
+          equal: false,
+        })
+      ).false;
+
+      expect(
+        word.isCurrent(0.1, {
+          offset: 1,
+          equal: false,
+        })
+      ).false;
     });
   });
 });

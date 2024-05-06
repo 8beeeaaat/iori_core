@@ -1,15 +1,26 @@
 import { WordTimeline } from './Constants';
 import Line from './Line';
-import { Paragraph, ParagraphArgs } from './Paragraph';
+import {
+  Paragraph,
+  ParagraphCreateArgs,
+  ParagraphUpdateArgs,
+} from './Paragraph';
 import { Word } from './Word';
 
-export type LyricArgs = {
+export type LyricCreateArgs = {
   initID?: boolean;
   id?: string;
   resourceID: string;
   duration: number;
-  timelines: ParagraphArgs['timelines'][];
-  tokenizer?: ParagraphArgs['tokenizer'];
+  timelines: ParagraphCreateArgs['timelines'][];
+  tokenizer?: ParagraphCreateArgs['tokenizer'];
+  offsetSec?: number;
+};
+
+export type LyricUpdateArgs = {
+  resourceID?: string;
+  duration?: number;
+  timelines?: ParagraphUpdateArgs['timelines'][];
   offsetSec?: number;
 };
 
@@ -19,14 +30,14 @@ export class Lyric {
   paragraphByPosition: Map<number, Paragraph>;
   duration: number;
   offsetSec: number;
-  _args: LyricArgs;
+  _args: LyricCreateArgs;
 
-  constructor(props: LyricArgs) {
+  constructor(props: LyricCreateArgs) {
     this.id = props.id
       ? props.id
       : props.initID
-      ? `lyric-${crypto.randomUUID()}`
-      : '';
+        ? `lyric-${crypto.randomUUID()}`
+        : '';
     this.resourceID = props.resourceID;
     this.duration = Number(props.duration.toFixed(2));
     this.paragraphByPosition = new Map();
@@ -64,6 +75,33 @@ export class Lyric {
     return this;
   }
 
+  public async update(props: LyricUpdateArgs): Promise<Lyric> {
+    this.resourceID = props.resourceID || this.resourceID;
+    this.duration = props.duration
+      ? Number(props.duration.toFixed(2))
+      : this.duration;
+    this.offsetSec =
+      (props.offsetSec || 0) !== this.offsetSec
+        ? props.offsetSec || 0
+        : this.offsetSec;
+
+    if (props.timelines === undefined) {
+      return this;
+    }
+
+    await Promise.all(
+      Array.from(this.paragraphByPosition.values()).map(async (paragraph) => {
+        const updatedParagraph = await paragraph.update({
+          position: paragraph.position,
+          timelines: props.timelines![paragraph.position - 1],
+        });
+        this.paragraphByPosition.set(paragraph.position, updatedParagraph);
+      })
+    );
+
+    return this
+  }
+
   public paragraphAt(position: number): Paragraph | undefined {
     return this.paragraphByPosition.get(position);
   }
@@ -98,70 +136,184 @@ export class Lyric {
 
   public paragraphs(): Paragraph[] {
     return Array.from(this.paragraphByPosition.values()).sort(
-      (a, b) => a.begin - b.begin
+      (a, b) => a.begin() - b.begin()
     );
   }
 
   public lines(): Line[] {
     return this.paragraphs()
       .flatMap((paragraph) => Array.from(paragraph.lineByPosition.values()))
-      .sort((a, b) => a.begin - b.begin);
+      .sort((a, b) => a.begin() - b.begin());
   }
 
-  public currentParagraph(now: number, equal = false) {
+  public currentParagraph(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+        offset: this.offsetSec,
+        equal: true,
+      }
+  ) {
+    const offset = options.offset ?? this.offsetSec;
+    const equal = options.equal ?? true;
+
     return this.paragraphs().find((paragraph) => {
       return equal
-        ? paragraph.begin <= now + this.offsetSec &&
-            now + this.offsetSec <= paragraph.end
-        : paragraph.begin < now + this.offsetSec &&
-            now + this.offsetSec < paragraph.end;
+        ? paragraph.begin() <= now + offset && now + offset <= paragraph.end()
+        : paragraph.begin() < now + offset && now + offset < paragraph.end();
     });
   }
 
-  public currentLine(now: number, equal = false) {
-    return this.currentParagraph(now, equal)?.currentLine(now, {
-      offset: this.offsetSec,
+  public currentLine(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+        offset: this.offsetSec,
+        equal: true,
+      }
+  ) {
+    const offset = options.offset ?? this.offsetSec;
+    const equal = options.equal ?? true;
+    return this.currentParagraph(now, {
+      offset,
+      equal,
+    })?.currentLine(now, {
+      offset,
       equal,
     });
   }
 
-  public nextParagraph(now: number) {
-    return this.paragraphs().find((p) => p.begin > now + this.offsetSec);
-  }
+  public currentWord(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+        offset: this.offsetSec,
+        equal: true,
+      }
+  ) {
+    const offset = options.offset ?? this.offsetSec;
+    const equal = options.equal ?? true;
 
-  public nextLine(now: number) {
-    return this.lines().find((p) => p.begin > now + this.offsetSec);
-  }
-
-  public prevParagraph(now: number) {
-    return this.paragraphs()
-      .reverse()
-      .find((p) => p.end < now + this.offsetSec);
-  }
-
-  public prevLine(now: number) {
-    return this.lines()
-      .reverse()
-      .find((p) => p.end < now + this.offsetSec);
-  }
-
-  public currentWord(now: number, equal = false) {
-    return this.currentLine(now, equal)?.currentWord(now, {
+    return this.currentLine(now, {
+      offset,
       equal,
-      offset: this.offsetSec,
+    })?.currentWord(now, {
+      equal,
+      offset,
     });
   }
 
-  public nextWord(now: number) {
+  public currentChar(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+        offset: this.offsetSec,
+        equal: true,
+      }
+  ) {
+    const offset = options.offset ?? this.offsetSec;
+    const equal = options.equal ?? true;
+
+    return this.currentLine(now, {
+      offset,
+      equal,
+    })
+      ?.currentWord(now, {
+        equal,
+        offset,
+      })
+      ?.currentChar(now, {
+        equal,
+        offset,
+      });
+  }
+
+  public nextParagraph(
+    now: number,
+    options: {
+      offset?: number;
+    } = {
+        offset: this.offsetSec,
+      }
+  ) {
+    const offset = options.offset ?? 0;
+    return this.paragraphs().find((p) => p.begin() > now + offset);
+  }
+
+  public nextLine(
+    now: number,
+    options: {
+      offset?: number;
+    } = {
+        offset: this.offsetSec,
+      }
+  ) {
+    const offset = options.offset ?? 0;
+    return this.lines().find((p) => p.begin() > now + offset);
+  }
+
+  public nextWord(
+    now: number,
+    options: {
+      offset?: number;
+    } = {
+        offset: this.offsetSec,
+      }
+  ) {
+    const offset = options.offset ?? 0;
     return (
-      this.currentLine(now)?.nextWord(now, { offset: this.offsetSec }) ||
+      this.currentLine(now)?.nextWord(now, { offset }) ||
       this.nextLine(now)?.firstWord()
     );
   }
 
-  public prevWord(now: number) {
+  public prevParagraph(
+    now: number,
+    options: {
+      offset?: number;
+    } = {
+        offset: this.offsetSec,
+      }
+  ) {
+    const offset = options.offset ?? 0;
+    return this.paragraphs()
+      .reverse()
+      .find((p) => p.end() < now + offset);
+  }
+
+  public prevLine(
+    now: number,
+    options: {
+      offset?: number;
+    } = {
+        offset: this.offsetSec,
+      }
+  ) {
+    const offset = options.offset ?? 0;
+    return this.lines()
+      .reverse()
+      .find((p) => p.end() < now + offset);
+  }
+
+  public prevWord(
+    now: number,
+    options: {
+      offset?: number;
+    } = {
+        offset: this.offsetSec,
+      }
+  ) {
+    const offset = options.offset ?? 0;
     return (
-      this.currentLine(now)?.prevWord(now, { offset: this.offsetSec }) ||
+      this.currentLine(now)?.prevWord(now, { offset }) ||
       this.prevLine(now)?.lastWord()
     );
   }
@@ -243,13 +395,21 @@ export class Lyric {
   public timelinesByLine(): WordTimeline[][] {
     return Array.from(this.paragraphByPosition.values()).map((paragraph) => {
       return Array.from(paragraph.lineByPosition.values()).map((line) => {
+        const firstWord = line.wordByPosition.get(1);
+        if (!firstWord) {
+          throw new Error('firstWord is undefined');
+        }
         const lastWord = line.wordByPosition.get(line.wordByPosition.size);
+        if (!lastWord) {
+          throw new Error('lastWord is undefined');
+        }
         return {
-          begin: line.wordByPosition.get(1)?.timeline.begin || 0,
-          end: lastWord?.timeline.end || 0,
+          wordID: firstWord.id,
+          begin: firstWord.timeline.begin,
+          end: lastWord.timeline.end,
           text: line.text(),
-          hasNewLine: lastWord?.timeline.hasNewLine || false,
-          hasWhitespace: lastWord?.timeline.hasWhitespace || false,
+          hasNewLine: lastWord.timeline.hasNewLine,
+          hasWhitespace: lastWord.timeline.hasWhitespace,
         };
       });
     });
