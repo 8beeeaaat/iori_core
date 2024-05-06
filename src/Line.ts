@@ -126,9 +126,9 @@ export class Line {
     return this.words()
       .map(
         (word) =>
-          `${word.text()}${
-            word.timeline.hasWhitespace && !word.timeline.hasNewLine ? ' ' : ''
-          }${word.timeline.hasNewLine ? `\n` : ''}`
+          `${word.text()}${word.timeline.hasWhitespace ? ' ' : ''}${
+            word.timeline.hasNewLine ? `\n` : ''
+          }`
       )
       .join('');
   }

@@ -234,10 +234,23 @@ export class Lyric {
     return Array.from(this.paragraphByPosition.values()).map((paragraph) => {
       return Array.from(paragraph.lineByPosition.values()).map((line) => {
         return Array.from(line.wordByPosition.values()).map((word) => {
-          return {
-            ...word.timeline,
-          };
+          return word.timeline;
         });
+      });
+    });
+  }
+
+  public timelinesByLine(): WordTimeline[][] {
+    return Array.from(this.paragraphByPosition.values()).map((paragraph) => {
+      return Array.from(paragraph.lineByPosition.values()).map((line) => {
+        const lastWord = line.wordByPosition.get(line.wordByPosition.size);
+        return {
+          begin: line.wordByPosition.get(1)?.timeline.begin || 0,
+          end: lastWord?.timeline.end || 0,
+          text: line.text(),
+          hasNewLine: lastWord?.timeline.hasNewLine || false,
+          hasWhitespace: lastWord?.timeline.hasWhitespace || false,
+        };
       });
     });
   }

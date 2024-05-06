@@ -86,4 +86,62 @@ describe('Lyric', () => {
       expect(lyric.isVoid(1)).toBe(false);
     });
   });
+
+  describe('timelines', () => {
+    it('should return the timelines by word', () => {
+      expect(lyric.timelines()).toStrictEqual([
+        [
+          [
+            {
+              begin: 0.5,
+              end: 1,
+              text: 'foo',
+              hasWhitespace: true,
+            },
+            {
+              begin: 1,
+              end: 1.5,
+              text: 'bar',
+              hasWhitespace: false,
+            },
+          ],
+          [
+            {
+              begin: 2,
+              end: 2.5,
+              text: 'an',
+              hasWhitespace: true,
+            },
+            {
+              begin: 2.5,
+              end: 3,
+              text: 'apple',
+              hasWhitespace: false,
+            },
+          ],
+        ],
+      ]);
+    });
+
+    it('should return the timelines by line', () => {
+      expect(lyric.timelinesByLine()).toStrictEqual([
+        [
+          {
+            begin: 0.5,
+            end: 1.5,
+            text: 'foo bar',
+            hasWhitespace: false,
+            hasNewLine: false,
+          },
+          {
+            begin: 2,
+            end: 3,
+            text: 'an apple',
+            hasWhitespace: false,
+            hasNewLine: false,
+          },
+        ],
+      ]);
+    });
+  });
 });
