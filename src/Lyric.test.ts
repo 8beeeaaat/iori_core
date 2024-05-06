@@ -6,6 +6,7 @@ describe('Lyric', () => {
 
   beforeEach(async () => {
     lyric = await new Lyric({
+      id: 'lyric1',
       duration: 10,
       timelines: [
         [
@@ -39,6 +40,14 @@ describe('Lyric', () => {
       ],
       resourceID: 'lyric1',
     }).init();
+  });
+
+  describe('constructor', () => {
+    it('should create a new Lyric', () => {
+      expect(lyric.id).toBe('lyric1');
+      expect(lyric.duration).toBe(10);
+      expect(lyric.offsetSec).toBe(0);
+    });
   });
 
   describe('paragraphAt', () => {
