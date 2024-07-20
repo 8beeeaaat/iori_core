@@ -172,13 +172,13 @@ describe('Word', () => {
     });
 
     it('should return true for current word', () => {
-      expect(word.isCurrent(0)).true;
-      expect(word.isCurrent(1)).true;
-      expect(word.isCurrent(2)).false;
+      expect(word.isCurrent(0)).toBe(true);
+      expect(word.isCurrent(1)).toBe(true);
+      expect(word.isCurrent(2)).toBe(false);
 
-      expect(otherWord.isCurrent(0)).false;
-      expect(otherWord.isCurrent(1)).true;
-      expect(otherWord.isCurrent(2)).true;
+      expect(otherWord.isCurrent(0)).toBe(false);
+      expect(otherWord.isCurrent(1)).toBe(true);
+      expect(otherWord.isCurrent(2)).toBe(true);
     });
 
     it('offset option', () => {
@@ -186,33 +186,33 @@ describe('Word', () => {
         word.isCurrent(0, {
           offset: 1,
         })
-      ).true;
+      ).toBe(true);
       expect(
         word.isCurrent(1, {
           offset: 1,
         })
-      ).false;
+      ).toBe(false);
       expect(
         word.isCurrent(2, {
           offset: 1,
         })
-      ).false;
+      ).toBe(false);
 
       expect(
         otherWord.isCurrent(0, {
           offset: -1,
         })
-      ).false;
+      ).toBe(false);
       expect(
         otherWord.isCurrent(1, {
           offset: -1,
         })
-      ).false;
+      ).toBe(false);
       expect(
         otherWord.isCurrent(2, {
           offset: -1,
         })
-      ).true;
+      ).toBe(true);
     });
 
     it('equal option', () => {
@@ -220,27 +220,27 @@ describe('Word', () => {
         word.isCurrent(0, {
           equal: false,
         })
-      ).false;
+      ).toBe(false);
 
       expect(
         word.isCurrent(0.1, {
           equal: false,
         })
-      ).true;
+      ).toBe(true);
 
       expect(
         word.isCurrent(0, {
           offset: 1,
           equal: false,
         })
-      ).false;
+      ).toBe(false);
 
       expect(
         word.isCurrent(0.1, {
           offset: 1,
           equal: false,
         })
-      ).false;
+      ).toBe(false);
     });
   });
 });

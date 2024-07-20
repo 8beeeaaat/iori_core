@@ -8,8 +8,13 @@ export default [
   ...tseslint.configs.recommended,
   {
     languageOptions: { globals: globals.browser },
-    ignores: ['node_modules/', 'dist/'],
+    files: ['**/*.*js', '**/*.ts*'],
+    ignores: ['**/node_modules/', '**/dist/'],
+    linterOptions: {
+      noInlineConfig: true
+    },
     rules: {
+      eqeqeq: 'error',
       'no-console': ['error', { allow: ['warn', 'error'] }],
       'sort-imports': ['error', { ignoreDeclarationSort: true }],
       '@typescript-eslint/no-namespace': 'off',

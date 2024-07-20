@@ -198,13 +198,13 @@ describe('Char', () => {
 
   describe('is current char', () => {
     it('should return true for current char', () => {
-      expect(whitespaceChar.isCurrent(0)).true;
-      expect(whitespaceChar.isCurrent(1)).true;
-      expect(whitespaceChar.isCurrent(2)).false;
+      expect(whitespaceChar.isCurrent(0)).toBe(true);
+      expect(whitespaceChar.isCurrent(1)).toBe(true);
+      expect(whitespaceChar.isCurrent(2)).toBe(false);
 
-      expect(twoBytesWhitespaceChar.isCurrent(0)).false;
-      expect(twoBytesWhitespaceChar.isCurrent(1)).true;
-      expect(twoBytesWhitespaceChar.isCurrent(2)).true;
+      expect(twoBytesWhitespaceChar.isCurrent(0)).toBe(false);
+      expect(twoBytesWhitespaceChar.isCurrent(1)).toBe(true);
+      expect(twoBytesWhitespaceChar.isCurrent(2)).toBe(true);
     });
 
     it('offset option', () => {
@@ -212,33 +212,33 @@ describe('Char', () => {
         whitespaceChar.isCurrent(0, {
           offset: 1,
         })
-      ).true;
+      ).toBe(true);
       expect(
         whitespaceChar.isCurrent(1, {
           offset: 1,
         })
-      ).false;
+      ).toBe(false);
       expect(
         whitespaceChar.isCurrent(2, {
           offset: 1,
         })
-      ).false;
+      ).toBe(false);
 
       expect(
         twoBytesWhitespaceChar.isCurrent(0, {
           offset: -1,
         })
-      ).false;
+      ).toBe(false);
       expect(
         twoBytesWhitespaceChar.isCurrent(1, {
           offset: -1,
         })
-      ).false;
+      ).toBe(false);
       expect(
         twoBytesWhitespaceChar.isCurrent(2, {
           offset: -1,
         })
-      ).true;
+      ).toBe(true);
     });
 
     it('equal option', () => {
@@ -246,27 +246,27 @@ describe('Char', () => {
         whitespaceChar.isCurrent(0, {
           equal: false,
         })
-      ).false;
+      ).toBe(false);
 
       expect(
         whitespaceChar.isCurrent(0.1, {
           equal: false,
         })
-      ).true;
+      ).toBe(true);
 
       expect(
         whitespaceChar.isCurrent(0, {
           offset: 1,
           equal: false,
         })
-      ).false;
+      ).toBe(false);
 
       expect(
         whitespaceChar.isCurrent(0.1, {
           offset: 1,
           equal: false,
         })
-      ).false;
+      ).toBe(false);
     });
   });
 

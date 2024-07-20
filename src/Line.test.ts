@@ -349,13 +349,13 @@ describe('Line', () => {
     });
 
     it('should return true for current line', () => {
-      expect(line.isCurrent(0)).true;
-      expect(line.isCurrent(1)).true;
-      expect(line.isCurrent(2)).false;
+      expect(line.isCurrent(0)).toBe(true);
+      expect(line.isCurrent(1)).toBe(true);
+      expect(line.isCurrent(2)).toBe(false);
 
-      expect(otherLine.isCurrent(0)).false;
-      expect(otherLine.isCurrent(1)).true;
-      expect(otherLine.isCurrent(2)).true;
+      expect(otherLine.isCurrent(0)).toBe(false);
+      expect(otherLine.isCurrent(1)).toBe(true);
+      expect(otherLine.isCurrent(2)).toBe(true);
     });
 
     it('offset option', () => {
@@ -363,33 +363,33 @@ describe('Line', () => {
         line.isCurrent(0, {
           offset: 1,
         })
-      ).true;
+      ).toBe(true);
       expect(
         line.isCurrent(1, {
           offset: 1,
         })
-      ).false;
+      ).toBe(false);
       expect(
         line.isCurrent(2, {
           offset: 1,
         })
-      ).false;
+      ).toBe(false);
 
       expect(
         otherLine.isCurrent(0, {
           offset: -1,
         })
-      ).false;
+      ).toBe(false);
       expect(
         otherLine.isCurrent(1, {
           offset: -1,
         })
-      ).false;
+      ).toBe(false);
       expect(
         otherLine.isCurrent(2, {
           offset: -1,
         })
-      ).true;
+      ).toBe(true);
     });
 
     it('equal option', () => {
@@ -397,27 +397,27 @@ describe('Line', () => {
         line.isCurrent(0, {
           equal: false,
         })
-      ).false;
+      ).toBe(false);
 
       expect(
         line.isCurrent(0.1, {
           equal: false,
         })
-      ).true;
+      ).toBe(true);
 
       expect(
         line.isCurrent(0, {
           offset: 1,
           equal: false,
         })
-      ).false;
+      ).toBe(false);
 
       expect(
         line.isCurrent(0.1, {
           offset: 1,
           equal: false,
         })
-      ).false;
+      ).toBe(false);
     });
   });
 });
