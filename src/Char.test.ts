@@ -196,6 +196,80 @@ describe('Char', () => {
     });
   });
 
+  describe('is current char', () => {
+    it('should return true for current char', () => {
+      expect(whitespaceChar.isCurrent(0)).true;
+      expect(whitespaceChar.isCurrent(1)).true;
+      expect(whitespaceChar.isCurrent(2)).false;
+
+      expect(twoBytesWhitespaceChar.isCurrent(0)).false;
+      expect(twoBytesWhitespaceChar.isCurrent(1)).true;
+      expect(twoBytesWhitespaceChar.isCurrent(2)).true;
+    });
+
+    it('offset option', () => {
+      expect(
+        whitespaceChar.isCurrent(0, {
+          offset: 1,
+        })
+      ).true;
+      expect(
+        whitespaceChar.isCurrent(1, {
+          offset: 1,
+        })
+      ).false;
+      expect(
+        whitespaceChar.isCurrent(2, {
+          offset: 1,
+        })
+      ).false;
+
+      expect(
+        twoBytesWhitespaceChar.isCurrent(0, {
+          offset: -1,
+        })
+      ).false;
+      expect(
+        twoBytesWhitespaceChar.isCurrent(1, {
+          offset: -1,
+        })
+      ).false;
+      expect(
+        twoBytesWhitespaceChar.isCurrent(2, {
+          offset: -1,
+        })
+      ).true;
+    });
+
+    it('equal option', () => {
+      expect(
+        whitespaceChar.isCurrent(0, {
+          equal: false,
+        })
+      ).false;
+
+      expect(
+        whitespaceChar.isCurrent(0.1, {
+          equal: false,
+        })
+      ).true;
+
+      expect(
+        whitespaceChar.isCurrent(0, {
+          offset: 1,
+          equal: false,
+        })
+      ).false;
+
+      expect(
+        whitespaceChar.isCurrent(0.1, {
+          offset: 1,
+          equal: false,
+        })
+      ).false;
+    });
+  });
+
   describe('need between whitespace', () => {
     it('should throw error for compare to own', () => {
       expect(() =>

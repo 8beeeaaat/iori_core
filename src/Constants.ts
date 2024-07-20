@@ -11,6 +11,7 @@ export const CHAR_TYPES = {
 export type CharType = (typeof CHAR_TYPES)[keyof typeof CHAR_TYPES];
 
 export type WordTimeline = {
+  wordID: string;
   text: string;
   begin: number;
   end: number;

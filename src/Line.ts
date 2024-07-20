@@ -1,10 +1,15 @@
 import Char from './Char';
-import { WordTimeline } from './Constants';
-import { Word } from './Word';
+import Word, { WordCreateArgs, WordUpdateArgs } from './Word';
 
-export type LineArgs = {
+export type LineCreateArgs = {
   position: number;
-  timelines: WordTimeline[];
+  timelines: WordCreateArgs['timeline'][];
+  jointNearWord?: boolean;
+};
+
+export type LineUpdateArgs = {
+  position: number;
+  timelines: WordUpdateArgs['timeline'][];
   jointNearWord?: boolean;
 };
 
@@ -12,59 +17,81 @@ export class Line {
   id: string;
   wordByPosition: Map<number, Word>;
   position: number;
-  begin: number;
-  end: number;
 
-  constructor(props: LineArgs) {
+  constructor(props: LineCreateArgs) {
     this.id = '';
     this.position = props.position;
-    this.begin = 0;
-    this.end = 0;
     this.wordByPosition = new Map();
 
     this.init(props);
   }
 
-  private init(props: LineArgs) {
+  private confirmJointNearWord(
+    timeline: WordCreateArgs['timeline'],
+    nextTimeline: WordCreateArgs['timeline'] | undefined,
+    lastWord: Word | undefined,
+    jointNearWord: boolean
+  ) {
+    const isWhitespace = /^\s+$/.test(timeline.text);
+    if (isWhitespace) {
+      return undefined;
+    }
+
+    const nextIsWhitespace = nextTimeline
+      ? /^\s+$/.test(nextTimeline.text)
+      : false;
+    const hasWhitespace = timeline.hasWhitespace || nextIsWhitespace;
+
+    // 近接していたら同じ単語として扱う
+    if (jointNearWord !== false) {
+      if (
+        lastWord &&
+        lastWord.end() - timeline.begin <= 0.1 &&
+        !lastWord.timeline.hasNewLine &&
+        !lastWord.timeline.hasWhitespace
+      ) {
+        return [true, hasWhitespace];
+      }
+    }
+    return [false, hasWhitespace];
+  }
+
+  private init(props: LineCreateArgs) {
     this.id = `line-${crypto.randomUUID()}`;
 
-    this.wordByPosition = props.timelines.reduce<Map<number, Word>>(
+    const timeline = props.timelines.sort((a, b) => a.begin - b.begin);
+    this.wordByPosition = timeline.reduce<Map<number, Word>>(
       (acc, tl, index) => {
-        const isWhitespace = /^\s+$/.test(tl.text);
-        if (isWhitespace) {
+        const nextTl = timeline[index + 1];
+        const lastWord = acc.get(acc.size);
+        const res = this.confirmJointNearWord(
+          tl,
+          nextTl,
+          lastWord,
+          props.jointNearWord === true
+        );
+        if (!res) {
           return acc;
         }
-
-        const nextTl = props.timelines[index + 1];
-        const nextIsWhitespace = nextTl ? /^\s+$/.test(nextTl.text) : false;
-        const hasWhitespace = tl.hasWhitespace || nextIsWhitespace;
+        const [isJoint, hasWhitespace] = res;
 
         // 近接していたら同じ単語として扱う
-        if (props.jointNearWord !== false) {
-          const lastWord = acc.get(acc.size);
-          if (
-            lastWord &&
-            lastWord.timeline.end - tl.begin <= 0.1 &&
-            !lastWord.timeline.hasNewLine &&
-            !lastWord.timeline.hasWhitespace
-          ) {
-            acc.set(
-              acc.size,
-              new Word({
-                lineID: this.id,
-                position: acc.size,
-                timeline: {
-                  begin: lastWord.timeline.begin,
-                  end: tl.end,
-                  text: lastWord.text() + tl.text,
-                  hasNewLine: tl.hasNewLine,
-                  hasWhitespace,
-                },
-              })
-            );
-
-            return acc;
-          }
+        if (lastWord && isJoint) {
+          acc.set(
+            acc.size,
+            new Word({
+              lineID: this.id,
+              position: acc.size,
+              timeline: {
+                begin: lastWord.begin(),
+                end: tl.end,
+                text: lastWord.text() + tl.text,
+                hasNewLine: tl.hasNewLine === true,
+                hasWhitespace,
+              },
+            })
+          );
+          return acc;
         }
 
         acc.set(
@@ -80,19 +107,96 @@ export class Line {
         );
         return acc;
       },
-      this.wordByPosition
+      new Map()
+    );
+  }
+
+  public update(props: LineUpdateArgs) {
+    this.position = props.position;
+
+    const timeline = props.timelines.sort((a, b) => a.begin - b.begin);
+    this.wordByPosition = timeline.reduce<Map<number, Word>>(
+      (acc, tl, index) => {
+        const nextTl = timeline[index + 1];
+        const lastWord = acc.get(acc.size);
+        const res = this.confirmJointNearWord(
+          tl,
+          nextTl,
+          lastWord,
+          props.jointNearWord === true
+        );
+        if (!res) {
+          return acc;
+        }
+        const [isJoint, hasWhitespace] = res;
+
+        // 近接していたら同じ単語として扱う
+        if (lastWord && isJoint) {
+          acc.set(
+            acc.size - 1,
+            lastWord.update({
+              position: acc.size,
+              timeline: {
+                wordID: lastWord.id,
+                begin: lastWord.begin(),
+                end: tl.end,
+                text: lastWord.text() + tl.text,
+                hasNewLine: tl.hasNewLine === true,
+                hasWhitespace,
+              },
+            })
+          );
+          return acc;
+        }
+
+        const currentWord = Array.from(this.wordByPosition.values()).find(
+          (w) => w.id === tl.wordID
+        );
+        const position = acc.size + 1;
+        acc.set(
+          position,
+          currentWord
+            ? currentWord.update({
+              position: position,
+              timeline: {
+                ...tl,
+                hasNewLine: tl.hasNewLine === true,
+                hasWhitespace,
+              },
+            })
+            : new Word({
+              lineID: this.id,
+              position: position,
+              timeline: {
+                ...tl,
+                hasNewLine: tl.hasNewLine === true,
+                hasWhitespace,
+              },
+            })
+        );
+        return acc;
+      },
+      new Map()
     );
 
-    this.begin = this.wordByPosition.get(1)?.timeline.begin || 0;
-    this.end =
-      this.wordByPosition.get(this.wordByPosition.size)?.timeline.end || 0;
+    return this;
+  }
+
+  public begin(): number {
+    return this.wordByPosition.get(1)?.begin() || 0;
+  }
+
+  public end(): number {
+    return this.wordByPosition.get(this.wordByPosition.size)?.end() || 0;
   }
 
   public betweenDuration(c: Line): number {
     if (this.id === c.id) {
       throw new Error('Can not compare between the same line');
     }
-    return c.begin > this.end ? c.begin - this.end : this.begin - c.end;
+    return c.begin() > this.end()
+      ? c.begin() - this.end()
+      : this.begin() - c.end();
   }
 
   public wordAt(position: number): Word | undefined {
@@ -116,18 +220,17 @@ export class Line {
   }
 
   public duration(): number {
-    if (this.begin >= this.end) {
+    if (this.begin() >= this.end()) {
       throw new Error('Can not calculate duration of a invalid line');
     }
-    return this.end - this.begin;
+    return this.end() - this.begin();
   }
 
   public text(): string {
     return this.words()
       .map(
         (word) =>
-          `${word.text()}${word.timeline.hasWhitespace ? ' ' : ''}${
-            word.timeline.hasNewLine ? `\n` : ''
+          `${word.text()}${word.timeline.hasWhitespace ? ' ' : ''}${word.timeline.hasNewLine ? '\n' : ''
           }`
       )
       .join('');
@@ -141,28 +244,26 @@ export class Line {
         const isFirstWord = index === 0;
         const isLastWord = index === words.length - 1;
 
-        if (isFirstWord && word.timeline.begin > this.begin) {
+        if (isFirstWord && word.begin() > this.begin()) {
           acc.push({
-            begin: this.begin,
-            end: word.timeline.begin,
-            duration: Number(word.timeline.begin.toFixed(2)),
+            begin: this.begin(),
+            end: word.begin(),
+            duration: Number(word.begin().toFixed(2)),
           });
         }
-        if (isLastWord && this.end - word.timeline.end > 0) {
+        if (isLastWord && this.end() - word.end() > 0) {
           acc.push({
-            begin: word.timeline.end,
-            end: this.end,
-            duration: Number((this.end - word.timeline.end).toFixed(2)),
+            begin: word.end(),
+            end: this.end(),
+            duration: Number((this.end() - word.end()).toFixed(2)),
           });
         }
         const prevWord = words[index - 1];
-        if (prevWord && word.timeline.begin - prevWord.timeline.end > 0) {
+        if (prevWord && word.begin() - prevWord.end() > 0) {
           acc.push({
-            begin: prevWord.timeline.end,
-            end: word.timeline.begin,
-            duration: Number(
-              (word.timeline.begin - prevWord.timeline.end).toFixed(2)
-            ),
+            begin: prevWord.end(),
+            end: word.begin(),
+            duration: Number((word.begin() - prevWord.end()).toFixed(2)),
           });
         }
 
@@ -186,17 +287,15 @@ export class Line {
       offset?: number;
       equal?: boolean;
     } = {
-      offset: 0,
-      equal: false,
-    }
+        offset: 0,
+        equal: true,
+      }
   ): Word | undefined {
-    const offset = options.offset || 0;
-    return Array.from(this.wordByPosition.values()).find((word) =>
-      options.equal
-        ? word.timeline.begin <= now + offset &&
-          now + offset <= word.timeline.end
-        : word.timeline.begin < now + offset && now + offset < word.timeline.end
-    );
+    const offset = options.offset ?? 0;
+    const equal = options.equal ?? true;
+    return Array.from(this.wordByPosition.values())
+      .sort((a, b) => b.begin() - a.begin())
+      .find((word) => word.isCurrent(now, { offset, equal }));
   }
 
   public currentWords(
@@ -205,16 +304,14 @@ export class Line {
       offset?: number;
       equal?: boolean;
     } = {
-      offset: 0,
-      equal: false,
-    }
+        offset: 0,
+        equal: false,
+      }
   ): Word[] {
-    const offset = options.offset || 0;
+    const offset = options.offset ?? 0;
+    const equal = options.equal ?? true;
     return Array.from(this.wordByPosition.values()).filter((word) =>
-      options.equal
-        ? word.timeline.begin <= now + offset &&
-          now + offset <= word.timeline.end
-        : word.timeline.begin < now + offset && now + offset < word.timeline.end
+      word.isCurrent(now, { offset, equal })
     );
   }
 
@@ -223,13 +320,13 @@ export class Line {
     options: {
       offset?: number;
     } = {
-      offset: 0,
-    }
+        offset: 0,
+      }
   ): Word | undefined {
-    const offset = options.offset || 0;
+    const offset = options.offset ?? 0;
     return Array.from(this.wordByPosition.values())
-      .sort((a, b) => b.timeline.begin - a.timeline.begin)
-      .find((word) => word.timeline.begin < now + offset);
+      .sort((a, b) => b.begin() - a.begin())
+      .find((word) => word.begin() < now + offset);
   }
 
   public rowWords(row: number): Word[] {
@@ -244,13 +341,13 @@ export class Line {
     options: {
       offset?: number;
     } = {
-      offset: 0,
-    }
+        offset: 0,
+      }
   ): Word | undefined {
-    const offset = options.offset || 0;
+    const offset = options.offset ?? 0;
     return Array.from(this.wordByPosition.values())
-      .sort((a, b) => a.timeline.begin - b.timeline.begin)
-      .find((word) => word.timeline.begin > now + offset);
+      .sort((a, b) => a.begin() - b.begin())
+      .find((word) => word.begin() > now + offset);
   }
 
   public maxRowPosition() {
@@ -313,7 +410,7 @@ export class Line {
     const sameRowWords = allWords.filter(
       (w) =>
         wordPositionMap.get(w.id)?.row === wordPosition.row &&
-        w.timeline.begin < word.timeline.begin
+        w.begin() < word.begin()
     );
 
     const charColumnPosition =
@@ -331,6 +428,23 @@ export class Line {
   public isVoid(now: number): boolean {
     const voids = this.voids();
     return voids.some(({ begin, end }) => now >= begin && now <= end);
+  }
+
+  public isCurrent(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+        offset: 0,
+        equal: true,
+      }
+  ): boolean {
+    const offset = options.offset ?? 0;
+    const equal = options.equal ?? true;
+    return equal
+      ? this.begin() <= now + offset && now + offset <= this.end()
+      : this.begin() < now + offset && now + offset < this.end();
   }
 
   public wordGridPositionByWordID(): Map<

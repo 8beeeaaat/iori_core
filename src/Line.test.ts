@@ -1,54 +1,162 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Line } from './Line';
 
+const timelines = [
+  {
+    begin: 0.2,
+    end: 0.5,
+    text: '開か',
+  },
+  {
+    begin: 0.65,
+    end: 1,
+    text: 'ない',
+    hasNewLine: true,
+  },
+  {
+    begin: 1.5,
+    end: 2,
+    text: 'カーテン',
+    hasNewLine: true,
+  },
+  {
+    begin: 2.5,
+    end: 3,
+    text: '割れ',
+  },
+  {
+    begin: 3,
+    end: 3.2,
+    text: 'た',
+    hasNewLine: true,
+  },
+  {
+    begin: 3.2,
+    end: 3.5,
+    text: 'カップ',
+  },
+];
+
 describe('Line', () => {
-  let line: Line;
+  let jointNearWordLine: Line;
+  let notJointNearWordLine: Line;
 
   beforeEach(() => {
-    line = new Line({
+    jointNearWordLine = new Line({
+      jointNearWord: true,
       position: 1,
-      timelines: [
-        {
-          begin: 0.2,
-          end: 0.5,
-          text: '開か',
-        },
-        {
-          begin: 0.65,
-          end: 1,
-          text: 'ない',
-          hasNewLine: true,
-        },
-        {
-          begin: 1.5,
-          end: 2,
-          text: 'カーテン',
-          hasNewLine: true,
-        },
-        {
-          begin: 2.5,
-          end: 3,
-          text: '割れ',
-        },
-        {
-          begin: 3,
-          end: 3.2,
-          text: 'た',
-          hasNewLine: true,
-        },
-        {
-          begin: 3.2,
-          end: 3.5,
-          text: 'カップ',
-        },
-      ],
+      timelines,
+    });
+    notJointNearWordLine = new Line({
+      jointNearWord: false,
+      position: 1,
+      timelines,
     });
   });
+
+  describe('update', () => {
+    it('before update', () => {
+      expect(jointNearWordLine.wordByPosition.get(1)!.timeline).toStrictEqual({
+        wordID: jointNearWordLine.wordByPosition.get(1)!.id,
+        begin: 0.2,
+        end: 1,
+        text: '開かない',
+        hasNewLine: true,
+        hasWhitespace: false,
+      });
+
+      expect(
+        notJointNearWordLine.wordByPosition.get(1)!.timeline
+      ).toStrictEqual({
+        wordID: notJointNearWordLine.wordByPosition.get(1)!.id,
+        begin: 0.2,
+        end: 0.5,
+        text: '開か',
+        hasNewLine: false,
+        hasWhitespace: false,
+      });
+    });
+
+    it('should return the updated line', () => {
+      const beforeJointNearWordID = jointNearWordLine.wordByPosition.get(1)!.id;
+
+      const updatedJointNearWordLine = jointNearWordLine.update({
+        position: 1,
+        timelines: [
+          {
+            wordID: jointNearWordLine.wordByPosition.get(1)!.id,
+            begin: 0.3,
+            end: 0.5,
+            text: '開か',
+          },
+          {
+            wordID: jointNearWordLine.wordByPosition.get(2)!.id,
+            begin: 0.65,
+            end: 1,
+            text: 'ない',
+            hasNewLine: true,
+          },
+        ],
+        jointNearWord: true,
+      });
+
+      expect(updatedJointNearWordLine.wordByPosition.get(1)!.id).toStrictEqual(
+        beforeJointNearWordID
+      );
+      expect(
+        updatedJointNearWordLine.wordByPosition.get(1)!.timeline
+      ).toStrictEqual({
+        wordID: beforeJointNearWordID,
+        begin: 0.3,
+        end: 1,
+        text: '開かない',
+        hasNewLine: true,
+        hasWhitespace: false,
+      });
+
+      const beforeNotJointNearWordID =
+        notJointNearWordLine.wordByPosition.get(1)!.id;
+
+      const updatedNotJointNearWordLine = notJointNearWordLine.update({
+        position: 1,
+        timelines: [
+          {
+            wordID: notJointNearWordLine.wordByPosition.get(1)!.id,
+            begin: 0.3,
+            end: 0.5,
+            text: '開か',
+          },
+          {
+            wordID: notJointNearWordLine.wordByPosition.get(2)!.id,
+            begin: 0.65,
+            end: 1,
+            text: 'ない',
+            hasNewLine: true,
+          },
+        ],
+        jointNearWord: false,
+      });
+      expect(
+        updatedNotJointNearWordLine.wordByPosition.get(1)!.id
+      ).toStrictEqual(beforeNotJointNearWordID);
+      expect(
+        updatedNotJointNearWordLine.wordByPosition.get(1)!.timeline
+      ).toStrictEqual({
+        wordID: beforeNotJointNearWordID,
+        begin: 0.3,
+        end: 0.5,
+        text: '開か',
+        hasNewLine: false,
+        hasWhitespace: false,
+      });
+    });
+  });
+
   describe('between duration', () => {
     it('should throw error for compare to own', () => {
-      expect(() => line.betweenDuration(line)).toThrow(
-        'Can not compare between the same line'
-      );
+      expect(() =>
+        jointNearWordLine.betweenDuration(jointNearWordLine)
+      ).toThrow('Can not compare between the same line');
     });
     it('should return the duration between two lines', () => {
       const other = new Line({
@@ -67,60 +175,66 @@ describe('Line', () => {
         ],
       });
 
-      expect(line.betweenDuration(other)).toBe(-4.8);
+      expect(jointNearWordLine.betweenDuration(other)).toBe(-4.8);
 
-      expect(other.betweenDuration(line)).toBe(-0.5);
+      expect(other.betweenDuration(jointNearWordLine)).toBe(-0.5);
     });
   });
 
   describe('currentWord', () => {
     it('should return the Word of "開かない"', () => {
-      const word = line.currentWord(0.3);
+      const word = jointNearWordLine.currentWord(0.3);
       expect(word?.text()).toBe('開かない');
     });
 
+    it('should return last matched current word', () => {
+      const word = jointNearWordLine.currentWord(3.2);
+      expect(word?.text()).toBe('カップ');
+    });
+
     it('should return undefined, because not found', () => {
-      const word = line.currentWord(1.2);
+      const word = jointNearWordLine.currentWord(1.2);
       expect(word).toBeUndefined();
     });
 
     it('should return undefined, because not equal', () => {
-      const word = line.currentWord(2.5);
-      expect(word).toBeUndefined();
+      expect(
+        jointNearWordLine.currentWord(2.5, { equal: false })
+      ).toBeUndefined();
     });
 
     it('should return the Word of "割れた"', () => {
-      let word = line.currentWord(2.5, { offset: 0.01 });
+      let word = jointNearWordLine.currentWord(2.5, { offset: 0.01 });
       expect(word?.text()).toBe('割れた');
 
-      word = line.currentWord(2.5, { equal: true });
+      word = jointNearWordLine.currentWord(2.5, { equal: true });
       expect(word?.text()).toBe('割れた');
     });
   });
 
   describe('currentWords', () => {
     it('should return the Word of "開かない"', () => {
-      const words = line.currentWords(0.3);
+      const words = jointNearWordLine.currentWords(0.3);
       expect(words.length).toBe(1);
       expect(words[0].text()).toBe('開かない');
     });
 
     it('should return undefined, because not found', () => {
-      const words = line.currentWords(1.2);
+      const words = jointNearWordLine.currentWords(1.2);
       expect(words.length).toBe(0);
     });
 
     it('should return undefined, because not equal', () => {
-      const words = line.currentWords(2.5);
+      const words = jointNearWordLine.currentWords(2.5);
       expect(words.length).toBe(0);
     });
 
     it('should return the Word of "割れた"', () => {
-      let words = line.currentWords(2.5, { offset: 0.01 });
+      let words = jointNearWordLine.currentWords(2.5, { offset: 0.01 });
       expect(words.length).toBe(1);
       expect(words[0].text()).toBe('割れた');
 
-      words = line.currentWords(2.5, { equal: true });
+      words = jointNearWordLine.currentWords(2.5, { equal: true });
       expect(words.length).toBe(1);
       expect(words[0].text()).toBe('割れた');
     });
@@ -128,44 +242,27 @@ describe('Line', () => {
 
   describe('wordAt', () => {
     it('should return the Word of "割れた", because space removed', () => {
-      expect(line.wordAt(3)?.text()).toBe('割れた');
+      expect(jointNearWordLine.wordAt(3)?.text()).toBe('割れた');
     });
   });
 
   describe('duration', () => {
-    it('should throw error for line with the invalid begin and end', () => {
-      expect(() =>
-        new Line({
-          position: 1,
-          timelines: [
-            {
-              begin: 1,
-              end: 1.5,
-              text: 'foo',
-            },
-            {
-              begin: 0,
-              end: 0.5,
-              text: 'bar',
-            },
-          ],
-        }).duration()
-      ).toThrow('Can not calculate duration of a invalid line');
-    });
     it('should return the duration of the line', () => {
-      expect(line.duration()).toBe(3.3);
+      expect(jointNearWordLine.duration()).toBe(3.3);
     });
   });
 
   describe('text', () => {
     it('should return the text of the line', () => {
-      expect(line.text()).toBe(`開かない\nカーテン\n割れた\nカップ`);
+      expect(jointNearWordLine.text()).toBe(
+        '開かない\nカーテン\n割れた\nカップ'
+      );
     });
   });
 
   describe('voids', () => {
     it('should return between paragraphs', () => {
-      expect(line.voids()).toStrictEqual([
+      expect(jointNearWordLine.voids()).toStrictEqual([
         {
           begin: 1,
           duration: 0.5,
@@ -182,26 +279,26 @@ describe('Line', () => {
 
   describe('isVoid', () => {
     it('is void', () => {
-      expect(line.isVoid(1.2)).toBe(true);
+      expect(jointNearWordLine.isVoid(1.2)).toBe(true);
     });
     it('not void', () => {
-      expect(line.isVoid(1.6)).toBe(false);
+      expect(jointNearWordLine.isVoid(1.6)).toBe(false);
     });
   });
 
   describe('wordGridPositionByWordID', () => {
     it('is void', () => {
-      const map = line.wordGridPositionByWordID();
+      const map = jointNearWordLine.wordGridPositionByWordID();
       expect(map.size).toBe(4);
       // 開か ない
       // カーテン
       // 割れ た
       // カップ
 
-      const targetWord1 = line.wordByPosition.get(1);
+      const targetWord1 = jointNearWordLine.wordByPosition.get(1);
       expect(targetWord1?.text()).toBe('開かない');
 
-      const targetWord4 = line.wordByPosition.get(4);
+      const targetWord4 = jointNearWordLine.wordByPosition.get(4);
       expect(targetWord4?.text()).toBe('カップ');
 
       expect(map.get(targetWord1?.id || '')).toStrictEqual({
@@ -214,6 +311,112 @@ describe('Line', () => {
         column: 1,
         word: targetWord4,
       });
+    });
+  });
+
+  describe('is current line', () => {
+    const line = new Line({
+      position: 1,
+      timelines: [
+        {
+          begin: 0.5,
+          end: 1,
+          text: 'foo',
+        },
+        {
+          begin: 0,
+          end: 0.5,
+          text: 'bar',
+        },
+      ],
+    });
+
+    const otherLine = new Line({
+      position: 2,
+      timelines: [
+        {
+          begin: 1,
+          end: 1.5,
+          text: 'hoge',
+        },
+        {
+          begin: 1.5,
+          end: 2,
+          text: 'fuga',
+        },
+      ],
+    });
+
+    it('should return true for current line', () => {
+      expect(line.isCurrent(0)).true;
+      expect(line.isCurrent(1)).true;
+      expect(line.isCurrent(2)).false;
+
+      expect(otherLine.isCurrent(0)).false;
+      expect(otherLine.isCurrent(1)).true;
+      expect(otherLine.isCurrent(2)).true;
+    });
+
+    it('offset option', () => {
+      expect(
+        line.isCurrent(0, {
+          offset: 1,
+        })
+      ).true;
+      expect(
+        line.isCurrent(1, {
+          offset: 1,
+        })
+      ).false;
+      expect(
+        line.isCurrent(2, {
+          offset: 1,
+        })
+      ).false;
+
+      expect(
+        otherLine.isCurrent(0, {
+          offset: -1,
+        })
+      ).false;
+      expect(
+        otherLine.isCurrent(1, {
+          offset: -1,
+        })
+      ).false;
+      expect(
+        otherLine.isCurrent(2, {
+          offset: -1,
+        })
+      ).true;
+    });
+
+    it('equal option', () => {
+      expect(
+        line.isCurrent(0, {
+          equal: false,
+        })
+      ).false;
+
+      expect(
+        line.isCurrent(0.1, {
+          equal: false,
+        })
+      ).true;
+
+      expect(
+        line.isCurrent(0, {
+          offset: 1,
+          equal: false,
+        })
+      ).false;
+
+      expect(
+        line.isCurrent(0.1, {
+          offset: 1,
+          equal: false,
+        })
+      ).false;
     });
   });
 });

@@ -38,6 +38,64 @@ describe('Paragraph', () => {
       ],
     }).init();
   });
+
+  describe('update', () => {
+    it('before update', () => {
+      expect(
+        paragraph.lineByPosition.get(1)!.wordByPosition.get(1)!.timeline
+      ).toStrictEqual({
+        wordID: paragraph.lineByPosition.get(1)!.wordByPosition.get(1)!.id,
+        begin: 1.1,
+        end: 1.2,
+        text: 'foo',
+        hasNewLine: false,
+        hasWhitespace: true,
+      });
+    });
+
+    it('should return the updated line', async () => {
+      const updatedJointNearWordLine = await paragraph.update({
+        position: 1,
+        timelines: [
+          [
+            {
+              wordID: paragraph.lineByPosition.get(1)!.wordByPosition.get(1)!
+                .id,
+              begin: 0.3,
+              end: 0.5,
+              text: '開か',
+            },
+            {
+              wordID: paragraph.lineByPosition.get(1)!.wordByPosition.get(2)!
+                .id,
+              begin: 0.65,
+              end: 1,
+              text: 'ない',
+              hasNewLine: true,
+            },
+          ],
+        ],
+      });
+      expect(
+        updatedJointNearWordLine.lineByPosition.get(1)!.wordByPosition.get(1)!
+          .id
+      ).toStrictEqual(
+        paragraph.lineByPosition.get(1)!.wordByPosition.get(1)!.id
+      );
+      expect(
+        updatedJointNearWordLine.lineByPosition.get(1)!.wordByPosition.get(1)!
+          .timeline
+      ).toStrictEqual({
+        wordID: paragraph.lineByPosition.get(1)!.wordByPosition.get(1)!.id,
+        begin: 0.3,
+        end: 1,
+        text: '開かない',
+        hasNewLine: true,
+        hasWhitespace: false,
+      });
+    });
+  });
+
   describe('between duration', () => {
     it('should throw error for compare to own', () => {
       expect(() => paragraph.betweenDuration(paragraph)).toThrow(
@@ -96,7 +154,9 @@ describe('Paragraph', () => {
     });
 
     it('should return undefined, because not equal', () => {
-      const line = paragraph.currentLine(1.1);
+      const line = paragraph.currentLine(1.1, {
+        equal: false,
+      });
       expect(line).toBeUndefined();
     });
 
@@ -122,7 +182,9 @@ describe('Paragraph', () => {
     });
 
     it('should return undefined, because not equal', () => {
-      const lines = paragraph.currentLines(1.1);
+      const lines = paragraph.currentLines(1.1, {
+        equal: false,
+      });
       expect(lines.length).toBe(0);
     });
 

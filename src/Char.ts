@@ -97,6 +97,24 @@ export class Char {
   public isJapanese(): boolean {
     return this.isKanji() || this.isHiragana() || this.isKatakana();
   }
+
+  public isCurrent(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+      offset: 0,
+      equal: true,
+    }
+  ): boolean {
+    const offset = options.offset ?? 0;
+    const equal = options.equal ?? true;
+    return equal
+      ? this.begin <= now + offset && now + offset <= this.end
+      : this.begin < now + offset && now + offset < this.end;
+  }
+
   public needBetweenWhitespace(c: Char): boolean {
     if (this.id === c.id) {
       throw new Error('Can not compare between the same char');
