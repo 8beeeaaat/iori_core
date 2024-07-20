@@ -107,8 +107,7 @@ export class Word {
   public duration(): number {
     if (this.begin() >= this.end()) {
       throw new Error(
-        `Can not calculate duration of a invalid word: ${
-          this.id
+        `Can not calculate duration of a invalid word: ${this.id
         } ${this.begin()}-${this.end()}`
       );
     }
@@ -139,9 +138,9 @@ export class Word {
       offset?: number;
       equal?: boolean;
     } = {
-      offset: 0,
-      equal: true,
-    }
+        offset: 0,
+        equal: true,
+      }
   ): Char | undefined {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
@@ -156,9 +155,9 @@ export class Word {
       offset?: number;
       equal?: boolean;
     } = {
-      offset: 0,
-      equal: true,
-    }
+        offset: 0,
+        equal: true,
+      }
   ): Char[] {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
@@ -173,9 +172,9 @@ export class Word {
       offset?: number;
       equal?: boolean;
     } = {
-      offset: 0,
-      equal: true,
-    }
+        offset: 0,
+        equal: true,
+      }
   ): boolean {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
