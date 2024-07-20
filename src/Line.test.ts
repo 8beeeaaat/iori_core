@@ -18,6 +18,7 @@ const timelines = [
     end: 2,
     text: 'カーテン',
     hasNewLine: true,
+    hasWhitespace: true,
   },
   {
     begin: 2.5,
