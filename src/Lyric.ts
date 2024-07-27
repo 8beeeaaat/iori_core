@@ -318,23 +318,37 @@ export class Lyric {
     );
   }
 
-  public wordsByLineIDAndRowPosition(): Map<
+  private _wordsByLineIDAndRowPosition(acc: Map<
+    string,
+    Map<number, Map<number, Word>>
+  >,
+    line: Line,
+    wordPositionMap: ReturnType<Line['wordGridPositionByWordID']>): ReturnType<Lyric['wordsByLineIDAndRowPosition']> {
+    wordPositionMap.forEach(({ row, column, word }) => {
+      if (!acc.get(line.id)) {
+        acc.set(line.id, new Map());
+      }
+      if (!acc.get(line.id)?.get(row)) {
+        acc.get(line.id)?.set(row, new Map());
+      }
+      acc.get(line.id)?.get(row)?.set(column, word);
+    });
+
+    return acc;
+  }
+
+  /**
+    * @param reducer A reducer function to customize the result.
+    * @returns A map of words by line ID and row position.
+  */
+  public wordsByLineIDAndRowPosition(reducer = this._wordsByLineIDAndRowPosition): Map<
     string,
     Map<number, Map<number, Word>>
   > {
     return this.lines().reduce((acc, line) => {
       const wordPositionMap = line.wordGridPositionByWordID();
-      wordPositionMap.forEach(({ row, column, word }) => {
-        if (!acc.get(line.id)) {
-          acc.set(line.id, new Map());
-        }
-        if (!acc.get(line.id)?.get(row)) {
-          acc.get(line.id)?.set(row, new Map());
-        }
-        acc.get(line.id)?.get(row)?.set(column, word);
-      });
 
-      return acc;
+      return reducer(acc, line, wordPositionMap);
     }, new Map<string, Map<number, Map<number, Word>>>());
   }
 
