@@ -182,6 +182,37 @@ describe('Line', () => {
     });
   });
 
+  describe('currentRow', () => {
+    it('should return the Word of "開かない"', () => {
+      const row = jointNearWordLine.currentRow(0.3);
+      expect(row).toBe(1);
+    });
+
+    it('should return last matched current row', () => {
+      const row = jointNearWordLine.currentRow(3.2);
+      expect(row).toBe(4);
+    });
+
+    it('should return undefined, because not found', () => {
+      const row = jointNearWordLine.currentRow(1.2);
+      expect(row).toBeUndefined();
+    });
+
+    it('should return undefined, because not equal', () => {
+      expect(
+        jointNearWordLine.currentRow(2.5, { equal: false })
+      ).toBeUndefined();
+    });
+
+    it('should return the Word of "割れた"', () => {
+      let row = jointNearWordLine.currentRow(2.5, { offset: 0.01 });
+      expect(row).toBe(3);
+
+      row = jointNearWordLine.currentRow(2.5, { equal: true });
+      expect(row).toBe(3);
+    });
+  });
+
   describe('currentWord', () => {
     it('should return the Word of "開かない"', () => {
       const word = jointNearWordLine.currentWord(0.3);
@@ -291,10 +322,41 @@ describe('Line', () => {
     it('is void', () => {
       const map = jointNearWordLine.wordGridPositionByWordID();
       expect(map.size).toBe(4);
-      // 開か ない
-      // カーテン
-      // 割れ た
-      // カップ
+      expect(Array.from(map.values()).reduce<Array<{
+        column: number;
+        row: number;
+        text: string;
+      }>>((sum, p) => {
+        sum.push({
+          column: p.column,
+          row: p.row,
+          text: p.word.text()
+        })
+        return sum
+      }, [])).toStrictEqual(
+        [
+          {
+            'row': 1,
+            'column': 1,
+            'text': '開かない',
+          },
+          {
+            'row': 2,
+            'column': 1,
+            'text': 'カーテン',
+          },
+          {
+            'row': 3,
+            'column': 1,
+            'text': '割れた',
+          },
+          {
+            'row': 4,
+            'column': 1,
+            'text': 'カップ',
+          },
+        ]
+      );
 
       const targetWord1 = jointNearWordLine.wordByPosition.get(1);
       expect(targetWord1?.text()).toBe('開かない');
@@ -312,6 +374,41 @@ describe('Line', () => {
         column: 1,
         word: targetWord4,
       });
+    });
+  });
+
+  describe('rowWords', () => {
+    it('is void', () => {
+      const map = jointNearWordLine.rowWords(1);
+      expect(map.length).toBe(1);
+      expect(map[0].text()).toBe('開かない');
+    });
+  });
+
+  describe('wordsByRow', () => {
+    it('is void', () => {
+      const map = jointNearWordLine.wordsByRow();
+      expect(map.size).toBe(4);
+      expect(Array.from(map.values()).reduce<Array<string>>((sum, words) => {
+        sum.push(words.map(w => w.text()).join(' '));
+        return sum;
+      }, [])).toStrictEqual(
+        [
+          '開かない',
+          'カーテン',
+          '割れた',
+          'カップ',
+        ]);
+    });
+  });
+
+  describe('wordRowPosition', () => {
+    it('is void', () => {
+      const targetWord1 = jointNearWordLine.wordByPosition.get(1);
+      expect(targetWord1?.text()).toBe('開かない');
+
+      const row = jointNearWordLine.wordRowPosition(targetWord1!.id);
+      expect(row).toBe(1);
     });
   });
 

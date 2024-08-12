@@ -298,6 +298,25 @@ export class Line {
       .find((word) => word.isCurrent(now, { offset, equal }));
   }
 
+  public currentRow(
+    now: number,
+    options: {
+      offset?: number;
+      equal?: boolean;
+    } = {
+        offset: 0,
+        equal: true,
+      }
+  ): number | undefined {
+
+    const offset = options.offset ?? 0;
+    const equal = options.equal ?? true;
+    const currentWord = Array.from(this.wordByPosition.values())
+      .sort((a, b) => b.begin() - a.begin())
+      .find((word) => word.isCurrent(now, { offset, equal }));
+    return currentWord?.position
+  }
+
   public currentWords(
     now: number,
     options: {
@@ -334,6 +353,23 @@ export class Line {
     return Array.from(map.values())
       .filter((v) => v.row === row)
       .map((v) => v.word);
+  }
+
+  public wordsByRow(): Map<number, Word[]> {
+    const map = this.wordGridPositionByWordID();
+    return Array.from(map.values()).reduce<Map<number, Word[]>>(
+      (acc, v) => {
+        if (!acc.has(v.row)) {
+          acc.set(v.row, []);
+        }
+        acc.get(v.row)!.push(v.word);
+        return acc;
+      }, new Map()
+    );
+  }
+
+  public wordRowPosition(wordID: string): number | undefined {
+    return this.wordGridPositionByWordID().get(wordID)?.row;
   }
 
   public nextWord(
