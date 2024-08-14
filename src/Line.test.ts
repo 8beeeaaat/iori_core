@@ -284,6 +284,12 @@ describe('Line', () => {
     });
   });
 
+  describe('speed', () => {
+    it('should return the speed of the line', () => {
+      expect(jointNearWordLine.speed()).toBe(6.5);
+    });
+  });
+
   describe('text', () => {
     it('should return the text of the line', () => {
       expect(jointNearWordLine.text()).toBe(

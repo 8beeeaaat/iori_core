@@ -1,4 +1,5 @@
 import Char from './Char';
+import { CHAR_TYPES } from './Constants';
 import Word, { WordCreateArgs, WordUpdateArgs } from './Word';
 
 export type LineCreateArgs = {
@@ -224,6 +225,13 @@ export class Line {
       throw new Error('Can not calculate duration of a invalid line');
     }
     return this.end() - this.begin();
+  }
+
+  public speed(): number {
+    const speeds = this.words().map(w => w.speed())
+    speeds.sort((a, b) => a - b)
+    const half = Math.floor(speeds.length / 2)
+    return parseFloat((speeds.length % 2 ? speeds[half] : (speeds[half - 1] + speeds[half]) / 2).toFixed(2))
   }
 
   public text(): string {
@@ -520,6 +528,12 @@ export class Line {
     }
 
     return map;
+  }
+
+  public textsPerSecond(): number {
+    const words = this.words();
+    const duration = this.duration();
+    return words.reduce((acc, word) => acc + word.chars().reduce((acc, char) => acc + (char.type === CHAR_TYPES.WHITESPACE ? 0 : char.type === CHAR_TYPES.ALPHABET || char.type === CHAR_TYPES.NUMBER ? 0.5 : 1), 0), 0) / duration;
   }
 }
 

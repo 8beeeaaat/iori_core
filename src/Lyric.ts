@@ -1,9 +1,9 @@
 import { WordTimeline } from './Constants';
 import Line from './Line';
 import {
-  Paragraph,
-  ParagraphCreateArgs,
-  ParagraphUpdateArgs,
+    Paragraph,
+    ParagraphCreateArgs,
+    ParagraphUpdateArgs,
 } from './Paragraph';
 import { Word } from './Word';
 
@@ -144,6 +144,13 @@ export class Lyric {
     return this.paragraphs()
       .flatMap((paragraph) => Array.from(paragraph.lineByPosition.values()))
       .sort((a, b) => a.begin() - b.begin());
+  }
+
+  public speed(): number {
+    const speeds = this.paragraphs().map(w => w.speed())
+    speeds.sort((a, b) => a - b)
+    const half = Math.floor(speeds.length / 2)
+    return parseFloat((speeds.length % 2 ? speeds[half] : (speeds[half - 1] + speeds[half]) / 2).toFixed(2))
   }
 
   public currentParagraph(

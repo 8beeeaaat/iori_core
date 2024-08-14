@@ -221,6 +221,12 @@ describe('Paragraph', () => {
     });
   });
 
+  describe('speed', async () => {
+    it('should return the speed of the line', () => {
+      expect(paragraph.speed()).toBe(7.38);
+    });
+  });
+
   describe('voids', () => {
     it('should return between paragraphs', () => {
       expect(paragraph.voids()).toStrictEqual([

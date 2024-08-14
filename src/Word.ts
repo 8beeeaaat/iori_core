@@ -1,5 +1,5 @@
 import { Char } from './Char';
-import { WordTimeline } from './Constants';
+import { CHAR_TYPES, WordTimeline } from './Constants';
 
 export type WordCreateArgs = {
   lineID: string;
@@ -112,6 +112,11 @@ export class Word {
       );
     }
     return this.end() - this.begin();
+  }
+
+  public speed(): number {
+    const duration = this.duration();
+    return this.chars().reduce((acc, char) => acc + (char.type === CHAR_TYPES.WHITESPACE ? 0 : char.type === CHAR_TYPES.ALPHABET || char.type === CHAR_TYPES.NUMBER ? 0.5 : 1), 0) / duration;
   }
 
   public durationByChar(): number {

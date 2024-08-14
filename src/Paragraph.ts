@@ -171,9 +171,9 @@ export class Paragraph {
       offset?: number;
       equal?: boolean;
     } = {
-      offset: 0,
-      equal: true,
-    }
+        offset: 0,
+        equal: true,
+      }
   ): Line | undefined {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
@@ -188,9 +188,9 @@ export class Paragraph {
       offset?: number;
       equal?: boolean;
     } = {
-      offset: 0,
-      equal: true,
-    }
+        offset: 0,
+        equal: true,
+      }
   ): Line[] {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
@@ -231,6 +231,13 @@ export class Paragraph {
       throw new Error('Can not calculate duration of a invalid paragraph');
     }
     return this.end() - this.begin();
+  }
+
+  public speed(): number {
+    const speeds = this.allLines().map(w => w.speed())
+    speeds.sort((a, b) => a - b)
+    const half = Math.floor(speeds.length / 2)
+    return parseFloat((speeds.length % 2 ? speeds[half] : (speeds[half - 1] + speeds[half]) / 2).toFixed(2))
   }
 
   public voids(): { begin: number; end: number; duration: number }[] {

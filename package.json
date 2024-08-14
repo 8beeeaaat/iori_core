@@ -1,6 +1,6 @@
 {
   "name": "@ioris/core",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -48,16 +48,16 @@
   },
   "homepage": "https://github.com/8beeeaaat/iori_core#readme",
   "devDependencies": {
-    "@eslint/js": "^9.7.0",
+    "@eslint/js": "^9.9.0",
     "esbuild": "^0.23.0",
-    "eslint": "^9.7.0",
-    "globals": "^15.8.0",
-    "jsdom": "^24.1.0",
+    "eslint": "^9.9.0",
+    "globals": "^15.9.0",
+    "jsdom": "^24.1.1",
     "npm-run-all": "^4.1.5",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.3",
-    "typescript-eslint": "^8.0.0-alpha.47",
-    "vitest": "^2.0.3"
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.1.0",
+    "vitest": "^2.0.5"
   }
 }

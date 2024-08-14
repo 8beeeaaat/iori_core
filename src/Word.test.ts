@@ -107,6 +107,21 @@ describe('Word', () => {
     });
   });
 
+  describe('speed', () => {
+    it('should return word text per seconds', () => {
+      expect(word.speed()).toBe(2);
+      expect(new Word({
+        lineID: '1',
+        position: 1,
+        timeline: {
+          begin: 0,
+          end: 10,
+          text: '123 ４５６ abc あいう アイウ 亜意宇',
+        },
+      }).speed()).toBe(1.5);
+    });
+  });
+
   describe('currentChar', () => {
     it('should return the Word of "a"', () => {
       expect(word.currentChar(0.2)?.text).toBe('a');
