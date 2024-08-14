@@ -56,6 +56,13 @@ describe('Lyric', () => {
     });
   });
 
+  describe('speed', () => {
+    it('should return the speed', () => {
+      expect(lyric.speed()).toBe(3.25);
+    });
+  });
+
+
   describe('voids', () => {
     it('should return between paragraphs', () => {
       expect(lyric.voids()).toStrictEqual([

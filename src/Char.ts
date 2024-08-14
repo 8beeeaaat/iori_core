@@ -1,4 +1,4 @@
-import { CharType } from './Constants';
+import { CHAR_TYPES, CharType } from './Constants';
 
 export type CharArgs = {
   wordID: string;
@@ -49,53 +49,25 @@ export class Char {
   }
 
   private getType(): CharType {
-    if (this.isWhitespace()) {
-      return 'whitespace';
+    if (/^\s+$/.test(this.text)) {
+      return CHAR_TYPES.WHITESPACE;
     }
-    if (this.isAlphabet()) {
-      return 'alphabet';
+    if (/^[a-zA-Z]+$/.test(this.text)) {
+      return CHAR_TYPES.ALPHABET;
     }
-    if (this.isNumber()) {
-      return 'number';
+    if (/^[0-9]+$/.test(this.text)) {
+      return CHAR_TYPES.NUMBER;
     }
-    if (this.isKanji()) {
-      return 'kanji';
+    if (/^[\u4E00-\u9FFF]+$/.test(this.text)) {
+      return CHAR_TYPES.KANJI;
     }
-    if (this.isHiragana()) {
-      return 'hiragana';
+    if (/^[\u3040-\u309F]+$/.test(this.text)) {
+      return CHAR_TYPES.HIRAGANA;
     }
-    if (this.isKatakana()) {
-      return 'katakana';
+    if (/^[\u30A0-\u30FF]+$/.test(this.text)) {
+      return CHAR_TYPES.KATAKANA;
     }
-    return 'other';
-  }
-
-  public isWhitespace(): boolean {
-    return /^\s+$/.test(this.text);
-  }
-
-  public isAlphabet(): boolean {
-    return /^[a-zA-Z]+$/.test(this.text);
-  }
-
-  public isNumber(): boolean {
-    return /^[0-9]+$/.test(this.text);
-  }
-
-  public isKanji(): boolean {
-    return /^[\u4E00-\u9FFF]+$/.test(this.text);
-  }
-
-  public isHiragana(): boolean {
-    return /^[\u3040-\u309F]+$/.test(this.text);
-  }
-
-  public isKatakana(): boolean {
-    return /^[\u30A0-\u30FF]+$/.test(this.text);
-  }
-
-  public isJapanese(): boolean {
-    return this.isKanji() || this.isHiragana() || this.isKatakana();
+    return CHAR_TYPES.OTHER;
   }
 
   public isCurrent(
@@ -104,9 +76,9 @@ export class Char {
       offset?: number;
       equal?: boolean;
     } = {
-      offset: 0,
-      equal: true,
-    }
+        offset: 0,
+        equal: true,
+      }
   ): boolean {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
@@ -119,10 +91,13 @@ export class Char {
     if (this.id === c.id) {
       throw new Error('Can not compare between the same char');
     }
-    if (this.isWhitespace() || c.isWhitespace()) {
+    if (this.getType() === CHAR_TYPES.WHITESPACE || c.getType() === CHAR_TYPES.WHITESPACE) {
       return false;
     }
-    if (this.isJapanese() && c.isJapanese()) {
+    if ([CHAR_TYPES.KANJI, CHAR_TYPES.HIRAGANA, CHAR_TYPES.KATAKANA]
+      .some(t => t === this.getType()) &&
+      [CHAR_TYPES.KANJI, CHAR_TYPES.HIRAGANA, CHAR_TYPES.KATAKANA]
+        .some(t => t === c.getType())) {
       return false;
     }
     return this.type !== c.type;
