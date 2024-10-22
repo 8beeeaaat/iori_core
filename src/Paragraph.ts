@@ -1,20 +1,20 @@
-import Line, { LineCreateArgs, LineUpdateArgs } from './Line';
-import { Word } from './Word';
+import Line, { type LineCreateArgs, type LineUpdateArgs } from "./Line";
+import type { Word } from "./Word";
 
 export type ParagraphCreateArgs = {
   lyricID: string;
   position: number;
-  timelines: LineCreateArgs['timelines'][];
+  timelines: LineCreateArgs["timelines"][];
   tokenizer?: (
-    lineArgs: LineCreateArgs
+    lineArgs: LineCreateArgs,
   ) => Promise<Map<number, LineCreateArgs>>;
 };
 
 export type ParagraphUpdateArgs = {
   position: number;
-  timelines: LineUpdateArgs['timelines'][];
+  timelines: LineUpdateArgs["timelines"][];
   tokenizer?: (
-    lineArgs: LineUpdateArgs
+    lineArgs: LineUpdateArgs,
   ) => Promise<Map<number, LineUpdateArgs>>;
 };
 
@@ -26,7 +26,7 @@ export class Paragraph {
   _args: ParagraphCreateArgs;
 
   constructor(props: ParagraphCreateArgs) {
-    this.id = '';
+    this.id = "";
     this.lyricID = props.lyricID;
     this.position = props.position;
     this.lineByPosition = new Map();
@@ -35,6 +35,27 @@ export class Paragraph {
 
   public async init() {
     this.id = `paragraph-${crypto.randomUUID()}`;
+    //beginが直前のendよりも前のときはマージする
+    this._args.timelines = this._args.timelines.reduce<
+      LineCreateArgs["timelines"][]
+    >((acc, timelines) => {
+      const lastTimelines = acc[acc.length - 1];
+      const last = lastTimelines
+        ? lastTimelines[lastTimelines.length - 1]
+        : null;
+      const thisFirst = timelines[0];
+      if (
+        last &&
+        (last.end > thisFirst.begin ||
+          (last.end === thisFirst.begin && last.text.length < 8))
+      ) {
+        last.end = thisFirst.end;
+        last.text += ` ${thisFirst.text}`;
+        return acc;
+      }
+      acc.push(timelines);
+      return acc;
+    }, []);
 
     const lineCreateArgsByPosition = this._args.timelines.reduce<
       Array<Promise<Map<number, LineCreateArgs>>>
@@ -58,9 +79,9 @@ export class Paragraph {
                   timelines,
                 },
               ],
-            ])
+            ]),
           );
-        })
+        }),
       );
       return acc;
     }, []);
@@ -69,7 +90,7 @@ export class Paragraph {
 
     this.lineByPosition = resolved.reduce<Map<number, Line>>(
       (acc, lineByPosition) => {
-        Array.from(lineByPosition).forEach(([, args]) => {
+        for (const [, args] of lineByPosition) {
           const lastLine = acc.get(acc.size);
           const position = lastLine ? lastLine.position + 1 : acc.size + 1;
           acc.set(
@@ -77,12 +98,12 @@ export class Paragraph {
             new Line({
               ...args,
               position,
-            })
+            }),
           );
-        });
+        }
         return acc;
       },
-      new Map()
+      new Map(),
     );
 
     return this;
@@ -113,9 +134,9 @@ export class Paragraph {
                   timelines,
                 },
               ],
-            ])
+            ]),
           );
-        })
+        }),
       );
       return acc;
     }, []);
@@ -124,7 +145,7 @@ export class Paragraph {
 
     this.lineByPosition = resolved.reduce<Map<number, Line>>(
       (acc, lineByPosition) => {
-        Array.from(lineByPosition).forEach(([, args]) => {
+        for (const [, args] of lineByPosition) {
           const lastLine = acc.get(acc.size);
           const position = lastLine ? lastLine.position + 1 : acc.size + 1;
           const currentLine = this.lineByPosition.get(position);
@@ -134,15 +155,15 @@ export class Paragraph {
               new Line({
                 ...args,
                 position,
-              })
+              }),
             );
-            return;
+            continue;
           }
           acc.set(position, currentLine.update(args));
-        });
+        }
         return acc;
       },
-      new Map()
+      new Map(),
     );
 
     return this;
@@ -158,7 +179,7 @@ export class Paragraph {
 
   public betweenDuration(c: Paragraph): number {
     if (this.id === c.id) {
-      throw new Error('Can not compare between the same paragraph');
+      throw new Error("Can not compare between the same paragraph");
     }
     return c.begin() > this.end()
       ? c.begin() - this.end()
@@ -171,9 +192,9 @@ export class Paragraph {
       offset?: number;
       equal?: boolean;
     } = {
-        offset: 0,
-        equal: true,
-      }
+      offset: 0,
+      equal: true,
+    },
   ): Line | undefined {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
@@ -188,9 +209,9 @@ export class Paragraph {
       offset?: number;
       equal?: boolean;
     } = {
-        offset: 0,
-        equal: true,
-      }
+      offset: 0,
+      equal: true,
+    },
   ): Line[] {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
@@ -209,7 +230,7 @@ export class Paragraph {
         acc.push(...line.words());
         return acc;
       },
-      []
+      [],
     );
   }
 
@@ -219,7 +240,7 @@ export class Paragraph {
 
   public averageLineDuration(): number {
     const durations = Array.from(this.lineByPosition.values()).map((line) =>
-      line.duration()
+      line.duration(),
     );
     return (
       durations.reduce((sum, duration) => sum + duration, 0) / durations.length
@@ -228,16 +249,21 @@ export class Paragraph {
 
   public duration(): number {
     if (this.begin() >= this.end()) {
-      throw new Error('Can not calculate duration of a invalid paragraph');
+      throw new Error("Can not calculate duration of a invalid paragraph");
     }
     return this.end() - this.begin();
   }
 
   public speed(): number {
-    const speeds = this.allLines().map(w => w.speed())
-    speeds.sort((a, b) => a - b)
-    const half = Math.floor(speeds.length / 2)
-    return parseFloat((speeds.length % 2 ? speeds[half] : (speeds[half - 1] + speeds[half]) / 2).toFixed(2))
+    const speeds = this.allLines().map((w) => w.speed());
+    speeds.sort((a, b) => a - b);
+    const half = Math.floor(speeds.length / 2);
+    return Number.parseFloat(
+      (speeds.length % 2
+        ? speeds[half]
+        : (speeds[half - 1] + speeds[half]) / 2
+      ).toFixed(2),
+    );
   }
 
   public voids(): { begin: number; end: number; duration: number }[] {
@@ -273,7 +299,7 @@ export class Paragraph {
 
         return acc;
       },
-      []
+      [],
     );
   }
 

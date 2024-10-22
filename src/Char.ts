@@ -1,4 +1,4 @@
-import { CHAR_TYPES, CharType } from './Constants';
+import { CHAR_TYPES, type CharType } from "./Constants";
 
 export type CharArgs = {
   wordID: string;
@@ -18,13 +18,13 @@ export class Char {
   end: number;
 
   constructor(props: CharArgs) {
-    this.id = '';
+    this.id = "";
     this.wordID = props.wordID;
     this.position = props.position;
     this.text = props.text;
     this.begin = props.begin;
     this.end = props.end;
-    this.type = 'other';
+    this.type = "other";
 
     this.init();
   }
@@ -36,14 +36,14 @@ export class Char {
 
   public betweenDuration(c: Char): number {
     if (this.id === c.id) {
-      throw new Error('Can not compare between the same char');
+      throw new Error("Can not compare between the same char");
     }
     return c.begin > this.end ? c.begin - this.end : this.begin - c.end;
   }
 
   public duration(): number {
     if (this.begin >= this.end) {
-      throw new Error('Can not calculate duration of a invalid char');
+      throw new Error("Can not calculate duration of a invalid char");
     }
     return this.end - this.begin;
   }
@@ -76,9 +76,9 @@ export class Char {
       offset?: number;
       equal?: boolean;
     } = {
-        offset: 0,
-        equal: true,
-      }
+      offset: 0,
+      equal: true,
+    },
   ): boolean {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
@@ -89,15 +89,22 @@ export class Char {
 
   public needBetweenWhitespace(c: Char): boolean {
     if (this.id === c.id) {
-      throw new Error('Can not compare between the same char');
+      throw new Error("Can not compare between the same char");
     }
-    if (this.getType() === CHAR_TYPES.WHITESPACE || c.getType() === CHAR_TYPES.WHITESPACE) {
+    if (
+      this.getType() === CHAR_TYPES.WHITESPACE ||
+      c.getType() === CHAR_TYPES.WHITESPACE
+    ) {
       return false;
     }
-    if ([CHAR_TYPES.KANJI, CHAR_TYPES.HIRAGANA, CHAR_TYPES.KATAKANA]
-      .some(t => t === this.getType()) &&
-      [CHAR_TYPES.KANJI, CHAR_TYPES.HIRAGANA, CHAR_TYPES.KATAKANA]
-        .some(t => t === c.getType())) {
+    if (
+      [CHAR_TYPES.KANJI, CHAR_TYPES.HIRAGANA, CHAR_TYPES.KATAKANA].some(
+        (t) => t === this.getType(),
+      ) &&
+      [CHAR_TYPES.KANJI, CHAR_TYPES.HIRAGANA, CHAR_TYPES.KATAKANA].some(
+        (t) => t === c.getType(),
+      )
+    ) {
       return false;
     }
     return this.type !== c.type;

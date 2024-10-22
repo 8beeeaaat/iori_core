@@ -1,10 +1,10 @@
-import { Char } from './Char';
-import { CHAR_TYPES, WordTimeline } from './Constants';
+import { Char } from "./Char";
+import { CHAR_TYPES, type WordTimeline } from "./Constants";
 
 export type WordCreateArgs = {
   lineID: string;
   position: number;
-  timeline: Omit<WordTimeline, 'wordID'>;
+  timeline: Omit<WordTimeline, "wordID">;
 };
 
 export type WordUpdateArgs = {
@@ -20,10 +20,10 @@ export class Word {
   timeline: WordTimeline;
 
   constructor(props: WordCreateArgs) {
-    this.id = '';
+    this.id = "";
     this.timeline = {
       ...props.timeline,
-      wordID: '',
+      wordID: "",
     };
     this.lineID = props.lineID;
     this.position = props.position;
@@ -41,7 +41,7 @@ export class Word {
       wordID: this.id,
     };
 
-    const charTexts = props.timeline.text.split('');
+    const charTexts = props.timeline.text.split("");
     const durationByChar = this.duration() / charTexts.length;
     this.charByPosition = charTexts.reduce<Map<number, Char>>(
       (acc, char, index) => {
@@ -54,18 +54,18 @@ export class Word {
             text: char,
             begin: this.begin() + index * durationByChar,
             end: this.begin() + position * durationByChar,
-          })
+          }),
         );
         return acc;
       },
-      this.charByPosition
+      this.charByPosition,
     );
   }
 
   public update(props: WordUpdateArgs) {
     this.timeline = props.timeline;
     this.position = props.position;
-    const charTexts = this.timeline.text.split('');
+    const charTexts = this.timeline.text.split("");
     const durationByChar = this.duration() / charTexts.length;
     this.charByPosition = charTexts.reduce<Map<number, Char>>(
       (acc, char, index) => {
@@ -78,11 +78,11 @@ export class Word {
             text: char,
             begin: this.begin() + index * durationByChar,
             end: this.begin() + position * durationByChar,
-          })
+          }),
         );
         return acc;
       },
-      new Map()
+      new Map(),
     );
     return this;
   }
@@ -107,8 +107,9 @@ export class Word {
   public duration(): number {
     if (this.begin() >= this.end()) {
       throw new Error(
-        `Can not calculate duration of a invalid word: ${this.id
-        } ${this.begin()}-${this.end()}`
+        `Can not calculate duration of a invalid word: ${
+          this.id
+        } ${this.begin()}-${this.end()}`,
       );
     }
     return this.end() - this.begin();
@@ -116,7 +117,19 @@ export class Word {
 
   public speed(): number {
     const duration = this.duration();
-    return this.chars().reduce((acc, char) => acc + (char.type === CHAR_TYPES.WHITESPACE ? 0 : char.type === CHAR_TYPES.ALPHABET || char.type === CHAR_TYPES.NUMBER ? 0.5 : 1), 0) / duration;
+    return (
+      this.chars().reduce(
+        (acc, char) =>
+          acc +
+          (char.type === CHAR_TYPES.WHITESPACE
+            ? 0
+            : char.type === CHAR_TYPES.ALPHABET ||
+                char.type === CHAR_TYPES.NUMBER
+              ? 0.5
+              : 1),
+        0,
+      ) / duration
+    );
   }
 
   public durationByChar(): number {
@@ -126,7 +139,7 @@ export class Word {
   public text(): string {
     return Array.from(this.charByPosition.values())
       .map((char) => char.text)
-      .join('');
+      .join("");
   }
 
   public begin(): number {
@@ -143,9 +156,9 @@ export class Word {
       offset?: number;
       equal?: boolean;
     } = {
-        offset: 0,
-        equal: true,
-      }
+      offset: 0,
+      equal: true,
+    },
   ): Char | undefined {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
@@ -160,14 +173,14 @@ export class Word {
       offset?: number;
       equal?: boolean;
     } = {
-        offset: 0,
-        equal: true,
-      }
+      offset: 0,
+      equal: true,
+    },
   ): Char[] {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
     return Array.from(this.charByPosition.values()).filter((char) =>
-      char.isCurrent(now, { offset, equal })
+      char.isCurrent(now, { offset, equal }),
     );
   }
 
@@ -177,9 +190,9 @@ export class Word {
       offset?: number;
       equal?: boolean;
     } = {
-        offset: 0,
-        equal: true,
-      }
+      offset: 0,
+      equal: true,
+    },
   ): boolean {
     const offset = options.offset ?? 0;
     const equal = options.equal ?? true;
