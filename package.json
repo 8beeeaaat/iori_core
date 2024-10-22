@@ -1,6 +1,6 @@
 {
   "name": "@ioris/core",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,7 +20,7 @@
     "dev": "npm run build && cd example && npm run dev",
     "format": "biome check --fix",
     "lint": "run-p lint:*",
-    "lint:eslint": "biome check",
+    "lint:biome": "biome check",
     "lint:ts": "tsc",
     "build": "rimraf ./dist && run-p build:*",
     "build:esbuild": "ts-node build.ts",
@@ -50,7 +50,6 @@
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^8.1.0",
     "vitest": "^2.0.5"
   }
 }
