@@ -1,12 +1,12 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-import { Lyric } from './Lyric';
+import { beforeEach, describe, expect, it } from "vitest";
+import { Lyric } from "./Lyric";
 
-describe('Lyric', () => {
+describe("Lyric", () => {
   let lyric: Lyric;
 
   beforeEach(async () => {
     lyric = await new Lyric({
-      id: 'lyric1',
+      id: "lyric1",
       duration: 10,
       timelines: [
         [
@@ -14,57 +14,56 @@ describe('Lyric', () => {
             {
               begin: 0.5,
               end: 1,
-              text: 'foo',
+              text: "foo",
               hasWhitespace: true,
             },
             {
               begin: 1,
               end: 1.5,
-              text: 'bar',
+              text: "bar",
             },
           ],
           [
             {
               begin: 2,
               end: 2.5,
-              text: 'an',
+              text: "an",
               hasWhitespace: true,
             },
             {
               begin: 2.5,
               end: 3,
-              text: 'apple',
+              text: "apple",
             },
           ],
         ],
       ],
-      resourceID: 'lyric1',
+      resourceID: "lyric1",
     }).init();
   });
 
-  describe('constructor', () => {
-    it('should create a new Lyric', () => {
-      expect(lyric.id).toBe('lyric1');
+  describe("constructor", () => {
+    it("should create a new Lyric", () => {
+      expect(lyric.id).toBe("lyric1");
       expect(lyric.duration).toBe(10);
       expect(lyric.offsetSec).toBe(0);
     });
   });
 
-  describe('paragraphAt', () => {
-    it('should return the Paragraph', () => {
+  describe("paragraphAt", () => {
+    it("should return the Paragraph", () => {
       expect(lyric.paragraphAt(1)?.duration()).toBe(2.5);
     });
   });
 
-  describe('speed', () => {
-    it('should return the speed', () => {
+  describe("speed", () => {
+    it("should return the speed", () => {
       expect(lyric.speed()).toBe(3.25);
     });
   });
 
-
-  describe('voids', () => {
-    it('should return between paragraphs', () => {
+  describe("voids", () => {
+    it("should return between paragraphs", () => {
       expect(lyric.voids()).toStrictEqual([
         {
           begin: 0,
@@ -85,51 +84,51 @@ describe('Lyric', () => {
     });
   });
 
-  describe('isVoid', () => {
-    it('is void', () => {
+  describe("isVoid", () => {
+    it("is void", () => {
       expect(lyric.isVoid(0.2)).toBe(true);
     });
-    it('not void', () => {
+    it("not void", () => {
       expect(lyric.isVoid(1)).toBe(false);
     });
   });
 
-  describe('timelines', () => {
-    it('should return the timelines by word', () => {
+  describe("timelines", () => {
+    it("should return the timelines by word", () => {
       expect(lyric.timelines()).toStrictEqual([
         [
           [
             {
-              wordID: lyric.currentWord(0.6)!.id,
+              wordID: lyric.currentWord(0.6)?.id,
               begin: 0.5,
               end: 1,
-              text: 'foo',
+              text: "foo",
               hasNewLine: false,
               hasWhitespace: true,
             },
             {
-              wordID: lyric.currentWord(1.1)!.id,
+              wordID: lyric.currentWord(1.1)?.id,
               begin: 1,
               end: 1.5,
-              text: 'bar',
+              text: "bar",
               hasNewLine: false,
               hasWhitespace: false,
             },
           ],
           [
             {
-              wordID: lyric.currentWord(2.1)!.id,
+              wordID: lyric.currentWord(2.1)?.id,
               begin: 2,
               end: 2.5,
-              text: 'an',
+              text: "an",
               hasNewLine: false,
               hasWhitespace: true,
             },
             {
-              wordID: lyric.currentWord(2.6)!.id,
+              wordID: lyric.currentWord(2.6)?.id,
               begin: 2.5,
               end: 3,
-              text: 'apple',
+              text: "apple",
               hasNewLine: false,
               hasWhitespace: false,
             },
@@ -138,22 +137,22 @@ describe('Lyric', () => {
       ]);
     });
 
-    it('should return the timelines by line', () => {
+    it("should return the timelines by line", () => {
       expect(lyric.timelinesByLine()).toStrictEqual([
         [
           {
-            wordID: lyric.currentWord(0.6)!.id,
+            wordID: lyric.currentWord(0.6)?.id,
             begin: 0.5,
             end: 1.5,
-            text: 'foo bar',
+            text: "foo bar",
             hasWhitespace: false,
             hasNewLine: false,
           },
           {
-            wordID: lyric.currentWord(2.1)!.id,
+            wordID: lyric.currentWord(2.1)?.id,
             begin: 2,
             end: 3,
-            text: 'an apple',
+            text: "an apple",
             hasWhitespace: false,
             hasNewLine: false,
           },
@@ -162,8 +161,8 @@ describe('Lyric', () => {
     });
   });
 
-  describe('update timelines', () => {
-    it('should update the timelines', async () => {
+  describe("update timelines", () => {
+    it("should update the timelines", async () => {
       const currentWords = lyric.words();
       await lyric.update({
         timelines: [
@@ -173,14 +172,14 @@ describe('Lyric', () => {
                 wordID: currentWords[0].id,
                 begin: 0.5,
                 end: 1,
-                text: '1',
+                text: "1",
                 hasWhitespace: true,
               },
               {
                 wordID: currentWords[1].id,
                 begin: 1,
                 end: 1.5,
-                text: '2',
+                text: "2",
               },
             ],
             [
@@ -188,7 +187,7 @@ describe('Lyric', () => {
                 wordID: currentWords[2].id,
                 begin: 2,
                 end: 2.5,
-                text: '3',
+                text: "3",
                 hasWhitespace: true,
               },
             ],
@@ -203,7 +202,7 @@ describe('Lyric', () => {
               wordID: currentWords[0].id,
               begin: 0.5,
               end: 1,
-              text: '1',
+              text: "1",
               hasNewLine: false,
               hasWhitespace: true,
             },
@@ -211,7 +210,7 @@ describe('Lyric', () => {
               wordID: currentWords[1].id,
               begin: 1,
               end: 1.5,
-              text: '2',
+              text: "2",
               hasNewLine: false,
               hasWhitespace: false,
             },
@@ -221,7 +220,7 @@ describe('Lyric', () => {
               wordID: currentWords[2].id,
               begin: 2,
               end: 2.5,
-              text: '3',
+              text: "3",
               hasNewLine: false,
               hasWhitespace: true,
             },

@@ -1,26 +1,26 @@
-import { WordTimeline } from './Constants';
-import Line from './Line';
+import type { WordTimeline } from "./Constants";
+import type Line from "./Line";
 import {
-    Paragraph,
-    ParagraphCreateArgs,
-    ParagraphUpdateArgs,
-} from './Paragraph';
-import { Word } from './Word';
+  Paragraph,
+  type ParagraphCreateArgs,
+  type ParagraphUpdateArgs,
+} from "./Paragraph";
+import type { Word } from "./Word";
 
 export type LyricCreateArgs = {
   initID?: boolean;
   id?: string;
   resourceID: string;
   duration: number;
-  timelines: ParagraphCreateArgs['timelines'][];
-  tokenizer?: ParagraphCreateArgs['tokenizer'];
+  timelines: ParagraphCreateArgs["timelines"][];
+  tokenizer?: ParagraphCreateArgs["tokenizer"];
   offsetSec?: number;
 };
 
 export type LyricUpdateArgs = {
   resourceID?: string;
   duration?: number;
-  timelines?: ParagraphUpdateArgs['timelines'][];
+  timelines?: ParagraphUpdateArgs["timelines"][];
   offsetSec?: number;
 };
 
@@ -37,7 +37,7 @@ export class Lyric {
       ? props.id
       : props.initID
         ? `lyric-${crypto.randomUUID()}`
-        : '';
+        : "";
     this.resourceID = props.resourceID;
     this.duration = Number(props.duration.toFixed(2));
     this.paragraphByPosition = new Map();
@@ -57,7 +57,7 @@ export class Lyric {
           position,
           timelines,
           tokenizer: this._args.tokenizer,
-        })
+        }),
       );
       return acc;
     }, new Map());
@@ -65,7 +65,7 @@ export class Lyric {
     const paragraphs = await Promise.all(
       Array.from(paragraphByPosition.values()).map((paragraph) => {
         return paragraph.init();
-      })
+      }),
     );
     this.paragraphByPosition = paragraphs.reduce((acc, paragraph) => {
       acc.set(paragraph.position, paragraph);
@@ -93,13 +93,13 @@ export class Lyric {
       Array.from(this.paragraphByPosition.values()).map(async (paragraph) => {
         const updatedParagraph = await paragraph.update({
           position: paragraph.position,
-          timelines: props.timelines![paragraph.position - 1],
+          timelines: props.timelines?.[paragraph.position - 1] || [[]],
         });
         this.paragraphByPosition.set(paragraph.position, updatedParagraph);
-      })
+      }),
     );
 
-    return this
+    return this;
   }
 
   public paragraphAt(position: number): Paragraph | undefined {
@@ -112,13 +112,14 @@ export class Lyric {
         acc.push(...paragraph.words());
         return acc;
       },
-      []
+      [],
     );
   }
 
   public lineParagraph(line: Line) {
     return this.paragraphs().find(
-      (paragraph) => paragraph.lineByPosition.get(line.position)?.id === line.id
+      (paragraph) =>
+        paragraph.lineByPosition.get(line.position)?.id === line.id,
     );
   }
 
@@ -127,16 +128,18 @@ export class Lyric {
   }
 
   public linePositionInParagraph(line: Line) {
+    const positions = this.lineParagraph(line)?.lineByPosition;
+    if (!positions) {
+      return;
+    }
     return (
-      Array.from(this.lineParagraph(line)!.lineByPosition.values()).findIndex(
-        (l) => l.id === line.id
-      ) + 1
+      Array.from(positions.values()).findIndex((l) => l.id === line.id) + 1
     );
   }
 
   public paragraphs(): Paragraph[] {
     return Array.from(this.paragraphByPosition.values()).sort(
-      (a, b) => a.begin() - b.begin()
+      (a, b) => a.begin() - b.begin(),
     );
   }
 
@@ -147,10 +150,15 @@ export class Lyric {
   }
 
   public speed(): number {
-    const speeds = this.paragraphs().map(w => w.speed())
-    speeds.sort((a, b) => a - b)
-    const half = Math.floor(speeds.length / 2)
-    return parseFloat((speeds.length % 2 ? speeds[half] : (speeds[half - 1] + speeds[half]) / 2).toFixed(2))
+    const speeds = this.paragraphs().map((w) => w.speed());
+    speeds.sort((a, b) => a - b);
+    const half = Math.floor(speeds.length / 2);
+    return Number.parseFloat(
+      (speeds.length % 2
+        ? speeds[half]
+        : (speeds[half - 1] + speeds[half]) / 2
+      ).toFixed(2),
+    );
   }
 
   public currentParagraph(
@@ -159,9 +167,9 @@ export class Lyric {
       offset?: number;
       equal?: boolean;
     } = {
-        offset: this.offsetSec,
-        equal: true,
-      }
+      offset: this.offsetSec,
+      equal: true,
+    },
   ) {
     const offset = options.offset ?? this.offsetSec;
     const equal = options.equal ?? true;
@@ -179,9 +187,9 @@ export class Lyric {
       offset?: number;
       equal?: boolean;
     } = {
-        offset: this.offsetSec,
-        equal: true,
-      }
+      offset: this.offsetSec,
+      equal: true,
+    },
   ) {
     const offset = options.offset ?? this.offsetSec;
     const equal = options.equal ?? true;
@@ -200,9 +208,9 @@ export class Lyric {
       offset?: number;
       equal?: boolean;
     } = {
-        offset: this.offsetSec,
-        equal: true,
-      }
+      offset: this.offsetSec,
+      equal: true,
+    },
   ) {
     const offset = options.offset ?? this.offsetSec;
     const equal = options.equal ?? true;
@@ -222,9 +230,9 @@ export class Lyric {
       offset?: number;
       equal?: boolean;
     } = {
-        offset: this.offsetSec,
-        equal: true,
-      }
+      offset: this.offsetSec,
+      equal: true,
+    },
   ) {
     const offset = options.offset ?? this.offsetSec;
     const equal = options.equal ?? true;
@@ -248,8 +256,8 @@ export class Lyric {
     options: {
       offset?: number;
     } = {
-        offset: this.offsetSec,
-      }
+      offset: this.offsetSec,
+    },
   ) {
     const offset = options.offset ?? 0;
     return this.paragraphs().find((p) => p.begin() > now + offset);
@@ -260,8 +268,8 @@ export class Lyric {
     options: {
       offset?: number;
     } = {
-        offset: this.offsetSec,
-      }
+      offset: this.offsetSec,
+    },
   ) {
     const offset = options.offset ?? 0;
     return this.lines().find((p) => p.begin() > now + offset);
@@ -272,8 +280,8 @@ export class Lyric {
     options: {
       offset?: number;
     } = {
-        offset: this.offsetSec,
-      }
+      offset: this.offsetSec,
+    },
   ) {
     const offset = options.offset ?? 0;
     return (
@@ -287,8 +295,8 @@ export class Lyric {
     options: {
       offset?: number;
     } = {
-        offset: this.offsetSec,
-      }
+      offset: this.offsetSec,
+    },
   ) {
     const offset = options.offset ?? 0;
     return this.paragraphs()
@@ -301,8 +309,8 @@ export class Lyric {
     options: {
       offset?: number;
     } = {
-        offset: this.offsetSec,
-      }
+      offset: this.offsetSec,
+    },
   ) {
     const offset = options.offset ?? 0;
     return this.lines()
@@ -315,8 +323,8 @@ export class Lyric {
     options: {
       offset?: number;
     } = {
-        offset: this.offsetSec,
-      }
+      offset: this.offsetSec,
+    },
   ) {
     const offset = options.offset ?? 0;
     return (
@@ -325,13 +333,12 @@ export class Lyric {
     );
   }
 
-  private _wordsByLineIDAndRowPosition(acc: Map<
-    string,
-    Map<number, Map<number, Word>>
-  >,
+  private _wordsByLineIDAndRowPosition(
+    acc: Map<string, Map<number, Map<number, Word>>>,
     line: Line,
-    wordPositionMap: ReturnType<Line['wordGridPositionByWordID']>): ReturnType<Lyric['wordsByLineIDAndRowPosition']> {
-    wordPositionMap.forEach(({ row, column, word }) => {
+    wordPositionMap: ReturnType<Line["wordGridPositionByWordID"]>,
+  ): ReturnType<Lyric["wordsByLineIDAndRowPosition"]> {
+    for (const { row, column, word } of wordPositionMap.values()) {
       if (!acc.get(line.id)) {
         acc.set(line.id, new Map());
       }
@@ -339,19 +346,18 @@ export class Lyric {
         acc.get(line.id)?.set(row, new Map());
       }
       acc.get(line.id)?.get(row)?.set(column, word);
-    });
+    }
 
     return acc;
   }
 
   /**
-    * @param reducer A reducer function to customize the result.
-    * @returns A map of words by line ID and row position.
-  */
-  public wordsByLineIDAndRowPosition(reducer = this._wordsByLineIDAndRowPosition): Map<
-    string,
-    Map<number, Map<number, Word>>
-  > {
+   * @param reducer A reducer function to customize the result.
+   * @returns A map of words by line ID and row position.
+   */
+  public wordsByLineIDAndRowPosition(
+    reducer = this._wordsByLineIDAndRowPosition,
+  ): Map<string, Map<number, Map<number, Word>>> {
     return this.lines().reduce((acc, line) => {
       const wordPositionMap = line.wordGridPositionByWordID();
 
@@ -387,14 +393,14 @@ export class Lyric {
             begin: prevWord.timeline.end,
             end: word.timeline.begin,
             duration: Number(
-              (word.timeline.begin - prevWord.timeline.end).toFixed(2)
+              (word.timeline.begin - prevWord.timeline.end).toFixed(2),
             ),
           });
         }
 
         return acc;
       },
-      []
+      [],
     );
   }
 
@@ -418,11 +424,11 @@ export class Lyric {
       return Array.from(paragraph.lineByPosition.values()).map((line) => {
         const firstWord = line.wordByPosition.get(1);
         if (!firstWord) {
-          throw new Error('firstWord is undefined');
+          throw new Error("firstWord is undefined");
         }
         const lastWord = line.wordByPosition.get(line.wordByPosition.size);
         if (!lastWord) {
-          throw new Error('lastWord is undefined');
+          throw new Error("lastWord is undefined");
         }
         return {
           wordID: firstWord.id,

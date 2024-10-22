@@ -1,21 +1,21 @@
-import { BuildOptions, build } from 'esbuild';
-const entryFile = './src/index.ts';
+import { type BuildOptions, build } from "esbuild";
+const entryFile = "./src/index.ts";
 const shared: BuildOptions = {
   bundle: true,
   entryPoints: [entryFile],
-  logLevel: 'info',
+  logLevel: "info",
   minify: true,
   sourcemap: true,
 };
 
 build({
   ...shared,
-  format: 'esm',
-  outfile: './dist/index.mjs',
+  format: "esm",
+  outfile: "./dist/index.mjs",
 });
 
 build({
   ...shared,
-  format: 'cjs',
-  outfile: './dist/index.cjs',
+  format: "cjs",
+  outfile: "./dist/index.cjs",
 });

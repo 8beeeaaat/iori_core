@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-import { Char } from './Char';
-import { CHAR_TYPES } from './Constants';
+import { beforeEach, describe, expect, it } from "vitest";
+import { Char } from "./Char";
+import { CHAR_TYPES } from "./Constants";
 
-describe('Char', () => {
+describe("Char", () => {
   let whitespaceChar: Char;
   let twoBytesWhitespaceChar: Char;
   let alphabetChar: Char;
@@ -12,84 +12,84 @@ describe('Char', () => {
 
   beforeEach(() => {
     whitespaceChar = new Char({
-      wordID: '1',
+      wordID: "1",
       position: 1,
-      text: ' ',
+      text: " ",
       begin: 0,
       end: 1,
     });
     twoBytesWhitespaceChar = new Char({
-      wordID: '1',
+      wordID: "1",
       position: 1,
-      text: '　',
+      text: "　",
       begin: 1,
       end: 2,
     });
     alphabetChar = new Char({
-      wordID: '1',
+      wordID: "1",
       position: 1,
-      text: 'A',
+      text: "A",
       begin: 0,
       end: 1,
     });
     numberChar = new Char({
-      wordID: '1',
+      wordID: "1",
       position: 1,
-      text: '1',
+      text: "1",
       begin: 2,
       end: 3,
     });
     kanjiChar = new Char({
-      wordID: '1',
+      wordID: "1",
       position: 1,
-      text: '漢',
+      text: "漢",
       begin: 10,
       end: 12.5,
     });
     hiraganaChar = new Char({
-      wordID: '1',
+      wordID: "1",
       position: 1,
-      text: 'あ',
+      text: "あ",
       begin: 10,
       end: 200,
     });
   });
 
-  describe('between duration', () => {
-    it('should throw error for compare to own', () => {
+  describe("between duration", () => {
+    it("should throw error for compare to own", () => {
       expect(() => whitespaceChar.betweenDuration(whitespaceChar)).toThrow(
-        'Can not compare between the same char'
+        "Can not compare between the same char",
       );
     });
-    it('should return the duration between two characters', () => {
+    it("should return the duration between two characters", () => {
       expect(alphabetChar.betweenDuration(numberChar)).toBe(1);
       expect(numberChar.betweenDuration(alphabetChar)).toBe(1);
     });
   });
 
-  describe('duration', () => {
-    it('should throw error for characters with the same begin and end', () => {
+  describe("duration", () => {
+    it("should throw error for characters with the same begin and end", () => {
       expect(() =>
         new Char({
-          wordID: '1',
+          wordID: "1",
           position: 1,
-          text: ' ',
+          text: " ",
           begin: 1,
           end: 1,
-        }).duration()
-      ).toThrow('Can not calculate duration of a invalid char');
+        }).duration(),
+      ).toThrow("Can not calculate duration of a invalid char");
 
       expect(() =>
         new Char({
-          wordID: '1',
+          wordID: "1",
           position: 1,
-          text: ' ',
+          text: " ",
           begin: 2,
           end: 1,
-        }).duration()
-      ).toThrow('Can not calculate duration of a invalid char');
+        }).duration(),
+      ).toThrow("Can not calculate duration of a invalid char");
     });
-    it('should return the duration of the character', () => {
+    it("should return the duration of the character", () => {
       expect(whitespaceChar.duration()).toBe(1);
       expect(twoBytesWhitespaceChar.duration()).toBe(1);
       expect(alphabetChar.duration()).toBe(1);
@@ -99,13 +99,13 @@ describe('Char', () => {
     });
   });
 
-  describe('type Whitespace', () => {
-    it('should return true for whitespace characters', () => {
+  describe("type Whitespace", () => {
+    it("should return true for whitespace characters", () => {
       expect(whitespaceChar.type).toBe(CHAR_TYPES.WHITESPACE);
       expect(twoBytesWhitespaceChar.type).toBe(CHAR_TYPES.WHITESPACE);
     });
 
-    it('should return false for non-whitespace characters', () => {
+    it("should return false for non-whitespace characters", () => {
       expect(alphabetChar.type).not.toBe(CHAR_TYPES.WHITESPACE);
       expect(numberChar.type).not.toBe(CHAR_TYPES.WHITESPACE);
       expect(kanjiChar.type).not.toBe(CHAR_TYPES.WHITESPACE);
@@ -113,12 +113,12 @@ describe('Char', () => {
     });
   });
 
-  describe('type Alphabet', () => {
-    it('should return true for alphabet characters', () => {
+  describe("type Alphabet", () => {
+    it("should return true for alphabet characters", () => {
       expect(alphabetChar.type).toBe(CHAR_TYPES.ALPHABET);
     });
 
-    it('should return false for non-alphabet characters', () => {
+    it("should return false for non-alphabet characters", () => {
       expect(whitespaceChar.type).not.toBe(CHAR_TYPES.ALPHABET);
       expect(twoBytesWhitespaceChar.type).not.toBe(CHAR_TYPES.ALPHABET);
       expect(numberChar.type).not.toBe(CHAR_TYPES.ALPHABET);
@@ -127,12 +127,12 @@ describe('Char', () => {
     });
   });
 
-  describe('type Number', () => {
-    it('should return true for number characters', () => {
+  describe("type Number", () => {
+    it("should return true for number characters", () => {
       expect(numberChar.type).toBe(CHAR_TYPES.NUMBER);
     });
 
-    it('should return false for non-number characters', () => {
+    it("should return false for non-number characters", () => {
       expect(whitespaceChar.type).not.toBe(CHAR_TYPES.NUMBER);
       expect(twoBytesWhitespaceChar.type).not.toBe(CHAR_TYPES.NUMBER);
       expect(alphabetChar.type).not.toBe(CHAR_TYPES.NUMBER);
@@ -141,12 +141,12 @@ describe('Char', () => {
     });
   });
 
-  describe('type Kanji', () => {
-    it('should return true for kanji characters', () => {
+  describe("type Kanji", () => {
+    it("should return true for kanji characters", () => {
       expect(kanjiChar.type).toBe(CHAR_TYPES.KANJI);
     });
 
-    it('should return false for non-kanji characters', () => {
+    it("should return false for non-kanji characters", () => {
       expect(whitespaceChar.type).not.toBe(CHAR_TYPES.KANJI);
       expect(twoBytesWhitespaceChar.type).not.toBe(CHAR_TYPES.KANJI);
       expect(alphabetChar.type).not.toBe(CHAR_TYPES.KANJI);
@@ -155,12 +155,12 @@ describe('Char', () => {
     });
   });
 
-  describe('type Hiragana', () => {
-    it('should return true for hiragana characters', () => {
+  describe("type Hiragana", () => {
+    it("should return true for hiragana characters", () => {
       expect(hiraganaChar.type).toBe(CHAR_TYPES.HIRAGANA);
     });
 
-    it('should return false for non-hiragana characters', () => {
+    it("should return false for non-hiragana characters", () => {
       expect(whitespaceChar.type).not.toBe(CHAR_TYPES.HIRAGANA);
       expect(twoBytesWhitespaceChar.type).not.toBe(CHAR_TYPES.HIRAGANA);
       expect(alphabetChar.type).not.toBe(CHAR_TYPES.HIRAGANA);
@@ -169,12 +169,12 @@ describe('Char', () => {
     });
   });
 
-  describe('type Katakana', () => {
-    it('should return true for katakana characters', () => {
+  describe("type Katakana", () => {
+    it("should return true for katakana characters", () => {
       expect(hiraganaChar.type).toBe(CHAR_TYPES.HIRAGANA);
     });
 
-    it('should return false for non-katakana characters', () => {
+    it("should return false for non-katakana characters", () => {
       expect(whitespaceChar.type).not.toBe(CHAR_TYPES.HIRAGANA);
       expect(twoBytesWhitespaceChar.type).not.toBe(CHAR_TYPES.HIRAGANA);
       expect(alphabetChar.type).not.toBe(CHAR_TYPES.HIRAGANA);
@@ -183,12 +183,12 @@ describe('Char', () => {
     });
   });
 
-  describe('type Other', () => {
-    it('should return true for other characters', () => {
+  describe("type Other", () => {
+    it("should return true for other characters", () => {
       const otherChar = new Char({
-        wordID: '1',
+        wordID: "1",
         position: 1,
-        text: '!',
+        text: "!",
         begin: 1,
         end: 2,
       });
@@ -196,8 +196,8 @@ describe('Char', () => {
     });
   });
 
-  describe('is current char', () => {
-    it('should return true for current char', () => {
+  describe("is current char", () => {
+    it("should return true for current char", () => {
       expect(whitespaceChar.isCurrent(0)).toBe(true);
       expect(whitespaceChar.isCurrent(1)).toBe(true);
       expect(whitespaceChar.isCurrent(2)).toBe(false);
@@ -207,121 +207,121 @@ describe('Char', () => {
       expect(twoBytesWhitespaceChar.isCurrent(2)).toBe(true);
     });
 
-    it('offset option', () => {
+    it("offset option", () => {
       expect(
         whitespaceChar.isCurrent(0, {
           offset: 1,
-        })
+        }),
       ).toBe(true);
       expect(
         whitespaceChar.isCurrent(1, {
           offset: 1,
-        })
+        }),
       ).toBe(false);
       expect(
         whitespaceChar.isCurrent(2, {
           offset: 1,
-        })
+        }),
       ).toBe(false);
 
       expect(
         twoBytesWhitespaceChar.isCurrent(0, {
           offset: -1,
-        })
+        }),
       ).toBe(false);
       expect(
         twoBytesWhitespaceChar.isCurrent(1, {
           offset: -1,
-        })
+        }),
       ).toBe(false);
       expect(
         twoBytesWhitespaceChar.isCurrent(2, {
           offset: -1,
-        })
+        }),
       ).toBe(true);
     });
 
-    it('equal option', () => {
+    it("equal option", () => {
       expect(
         whitespaceChar.isCurrent(0, {
           equal: false,
-        })
+        }),
       ).toBe(false);
 
       expect(
         whitespaceChar.isCurrent(0.1, {
           equal: false,
-        })
+        }),
       ).toBe(true);
 
       expect(
         whitespaceChar.isCurrent(0, {
           offset: 1,
           equal: false,
-        })
+        }),
       ).toBe(false);
 
       expect(
         whitespaceChar.isCurrent(0.1, {
           offset: 1,
           equal: false,
-        })
+        }),
       ).toBe(false);
     });
   });
 
-  describe('need between whitespace', () => {
-    it('should throw error for compare to own', () => {
+  describe("need between whitespace", () => {
+    it("should throw error for compare to own", () => {
       expect(() =>
-        whitespaceChar.needBetweenWhitespace(whitespaceChar)
-      ).toThrow('Can not compare between the same char');
+        whitespaceChar.needBetweenWhitespace(whitespaceChar),
+      ).toThrow("Can not compare between the same char");
     });
-    it('should return false for whitespace characters followed by whitespace characters', () => {
+    it("should return false for whitespace characters followed by whitespace characters", () => {
       expect(whitespaceChar.needBetweenWhitespace(twoBytesWhitespaceChar)).toBe(
-        false
+        false,
       );
       expect(whitespaceChar.needBetweenWhitespace(alphabetChar)).toBe(false);
       expect(whitespaceChar.needBetweenWhitespace(numberChar)).toBe(false);
       expect(whitespaceChar.needBetweenWhitespace(kanjiChar)).toBe(false);
       expect(whitespaceChar.needBetweenWhitespace(hiraganaChar)).toBe(false);
       expect(twoBytesWhitespaceChar.needBetweenWhitespace(whitespaceChar)).toBe(
-        false
+        false,
       );
       expect(twoBytesWhitespaceChar.needBetweenWhitespace(alphabetChar)).toBe(
-        false
+        false,
       );
       expect(twoBytesWhitespaceChar.needBetweenWhitespace(numberChar)).toBe(
-        false
+        false,
       );
       expect(twoBytesWhitespaceChar.needBetweenWhitespace(kanjiChar)).toBe(
-        false
+        false,
       );
       expect(twoBytesWhitespaceChar.needBetweenWhitespace(hiraganaChar)).toBe(
-        false
+        false,
       );
     });
-    it('should return false for japanese characters followed by japanese characters', () => {
+    it("should return false for japanese characters followed by japanese characters", () => {
       expect(kanjiChar.needBetweenWhitespace(hiraganaChar)).toBe(false);
       expect(hiraganaChar.needBetweenWhitespace(kanjiChar)).toBe(false);
     });
 
-    it('should return true for alphabet characters followed by non-alphabet characters', () => {
+    it("should return true for alphabet characters followed by non-alphabet characters", () => {
       expect(alphabetChar.needBetweenWhitespace(whitespaceChar)).toBe(false);
       expect(alphabetChar.needBetweenWhitespace(twoBytesWhitespaceChar)).toBe(
-        false
+        false,
       );
       expect(alphabetChar.needBetweenWhitespace(numberChar)).toBe(true);
       expect(alphabetChar.needBetweenWhitespace(kanjiChar)).toBe(true);
       expect(alphabetChar.needBetweenWhitespace(hiraganaChar)).toBe(true);
     });
 
-    it('should return true for number characters followed by non-number characters', () => {
+    it("should return true for number characters followed by non-number characters", () => {
       expect(numberChar.needBetweenWhitespace(alphabetChar)).toBe(true);
       expect(numberChar.needBetweenWhitespace(kanjiChar)).toBe(true);
       expect(numberChar.needBetweenWhitespace(hiraganaChar)).toBe(true);
     });
 
-    it('should return true for japanese characters followed by non-japanese characters', () => {
+    it("should return true for japanese characters followed by non-japanese characters", () => {
       expect(kanjiChar.needBetweenWhitespace(alphabetChar)).toBe(true);
       expect(kanjiChar.needBetweenWhitespace(numberChar)).toBe(true);
       expect(kanjiChar.needBetweenWhitespace(hiraganaChar)).toBe(false);
