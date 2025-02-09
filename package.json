@@ -1,6 +1,6 @@
 {
   "name": "@ioris/core",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,7 +36,7 @@
   },
   "keywords": ["music", "lyric", "sync", "iori"],
   "author": "8beeeaaat",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/8beeeaaat/iori_core/issues"
   },
