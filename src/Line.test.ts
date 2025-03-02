@@ -79,19 +79,22 @@ describe("Line", () => {
     });
 
     it("should return the updated line", () => {
-      const beforeJointNearWordID = jointNearWordLine.wordByPosition.get(1)?.id;
+      const beforeJointNearWordID1 =
+        jointNearWordLine.wordByPosition.get(1)?.id || "";
+      const beforeJointNearWordID2 =
+        jointNearWordLine.wordByPosition.get(2)?.id || "";
 
       const updatedJointNearWordLine = jointNearWordLine.update({
         position: 1,
         timelines: [
           {
-            wordID: jointNearWordLine.wordByPosition.get(1)?.id,
+            wordID: beforeJointNearWordID1,
             begin: 0.3,
             end: 0.5,
             text: "開か",
           },
           {
-            wordID: jointNearWordLine.wordByPosition.get(2)?.id,
+            wordID: beforeJointNearWordID2,
             begin: 0.65,
             end: 1,
             text: "ない",
@@ -102,12 +105,12 @@ describe("Line", () => {
       });
 
       expect(updatedJointNearWordLine.wordByPosition.get(1)?.id).toStrictEqual(
-        beforeJointNearWordID,
+        beforeJointNearWordID1,
       );
       expect(
         updatedJointNearWordLine.wordByPosition.get(1)?.timeline,
       ).toStrictEqual({
-        wordID: beforeJointNearWordID,
+        wordID: beforeJointNearWordID1,
         begin: 0.3,
         end: 1,
         text: "開かない",
@@ -115,20 +118,22 @@ describe("Line", () => {
         hasWhitespace: false,
       });
 
-      const beforeNotJointNearWordID =
-        notJointNearWordLine.wordByPosition.get(1)?.id;
+      const beforeNotJointNearWordID1 =
+        notJointNearWordLine.wordByPosition.get(1)?.id || "";
+      const beforeNotJointNearWordID2 =
+        notJointNearWordLine.wordByPosition.get(2)?.id || "";
 
       const updatedNotJointNearWordLine = notJointNearWordLine.update({
         position: 1,
         timelines: [
           {
-            wordID: notJointNearWordLine.wordByPosition.get(1)?.id,
+            wordID: beforeNotJointNearWordID1,
             begin: 0.3,
             end: 0.5,
             text: "開か",
           },
           {
-            wordID: notJointNearWordLine.wordByPosition.get(2)?.id,
+            wordID: beforeNotJointNearWordID2,
             begin: 0.65,
             end: 1,
             text: "ない",
@@ -139,11 +144,11 @@ describe("Line", () => {
       });
       expect(
         updatedNotJointNearWordLine.wordByPosition.get(1)?.id,
-      ).toStrictEqual(beforeNotJointNearWordID);
+      ).toStrictEqual(beforeNotJointNearWordID1);
       expect(
         updatedNotJointNearWordLine.wordByPosition.get(1)?.timeline,
       ).toStrictEqual({
-        wordID: beforeNotJointNearWordID,
+        wordID: beforeNotJointNearWordID1,
         begin: 0.3,
         end: 0.5,
         text: "開か",
