@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { Paragraph } from "./Paragraph";
+import {
+  Paragraph,
+  type ParagraphCreateArgs,
+  type ParagraphUpdateArgs,
+  isParagraphCreateArgs,
+} from "./Paragraph";
 
 describe("Paragraph", () => {
   let paragraph: Paragraph;
@@ -312,6 +317,34 @@ describe("Paragraph", () => {
     });
     it("not void", () => {
       expect(paragraph.isVoid(1.4)).toBe(false);
+    });
+
+    describe("isParagraphCreateArgs", () => {
+      it("should return true when object has lyricID", () => {
+        const createArgs: ParagraphCreateArgs = {
+          lyricID: "test-id",
+          position: 1,
+          timelines: [],
+        };
+        expect(isParagraphCreateArgs(createArgs)).toBe(true);
+      });
+
+      it("should return false when object does not have lyricID", () => {
+        const updateArgs: ParagraphUpdateArgs = {
+          position: 1,
+          timelines: [],
+        };
+        expect(isParagraphCreateArgs(updateArgs)).toBe(false);
+      });
+
+      it("should return true when lyricID is an empty string", () => {
+        const createArgs = {
+          lyricID: "",
+          position: 1,
+          timelines: [],
+        };
+        expect(isParagraphCreateArgs(createArgs)).toBe(true);
+      });
     });
   });
 });

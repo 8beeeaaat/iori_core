@@ -18,6 +18,12 @@ export type ParagraphUpdateArgs = {
   ) => Promise<Map<number, LineUpdateArgs>>;
 };
 
+export function isParagraphCreateArgs(
+  args: ParagraphCreateArgs | ParagraphUpdateArgs,
+): args is ParagraphCreateArgs {
+  return (args as ParagraphCreateArgs).lyricID !== undefined;
+}
+
 export class Paragraph {
   id: string;
   lyricID: string;
@@ -44,10 +50,18 @@ export class Paragraph {
         ? lastTimelines[lastTimelines.length - 1]
         : null;
       const thisFirst = timelines[0];
+      if (!thisFirst) {
+        console.error(
+          "thisFirst is undefined",
+          this._args.timelines,
+          timelines,
+        );
+        return acc;
+      }
       if (
         last &&
         (last.end > thisFirst.begin ||
-          (last.end === thisFirst.begin && last.text.length < 8))
+          (last.end === thisFirst.begin && last.text.length < 6))
       ) {
         last.end = thisFirst.end;
         last.text += ` ${thisFirst.text}`;

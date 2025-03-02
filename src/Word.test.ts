@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { Word } from "./Word";
+import { Word, isWordCreateArgs, isWordTimeline } from "./Word";
 
 describe("Word", () => {
   let word: Word;
@@ -258,6 +258,42 @@ describe("Word", () => {
           equal: false,
         }),
       ).toBe(false);
+    });
+
+    describe("isWordCreateArgs", () => {
+      it("should return true when args has lineID", () => {
+        const args = {
+          lineID: "1",
+          position: 1,
+          timeline: {
+            begin: 0,
+            end: 1,
+            text: "test",
+          },
+        };
+        expect(isWordCreateArgs(args)).toBe(true);
+      });
+    });
+
+    describe("isWordTimeline", () => {
+      it("should return true when timeline has wordID", () => {
+        const timeline = {
+          wordID: "1",
+          begin: 0,
+          end: 1,
+          text: "test",
+        };
+        expect(isWordTimeline(timeline)).toBe(true);
+      });
+
+      it("should return false when timeline doesn't have wordID", () => {
+        const timeline = {
+          begin: 0,
+          end: 1,
+          text: "test",
+        };
+        expect(isWordTimeline(timeline)).toBe(false);
+      });
     });
   });
 });

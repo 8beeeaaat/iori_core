@@ -4,13 +4,25 @@ import { CHAR_TYPES, type WordTimeline } from "./Constants";
 export type WordCreateArgs = {
   lineID: string;
   position: number;
-  timeline: Omit<WordTimeline, "wordID">;
+  timeline: WordTimeline | Omit<WordTimeline, "wordID">;
 };
 
 export type WordUpdateArgs = {
   position: number;
   timeline: WordTimeline;
 };
+
+export function isWordCreateArgs(
+  args: WordCreateArgs | WordUpdateArgs,
+): args is WordCreateArgs {
+  return (args as WordCreateArgs).lineID !== undefined;
+}
+
+export function isWordTimeline(
+  args: WordTimeline | Omit<WordTimeline, "wordID">,
+): args is WordTimeline {
+  return (args as WordTimeline).wordID !== undefined;
+}
 
 export class Word {
   id: string;
@@ -33,7 +45,9 @@ export class Word {
   }
 
   private init(props: WordCreateArgs) {
-    this.id = `word-${crypto.randomUUID()}`;
+    this.id = isWordTimeline(props.timeline)
+      ? props.timeline.wordID
+      : `word-${crypto.randomUUID()}`;
     this.timeline = {
       ...props.timeline,
       hasNewLine: props.timeline.hasNewLine ?? false,
