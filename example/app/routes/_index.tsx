@@ -1,13 +1,6 @@
-import {
-  type Char,
-  type Line,
-  Lyric,
-  type LyricUpdateArgs,
-  type Paragraph,
-  type Word,
-} from "@ioris/core";
-import type { MetaFunction } from "@remix-run/node";
+import { Lyric, type LyricUpdateArgs } from "@ioris/core";
 import { useEffect, useState } from "react";
+import type { MetaFunction } from "react-router";
 
 export const meta: MetaFunction = () => {
   return [
@@ -279,18 +272,10 @@ function Preview(props: {
 }) {
   const { lyric, paragraphByPosition, now, setNow } = props;
 
-  const [currentParagraph, setCurrentParagraph] = useState<Paragraph>();
-  const [currentLine, setCurrentLine] = useState<Line>();
-  const [currentWord, setCurrentWord] = useState<Word>();
-  const [currentChar, setCurrentChar] = useState<Char>();
-
-  useEffect(() => {
-    if (!lyric) return;
-    setCurrentParagraph(lyric.currentParagraph(now));
-    setCurrentLine(lyric.currentLine(now));
-    setCurrentWord(lyric.currentWord(now));
-    setCurrentChar(lyric.currentChar(now));
-  }, [lyric, now]);
+  const currentParagraph = lyric.currentParagraph(now);
+  const currentLine = lyric.currentLine(now);
+  const currentWord = lyric.currentWord(now);
+  const currentChar = lyric.currentChar(now);
 
   return (
     <ul style={{ listStyle: "none", padding: 0 }}>
