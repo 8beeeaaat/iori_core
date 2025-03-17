@@ -106,15 +106,17 @@ describe("Paragraph", () => {
         timelines: [
           [
             {
-              wordID: paragraph.lineByPosition.get(1)?.wordByPosition.get(1)
-                ?.id,
+              wordID:
+                paragraph.lineByPosition.get(1)?.wordByPosition.get(1)?.id ||
+                "word-1",
               begin: 0.3,
               end: 0.5,
               text: "開か",
             },
             {
-              wordID: paragraph.lineByPosition.get(1)?.wordByPosition.get(2)
-                ?.id,
+              wordID:
+                paragraph.lineByPosition.get(1)?.wordByPosition.get(2)?.id ||
+                "word-2",
               begin: 0.65,
               end: 1,
               text: "ない",

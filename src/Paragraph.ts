@@ -5,17 +5,17 @@ export type ParagraphCreateArgs = {
   lyricID: string;
   position: number;
   timelines: LineCreateArgs["timelines"][];
-  tokenizer?: (
+  lineTokenizer?: (
     lineArgs: LineCreateArgs,
-  ) => Promise<Map<number, LineCreateArgs>>;
+  ) => Promise<Map<number, LineUpdateArgs>>;
+  paragraphTokenizer?: (
+    paragraphTimeLines: ParagraphCreateArgs["timelines"],
+  ) => Promise<ParagraphUpdateArgs["timelines"]>;
 };
 
 export type ParagraphUpdateArgs = {
   position: number;
   timelines: LineUpdateArgs["timelines"][];
-  tokenizer?: (
-    lineArgs: LineUpdateArgs,
-  ) => Promise<Map<number, LineUpdateArgs>>;
 };
 
 export function isParagraphCreateArgs(
@@ -41,6 +41,11 @@ export class Paragraph {
 
   public async init() {
     this.id = `paragraph-${crypto.randomUUID()}`;
+    if (this._args.paragraphTokenizer) {
+      this._args.timelines = await this._args.paragraphTokenizer(
+        this._args.timelines,
+      );
+    }
     //beginが直前のendよりも前のときはマージする
     this._args.timelines = this._args.timelines.reduce<
       LineCreateArgs["timelines"][]
@@ -75,8 +80,8 @@ export class Paragraph {
       Array<Promise<Map<number, LineCreateArgs>>>
     >((acc, timelines, index) => {
       const position = index + 1;
-      if (this._args.tokenizer) {
-        const result = this._args.tokenizer({ position, timelines });
+      if (this._args.lineTokenizer) {
+        const result = this._args.lineTokenizer({ position, timelines });
         acc.push(result);
         return acc;
       }
@@ -125,14 +130,17 @@ export class Paragraph {
 
   public async update(props: ParagraphUpdateArgs) {
     this.position = props.position;
+    let timelines = props.timelines;
+    if (this._args.paragraphTokenizer) {
+      timelines = await this._args.paragraphTokenizer(timelines);
+    }
 
-    const lineUpdateCreateArgsByPosition = props.timelines.reduce<
+    const lineUpdateCreateArgsByPosition = timelines.reduce<
       Array<Promise<Map<number, LineUpdateArgs>>>
-    >((acc, timelines, index) => {
+    >((acc, ts, index) => {
       const position = index + 1;
-      if (props.tokenizer) {
-        const result = props.tokenizer({ position, timelines });
-        acc.push(result);
+      if (this._args.lineTokenizer) {
+        acc.push(this._args.lineTokenizer({ position, timelines: ts }));
         return acc;
       }
 
@@ -145,7 +153,7 @@ export class Paragraph {
                 {
                   jointNearWord: true,
                   position,
-                  timelines,
+                  timelines: ts,
                 },
               ],
             ]),

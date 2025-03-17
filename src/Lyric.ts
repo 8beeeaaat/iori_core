@@ -13,7 +13,8 @@ export type LyricCreateArgs = {
   resourceID: string;
   duration: number;
   timelines: ParagraphCreateArgs["timelines"][];
-  tokenizer?: ParagraphCreateArgs["tokenizer"];
+  lineTokenizer?: ParagraphCreateArgs["lineTokenizer"];
+  paragraphTokenizer?: ParagraphCreateArgs["paragraphTokenizer"];
   offsetSec?: number;
 };
 
@@ -56,7 +57,8 @@ export class Lyric {
           lyricID: this.id,
           position,
           timelines,
-          tokenizer: this._args.tokenizer,
+          lineTokenizer: this._args.lineTokenizer,
+          paragraphTokenizer: this._args.paragraphTokenizer,
         }),
       );
       return acc;

@@ -51,10 +51,10 @@ export class Line {
         !lastWord.timeline.hasNewLine &&
         !lastWord.timeline.hasWhitespace
       ) {
-        return [true, hasWhitespace];
+        return { isJoint: true, hasWhitespace };
       }
     }
-    return [false, hasWhitespace];
+    return { isJoint: false, hasWhitespace };
   }
 
   private init(props: LineCreateArgs) {
@@ -74,7 +74,7 @@ export class Line {
         if (!res) {
           return acc;
         }
-        const [isJoint, hasWhitespace] = res;
+        const { isJoint, hasWhitespace } = res;
 
         // 近接していたら同じ単語として扱う
         if (lastWord && isJoint) {
@@ -129,7 +129,7 @@ export class Line {
         if (!res) {
           return acc;
         }
-        const [isJoint, hasWhitespace] = res;
+        const { isJoint, hasWhitespace } = res;
 
         // 近接していたら同じ単語として扱う
         if (lastWord && isJoint) {
