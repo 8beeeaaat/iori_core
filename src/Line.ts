@@ -358,7 +358,7 @@ export class Line {
     const offset = options.offset ?? 0;
     return Array.from(this.wordByPosition.values())
       .sort((a, b) => b.begin() - a.begin())
-      .find((word) => word.begin() < now + offset);
+      .find((word) => word.end() < now + offset);
   }
 
   public rowWords(row: number): Word[] {
