@@ -1,3 +1,4 @@
+import type Char from "./Char";
 import type { WordTimeline } from "./Constants";
 import type Line from "./Line";
 import {
@@ -6,6 +7,14 @@ import {
   type ParagraphUpdateArgs,
 } from "./Paragraph";
 import type { Word } from "./Word";
+
+export type RowStatus = {
+  wordIDs: Word["id"][];
+  isCurrentRow: boolean;
+  isPrevRow: boolean;
+  isNextRow: boolean;
+  chars: Char[];
+};
 
 export type LyricCreateArgs = {
   initID?: boolean;
@@ -333,6 +342,180 @@ export class Lyric {
       this.currentLine(now)?.prevWord(now, { offset }) ||
       this.prevLine(now)?.lastWord()
     );
+  }
+
+  public currentRowStatusByRow(
+    now: number,
+    options: {
+      offset?: number;
+    } = {
+      offset: this.offsetSec,
+    },
+  ): Map<number, RowStatus> | null {
+    const offset = options.offset ?? 0;
+    const { currentLine, currentWord, nextLine, prevLine } =
+      this.currentSummary(now, { offset });
+    if (!currentLine) return null;
+
+    const lineID = currentLine.id;
+
+    const wordsByLineIDAndRowPosition = this.wordsByLineIDAndRowPosition();
+    const wordsByRowPosition = wordsByLineIDAndRowPosition.get(lineID);
+    if (!wordsByRowPosition) return null;
+
+    const currentWordGridPositionByWordID =
+      currentLine.wordGridPositionByWordID();
+    const currentWordGridPosition = currentWordGridPositionByWordID.get(
+      currentWord?.id ?? "",
+    );
+    const isPrevLine = prevLine?.id === currentLine.id;
+    const isNextLine = nextLine?.id === currentLine.id;
+    const isCurrentLine = currentLine?.id === currentLine.id;
+
+    const result = Array.from(wordsByRowPosition).reduce<
+      Map<number, RowStatus>
+    >((sum, [row, words]) => {
+      return sum.set(
+        Number(row),
+        Array.from(words).reduce<RowStatus>(
+          (acc, [_, word]) => {
+            const wordChars = word.chars();
+            const wordGridPosition = currentWordGridPositionByWordID.get(
+              word?.id ?? "",
+            );
+            const isCurrentRow =
+              wordGridPosition?.row === currentWordGridPosition?.row;
+
+            const isPrevRow = isPrevLine
+              ? true
+              : currentWord
+                ? word.begin() < currentWord.begin() &&
+                  (wordGridPosition?.row || 0) <
+                    (currentWordGridPosition?.row || 0)
+                : !isCurrentLine;
+
+            const isNextRow = isPrevLine
+              ? false
+              : isNextLine
+                ? Number(row) === 1
+                : currentWord
+                  ? word.begin() > currentWord.begin() &&
+                    (wordGridPosition?.row || 0) ===
+                      (currentWordGridPosition?.row || 0) + 1
+                  : true;
+
+            return {
+              wordIDs: acc.wordIDs.concat(word.id),
+              isCurrentRow,
+              isPrevRow,
+              isNextRow,
+              chars: acc.chars.concat(wordChars),
+            };
+          },
+          {
+            wordIDs: [],
+            isCurrentRow: false,
+            isPrevRow: false,
+            isNextRow: false,
+            chars: [],
+          },
+        ),
+      );
+    }, new Map());
+    return result;
+  }
+
+  public currentSummary(
+    now: number,
+    options: {
+      offset?: number;
+    } = {
+      offset: this.offsetSec,
+    },
+  ): {
+    currentChar?: Char;
+    currentLine?: Line;
+    currentParagraph?: Paragraph;
+    currentWord?: Word;
+    isConnected: boolean;
+    isParagraphFinishMotion: boolean;
+    lastLineIndex?: number;
+    lastLineIndexInParagraph?: number;
+    nextLine?: Line;
+    nextWord?: Word;
+    nextParagraph?: Paragraph;
+    nextWaitingTime?: number;
+    prevLine?: Line;
+    prevParagraph?: Paragraph;
+    prevWord?: Word;
+    lyricTextPerSecond?: number;
+    paragraphTextPerSecond?: number;
+    lineTextPerSecond?: number;
+  } {
+    const currentParagraph = this.currentParagraph(now, options);
+    const nextParagraph = this.nextParagraph(now, options);
+    const prevParagraph = this.prevParagraph(now, options);
+    const allLine = this.lines();
+    const currentLine = this.currentLine(now, options);
+    const lastLineIndexInParagraph = currentParagraph
+      ? Array.from(currentParagraph.lineByPosition.keys()).length - 1
+      : undefined;
+
+    const nextLine = this.nextLine(now, options);
+    const nextWord = this.nextWord(now, options);
+
+    const prevLine = this.prevLine(now, options);
+    const prevWord = this.prevWord(now, options);
+    const currentWord = this.currentWord(now, options);
+    const currentChar = this.currentChar(now, options);
+
+    const beforeCurrentTimeDiff =
+      currentLine && prevLine
+        ? currentLine.begin() - prevLine.end()
+        : undefined;
+    const isCurrentParagraphAverageTimeDiff = currentParagraph
+      ? currentParagraph.averageLineDuration() < 1.5
+      : undefined;
+
+    const isConnected =
+      isCurrentParagraphAverageTimeDiff === true &&
+      beforeCurrentTimeDiff !== undefined &&
+      beforeCurrentTimeDiff < 0.1;
+
+    const isParagraphFinishMotion = currentParagraph
+      ? currentParagraph && currentParagraph.end() < now
+      : true;
+
+    const nextWaitingTime = nextLine ? nextLine.begin() - now : undefined;
+
+    const lastLineIndex = allLine.length - 1;
+
+    const lyricTextPerSecond = this.speed();
+    const paragraphTextPerSecond = currentParagraph
+      ? currentParagraph.speed()
+      : undefined;
+    const lineTextPerSecond = currentLine ? currentLine.speed() : undefined;
+
+    return {
+      currentChar,
+      currentLine,
+      currentParagraph,
+      currentWord,
+      isConnected,
+      isParagraphFinishMotion,
+      lastLineIndex,
+      lastLineIndexInParagraph,
+      nextLine,
+      nextWord,
+      nextParagraph,
+      nextWaitingTime,
+      prevLine,
+      prevWord,
+      prevParagraph,
+      lyricTextPerSecond,
+      paragraphTextPerSecond,
+      lineTextPerSecond,
+    };
   }
 
   private _wordsByLineIDAndRowPosition(
