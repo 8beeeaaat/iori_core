@@ -1,6 +1,5 @@
-export * from "./Char";
+// Core exports
 export * from "./Constants";
-export * from "./Line";
-export * from "./Lyric";
-export * from "./Paragraph";
-export * from "./Word";
+export * from "./factories";
+export * from "./types";
+export * from "./utils";

@@ -2,20 +2,21 @@
   "name": "@ioris/core",
   "version": "0.2.1",
   "description": "",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     "types": "./dist/index.d.ts",
-    "import": "./dist/index.mjs",
-    "require": "./dist/index.cjs",
-    "node": "./dist/index.mjs",
-    "default": "./dist/index.cjs"
+    "import": "./dist/index.js",
+    "default": "./dist/index.js"
   },
   "directories": {
     "lib": "src",
     "example": "example"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "npm run build && cd example && npm run dev",
     "format": "biome check --fix",
@@ -23,7 +24,7 @@
     "lint:biome": "biome check",
     "lint:ts": "tsc",
     "build": "rimraf ./dist && run-p build:*",
-    "build:esbuild": "ts-node build.ts",
+    "build:esbuild": "node build.mjs",
     "build:types": "tsc",
     "coverage": "vitest run --coverage",
     "test": "vitest run"
@@ -35,7 +36,12 @@
   "publishConfig": {
     "access": "public"
   },
-  "keywords": ["music", "lyric", "sync", "iori"],
+  "keywords": [
+    "music",
+    "lyric",
+    "sync",
+    "iori"
+  ],
   "author": "8beeeaaat",
   "license": "MIT",
   "bugs": {
