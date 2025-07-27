@@ -1,5 +1,5 @@
 import type { CharPosition, GridPosition, Line, Lyric, Word } from "../types";
-import { getChars, getLines, getLineWords } from "./helpers";
+import { getLines, getLineWords, getWordChars } from "./helpers";
 
 export function getWordGridPositions(line: Line): Map<string, GridPosition> {
   const words = getLineWords(line);
@@ -62,14 +62,14 @@ export function getMaxRowPosition(line: Line): number {
 }
 
 export function getCharPositions(line: Line): Map<string, CharPosition> {
-  const chars = getLineWords(line).flatMap((word) => getChars(word));
+  const chars = getLineWords(line).flatMap((word) => getWordChars(word));
   const allWords = getLineWords(line);
   const wordPositionMap = getWordGridPositions(line);
   const map = new Map<string, CharPosition>();
 
   for (const char of chars) {
     const word = allWords.find((w) =>
-      getChars(w).some((c) => c.id === char.id),
+      getWordChars(w).some((c) => c.id === char.id),
     );
     if (!word) {
       throw new Error(`word not found for character ID: ${char.id}`);
@@ -90,7 +90,7 @@ export function getCharPositions(line: Line): Map<string, CharPosition> {
 
     const charColumnPosition =
       sameRowWords.reduce<number>((sum, w) => {
-        return sum + getChars(w).length;
+        return sum + getWordChars(w).length;
       }, 0) + char.position;
 
     map.set(char.id, {

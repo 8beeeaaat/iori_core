@@ -18,8 +18,12 @@ export function getParagraphs(lyric: Lyric): Paragraph[] {
   );
 }
 
-export function getChars(word: Word): Char[] {
+export function getWordChars(word: Word): Char[] {
   return [...word.chars];
+}
+
+export function getLineChars(line: Line): Char[] {
+  return line.words.flatMap((word) => getWordChars(word));
 }
 
 export function getLineWords(line: Line): Word[] {
@@ -61,6 +65,17 @@ export function getParagraphBegin(paragraph: Paragraph): number {
 export function getParagraphEnd(paragraph: Paragraph): number {
   const lastLine = paragraph.lines[paragraph.lines.length - 1];
   return lastLine ? getLineEnd(lastLine) : 0;
+}
+
+export function getCharDuration(char: Char): number {
+  const begin = getCharBegin(char);
+  const end = getCharEnd(char);
+  if (begin >= end) {
+    throw new Error(
+      `Cannot calculate duration of invalid char: ${char.id} ${begin}-${end}`,
+    );
+  }
+  return end - begin;
 }
 
 export function getWordDuration(word: Word): number {

@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.6] - 2025-07-27
+
+### Added
+
+- **`getCharDuration` function**: Calculate character-level duration for precise timing analysis
+  - Validates timing data with proper error handling for invalid character ranges
+  - Enables fine-grained timing calculations for character-based animations and displays
+  - Complements existing word, line, and paragraph duration functions
+
+### Changed
+
+- **Improved function naming consistency**: Replaced `getChars` with `getWordChars` across all utility functions
+  - Updated `analysis.ts`, `current.ts`, `grid.ts`, and `helpers.ts` for consistent API naming
+  - Enhanced code readability and maintainability with clearer function naming conventions
+  - All helper functions now follow consistent `get[Type][Property]` naming pattern
+
+### Technical
+
+- Standardized helper function naming across the codebase for better developer experience
+- Enhanced character-level timing capabilities for advanced lyric synchronization use cases
+- Improved code consistency and maintainability
+
 ## [0.3.5] - 2025-07-27
 
 ### Added

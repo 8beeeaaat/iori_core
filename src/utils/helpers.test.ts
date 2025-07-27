@@ -9,9 +9,10 @@ import {
   findParagraphAt,
   findWordAt,
   getCharBegin,
+  getCharDuration,
   getCharEnd,
-  getChars,
   getLineBegin,
+  getLineChars,
   getLineDuration,
   getLineEnd,
   getLines,
@@ -23,6 +24,7 @@ import {
   getParagraphLines,
   getParagraphs,
   getWordBegin,
+  getWordChars,
   getWordDuration,
   getWordEnd,
   getWords,
@@ -139,8 +141,13 @@ describe("helpers", () => {
 
   describe("getters", () => {
     test("getChars should return all characters", () => {
-      const chars = getChars(word1);
+      const chars = getWordChars(word1);
       expect(chars).toHaveLength(2);
+    });
+
+    test("getLineChars should return all characters in a line", () => {
+      const chars = getLineChars(line1);
+      expect(chars).toHaveLength(7);
     });
 
     test("getLineWords should return line words", () => {
@@ -191,6 +198,11 @@ describe("helpers", () => {
   });
 
   describe("duration calculations", () => {
+    test("should calculate character duration", () => {
+      const duration = getCharDuration(char1);
+      expect(duration).toBe(0.2);
+    });
+
     test("should calculate word duration", () => {
       const duration = getWordDuration(word1);
       expect(duration).toBe(1);
