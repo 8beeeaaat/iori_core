@@ -41,15 +41,19 @@ export function getTimelines(lyric: LyricData): WordTimeline[][][] {
 }
 
 export function getTimelinesByLine(lyric: LyricData): WordTimeline[] {
-  return lyric.paragraphs.flatMap((paragraph) =>
-    paragraph.lines.map((line) => {
+  return lyric.paragraphs.flatMap((paragraph, paragraphIndex) =>
+    paragraph.lines.map((line, lineIndex) => {
       const firstWord = line.words[0];
       if (!firstWord) {
-        throw new Error("firstWord is undefined");
+        throw new Error(
+          `firstWord is undefined in paragraph ${paragraphIndex}, line ${lineIndex}`
+        );
       }
       const lastWord = line.words[line.words.length - 1];
       if (!lastWord) {
-        throw new Error("lastWord is undefined");
+        throw new Error(
+          `lastWord is undefined in paragraph ${paragraphIndex}, line ${lineIndex}`
+        );
       }
       return {
         wordID: firstWord.id,
