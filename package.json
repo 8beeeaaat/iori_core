@@ -3,12 +3,12 @@
   "version": "0.3.4",
   "description": "",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     "types": "./dist/index.d.ts",
-    "import": "./dist/index.js",
-    "default": "./dist/index.js"
+    "import": "./dist/index.mjs",
+    "default": "./dist/index.mjs"
   },
   "directories": {
     "lib": "src",
