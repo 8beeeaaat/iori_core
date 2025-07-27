@@ -1,14 +1,14 @@
 {
   "name": "@ioris/core",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     "types": "./dist/index.d.ts",
-    "import": "./dist/index.js",
-    "default": "./dist/index.js"
+    "import": "./dist/index.mjs",
+    "default": "./dist/index.mjs"
   },
   "directories": {
     "lib": "src",
@@ -24,7 +24,7 @@
     "lint:biome": "biome check",
     "lint:ts": "tsc",
     "build": "rimraf ./dist && run-p build:*",
-    "build:esbuild": "node build.mjs",
+    "build:esbuild": "tsx build.ts",
     "build:types": "tsc",
     "coverage": "vitest run --coverage",
     "test": "vitest run"
@@ -56,7 +56,7 @@
     "jsdom": "^26.1.0",
     "npm-run-all": "^4.1.5",
     "rimraf": "^6.0.1",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   }
