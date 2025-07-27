@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { WordTimeline } from "../Constants";
 import { createLyric } from "../factories/createLyric";
 import type { CharData, LineData, LyricData, WordData } from "../types";

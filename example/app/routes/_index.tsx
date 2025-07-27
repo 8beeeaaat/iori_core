@@ -1,13 +1,13 @@
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: sample */
 import {
   createLyric,
-  type FunctionalLyricUpdateArgs,
   getCurrentChar,
   getCurrentLine,
   getCurrentParagraph,
   getCurrentWord,
   getTimelines,
   type LyricData,
+  type LyricUpdateArgs,
   updateLyric,
   type WordTimeline,
 } from "@ioris/core";
@@ -90,7 +90,7 @@ const sampleTimelines: WordTimeline[][][] = [
 export default function Index() {
   const [lyric, setLyric] = useState<LyricData>();
   const [editingTimeline, setEditingTimeline] =
-    useState<FunctionalLyricUpdateArgs["timelines"]>();
+    useState<LyricUpdateArgs["timelines"]>();
   const [updating, setUpdating] = useState(false);
   const [now, setNow] = useState(0);
   const lyricRef = useRef<LyricData>(null);
@@ -199,10 +199,8 @@ export default function Index() {
 
 function Editor(props: {
   lyric: LyricData;
-  editingTimeline: FunctionalLyricUpdateArgs["timelines"];
-  setEditingTimeline: (
-    timelines: FunctionalLyricUpdateArgs["timelines"],
-  ) => void;
+  editingTimeline: LyricUpdateArgs["timelines"];
+  setEditingTimeline: (timelines: LyricUpdateArgs["timelines"]) => void;
 }) {
   const { lyric, editingTimeline, setEditingTimeline } = props;
 
