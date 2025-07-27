@@ -96,7 +96,9 @@ export function getParagraphDuration(paragraph: ParagraphData): number {
   const begin = getParagraphBegin(paragraph);
   const end = getParagraphEnd(paragraph);
   if (begin >= end) {
-    throw new Error("Cannot calculate duration of invalid paragraph");
+    throw new Error(
+      `Cannot calculate duration of invalid paragraph: ${paragraph.id} ${begin}-${end}`,
+    );
   }
   return end - begin;
 }
