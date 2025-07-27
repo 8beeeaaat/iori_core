@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2025-07-27
+
+### Changed
+
+- Updated build tooling for improved performance and developer experience
+  - Replaced `ts-node` with `tsx` for faster TypeScript execution
+  - Updated build script to use `tsx build.ts` instead of `node build.mjs`
+  - Upgraded CI workflows to use Node.js 24.4 for better performance and compatibility
+
+### Technical
+
+- Enhanced build performance with modern TypeScript runtime (tsx)
+- Improved CI pipeline reliability with updated Node.js version
+- Streamlined development workflow with faster build tooling
+
 ## [0.3.3] - 2025-07-27
 
 ### Changed
