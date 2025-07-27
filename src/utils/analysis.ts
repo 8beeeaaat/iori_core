@@ -16,7 +16,6 @@ import {
   getCurrentWord,
 } from "./current";
 import {
-  getChars,
   getLineBegin,
   getLineDuration,
   getLineEnd,
@@ -73,7 +72,7 @@ export function calculateSpeed(
 export function getWordSpeed(word: Word): number {
   const duration = getWordDuration(word);
   return (
-    getChars(word).reduce((acc, char) => {
+    getWordChars(word).reduce((acc, char) => {
       if (char.type === CHAR_TYPES.WHITESPACE) return acc;
       return (
         acc +
@@ -88,7 +87,7 @@ export function getWordSpeed(word: Word): number {
 export function getLineSpeed(line: Line): number {
   const words = getLineWords(line).map((word) => ({
     duration: () => getWordDuration(word),
-    chars: () => getChars(word),
+    chars: () => getWordChars(word),
   }));
   return calculateSpeed(words);
 }
@@ -96,7 +95,7 @@ export function getLineSpeed(line: Line): number {
 export function getParagraphSpeed(paragraph: Paragraph): number {
   const lines = getParagraphLines(paragraph).map((line) => ({
     duration: () => getLineDuration(line),
-    chars: () => getLineWords(line).flatMap((word) => getChars(word)),
+    chars: () => getLineWords(line).flatMap((word) => getWordChars(word)),
   }));
   return calculateSpeed(lines);
 }
@@ -106,7 +105,7 @@ export function getLyricSpeed(lyric: Lyric): number {
     duration: () => getParagraphDuration(paragraph),
     chars: () =>
       getParagraphLines(paragraph).flatMap((line) =>
-        getLineWords(line).flatMap((word) => getChars(word)),
+        getLineWords(line).flatMap((word) => getWordChars(word)),
       ),
   }));
   return calculateSpeed(paragraphs);

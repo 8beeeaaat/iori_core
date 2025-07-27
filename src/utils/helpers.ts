@@ -18,8 +18,12 @@ export function getParagraphs(lyric: Lyric): Paragraph[] {
   );
 }
 
-export function getChars(word: Word): Char[] {
+export function getWordChars(word: Word): Char[] {
   return [...word.chars];
+}
+
+export function getLineChars(line: Line): Char[] {
+  return line.words.flatMap((word) => getWordChars(word));
 }
 
 export function getLineWords(line: Line): Word[] {

@@ -2,7 +2,6 @@ import type { Char, Line, Lyric, Paragraph, TimeOptions, Word } from "../types";
 import {
   getCharBegin,
   getCharEnd,
-  getChars,
   getLineBegin,
   getLineEnd,
   getLines,
@@ -80,7 +79,7 @@ export function getCurrentChar(
   const currentWord = getCurrentWord(lyric, now, { offset, equal });
   if (!currentWord) return undefined;
 
-  return getChars(currentWord)
+  return getWordChars(currentWord)
     .sort((a, b) => getCharBegin(b) - getCharBegin(a))
     .find((char) => {
       const begin = getCharBegin(char);
@@ -114,7 +113,7 @@ export function getCurrentWordFromChar(
   for (const paragraph of getParagraphs(lyric)) {
     for (const line of getParagraphLines(paragraph)) {
       for (const word of getLineWords(line)) {
-        if (getChars(word).some((c) => c.id === char.id)) {
+        if (getWordChars(word).some((c) => c.id === char.id)) {
           return word;
         }
       }
