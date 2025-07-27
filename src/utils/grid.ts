@@ -1,5 +1,5 @@
-import type { CharPosition, GridPosition, Line, Word } from "../types";
-import { getChars, getLineWords } from "./helpers";
+import type { CharPosition, GridPosition, Line, Lyric, Word } from "../types";
+import { getChars, getLines, getLineWords } from "./helpers";
 
 export function getWordGridPositions(line: Line): Map<string, GridPosition> {
   const words = getLineWords(line);
@@ -101,4 +101,27 @@ export function getCharPositions(line: Line): Map<string, CharPosition> {
   }
 
   return map;
+}
+
+export function getWordsByLineIDAndRowPosition(
+  lyric: Lyric,
+): Map<string, Map<number, Map<number, Word>>> {
+  const lines = getLines(lyric);
+  const result = new Map<string, Map<number, Map<number, Word>>>();
+
+  for (const line of lines) {
+    const gridPositions = getWordGridPositions(line);
+    const lineMap = new Map<number, Map<number, Word>>();
+
+    for (const { row, column, word } of gridPositions.values()) {
+      if (!lineMap.has(row)) {
+        lineMap.set(row, new Map<number, Word>());
+      }
+      lineMap.get(row)?.set(column, word);
+    }
+
+    result.set(line.id, lineMap);
+  }
+
+  return result;
 }
