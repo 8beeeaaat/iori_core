@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import type { WordTimeline } from "../Constants";
 import { createLyric } from "../factories/createLyric";
-import type { Lyric, LyricUpdateArgs } from "../types";
+import type { Lyric, UpdateLyricArgs } from "../types";
 import { getTimelines, getTimelinesByLine, updateLyric } from "./update";
 
 // Mock crypto.randomUUID for consistent testing
@@ -88,7 +88,7 @@ describe("update", () => {
 
   describe("updateLyric", () => {
     test("should update resourceID only", async () => {
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         resourceID: "new-resource",
       };
 
@@ -101,7 +101,7 @@ describe("update", () => {
     });
 
     test("should update duration only", async () => {
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         duration: 20.123456,
       };
 
@@ -114,7 +114,7 @@ describe("update", () => {
     });
 
     test("should update offsetSec only", async () => {
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         offsetSec: 2.5,
       };
 
@@ -127,7 +127,7 @@ describe("update", () => {
     });
 
     test("should handle offsetSec = 0", async () => {
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         offsetSec: 0,
       };
 
@@ -137,7 +137,7 @@ describe("update", () => {
     });
 
     test("should update multiple properties without timelines", async () => {
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         resourceID: "multi-update",
         duration: 25.5,
         offsetSec: -1,
@@ -165,7 +165,7 @@ describe("update", () => {
         ],
       ];
 
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         timelines: newTimelines,
       };
 
@@ -195,7 +195,7 @@ describe("update", () => {
         ],
       ];
 
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         resourceID: "complete-resource",
         duration: 30,
         offsetSec: 5,
@@ -214,7 +214,7 @@ describe("update", () => {
     });
 
     test("should preserve immutability", async () => {
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         resourceID: "immutable-test",
         timelines: [],
       };
@@ -390,7 +390,7 @@ describe("update", () => {
 
   describe("edge cases", () => {
     test("should handle lyric with no changes", async () => {
-      const updateArgs: LyricUpdateArgs = {};
+      const updateArgs: UpdateLyricArgs = {};
 
       const updatedLyric = await updateLyric(originalLyric, updateArgs);
 
@@ -401,7 +401,7 @@ describe("update", () => {
     });
 
     test("should handle extreme duration values", async () => {
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         duration: 999.999999,
       };
 
@@ -410,7 +410,7 @@ describe("update", () => {
     });
 
     test("should handle negative offsetSec", async () => {
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         offsetSec: -5.5,
       };
 
@@ -419,7 +419,7 @@ describe("update", () => {
     });
 
     test("should handle empty timelines array", async () => {
-      const updateArgs: LyricUpdateArgs = {
+      const updateArgs: UpdateLyricArgs = {
         timelines: [],
       };
 

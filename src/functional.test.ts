@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  type CreateLyricArgs,
   createChar,
   createLine,
   createLyric,
@@ -17,7 +18,6 @@ import {
   getTimelinesByLine,
   getVoidPeriods,
   isVoidTime,
-  type LyricCreateArgs,
   updateLyric,
   type WordTimeline,
 } from "./index";
@@ -59,7 +59,7 @@ const sampleTimelines: WordTimeline[][][] = [
   ],
 ];
 
-const createArgs: LyricCreateArgs = {
+const createArgs: CreateLyricArgs = {
   resourceID: "test-song",
   duration: 10,
   timelines: sampleTimelines,

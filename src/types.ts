@@ -91,31 +91,3 @@ export type VoidPeriod = {
   end: number;
   duration: number;
 };
-
-export type LyricCreateArgs = {
-  initID?: boolean;
-  id?: string;
-  resourceID: string;
-  duration: number;
-  timelines: WordTimeline[][][];
-  lineTokenizer?: (lineArgs: {
-    position: number;
-    timelines: WordTimeline[];
-  }) => Promise<
-    Map<
-      number,
-      { position: number; timelines: WordTimeline[]; jointNearWord?: boolean }
-    >
-  >;
-  paragraphTokenizer?: (
-    timelines: WordTimeline[][],
-  ) => Promise<WordTimeline[][]>;
-  offsetSec?: number;
-};
-
-export type LyricUpdateArgs = {
-  resourceID?: string;
-  duration?: number;
-  timelines?: WordTimeline[][][];
-  offsetSec?: number;
-};
