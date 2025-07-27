@@ -74,7 +74,7 @@ export function getCharPositions(line: LineData): Map<string, CharPosition> {
       getChars(w).some((c) => c.id === char.id),
     );
     if (!word) {
-      throw new Error("word not found");
+      throw new Error(`word not found for character ID: ${char.id}`);
     }
 
     const inLinePosition = chars.findIndex((c) => c.id === char.id) + 1;
