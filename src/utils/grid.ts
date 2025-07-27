@@ -1,5 +1,5 @@
 import type { CharPosition, GridPosition, Line, Lyric, Word } from "../types";
-import { getLines, getLineWords } from "./helpers";
+import { getLines, getLineWords, getWordChars } from "./helpers";
 
 export function getWordGridPositions(line: Line): Map<string, GridPosition> {
   const words = getLineWords(line);

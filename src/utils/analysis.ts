@@ -26,6 +26,7 @@ import {
   getParagraphLines,
   getParagraphs,
   getWordBegin,
+  getWordChars,
   getWordDuration,
   getWordEnd,
   getWords,

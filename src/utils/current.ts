@@ -11,6 +11,7 @@ import {
   getParagraphLines,
   getParagraphs,
   getWordBegin,
+  getWordChars,
   getWordEnd,
   isCurrentTime,
 } from "./helpers";
