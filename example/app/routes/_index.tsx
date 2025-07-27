@@ -1,5 +1,17 @@
-import { Lyric, type LyricUpdateArgs } from "@ioris/core";
-import { useEffect, useState } from "react";
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: sample */
+import {
+  createLyric,
+  type FunctionalLyricUpdateArgs,
+  getCurrentChar,
+  getCurrentLine,
+  getCurrentParagraph,
+  getCurrentWord,
+  getTimelines,
+  type LyricData,
+  updateLyric,
+  type WordTimeline,
+} from "@ioris/core";
+import { useEffect, useRef, useState } from "react";
 import type { MetaFunction } from "react-router";
 
 export const meta: MetaFunction = () => {
@@ -9,110 +21,120 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const sampleLyric = new Lyric({
-  resourceID: "sample",
-  duration: 60,
-  timelines: [
+const sampleTimelines: WordTimeline[][][] = [
+  [
     [
-      [
-        {
-          begin: 3,
-          end: 10,
-          text: "Hello,",
-          hasWhitespace: true,
-        },
-        {
-          begin: 10,
-          end: 20,
-          text: "world!",
-        },
-      ],
-      [
-        {
-          begin: 30,
-          end: 32,
-          text: "This",
-          hasWhitespace: true,
-        },
-        {
-          begin: 32,
-          end: 34,
-          text: "is",
-          hasWhitespace: true,
-        },
-        {
-          begin: 35,
-          end: 36,
-          text: "a",
-          hasWhitespace: true,
-        },
-        {
-          begin: 36,
-          end: 40,
-          text: "sample.",
-        },
-      ],
+      {
+        wordID: "word1",
+        begin: 3,
+        end: 10,
+        text: "Hello,",
+        hasWhitespace: true,
+      },
+      {
+        wordID: "word2",
+        begin: 10,
+        end: 20,
+        text: "world!",
+      },
     ],
     [
-      [
-        {
-          begin: 50,
-          end: 52,
-          text: "Goodbye,",
-          hasWhitespace: true,
-        },
-        {
-          begin: 53,
-          end: 55,
-          text: "world!",
-        },
-      ],
+      {
+        wordID: "word3",
+        begin: 30,
+        end: 32,
+        text: "This",
+        hasWhitespace: true,
+      },
+      {
+        wordID: "word4",
+        begin: 32,
+        end: 34,
+        text: "is",
+        hasWhitespace: true,
+      },
+      {
+        wordID: "word5",
+        begin: 35,
+        end: 36,
+        text: "a",
+        hasWhitespace: true,
+      },
+      {
+        wordID: "word6",
+        begin: 36,
+        end: 40,
+        text: "sample.",
+      },
     ],
   ],
-});
+  [
+    [
+      {
+        wordID: "word7",
+        begin: 50,
+        end: 52,
+        text: "Goodbye,",
+        hasWhitespace: true,
+      },
+      {
+        wordID: "word8",
+        begin: 53,
+        end: 55,
+        text: "world!",
+      },
+    ],
+  ],
+];
 
 export default function Index() {
-  const [lyric, setLyric] = useState<Lyric>();
+  const [lyric, setLyric] = useState<LyricData>();
   const [editingTimeline, setEditingTimeline] =
-    useState<LyricUpdateArgs["timelines"]>();
+    useState<FunctionalLyricUpdateArgs["timelines"]>();
   const [updating, setUpdating] = useState(false);
   const [now, setNow] = useState(0);
-  const [paragraphByPosition, setParagraphByPosition] = useState<
-    Lyric["paragraphByPosition"]
-  >(new Map());
+  const lyricRef = useRef<LyricData>(null);
 
   // init lyric
   useEffect(() => {
     if (lyric) return;
     (async () => {
-      const l = await sampleLyric.init();
+      const l = await createLyric({
+        resourceID: "sample",
+        duration: 60,
+        timelines: sampleTimelines,
+        initID: true,
+      });
       setLyric(l);
-      setEditingTimeline(l.timelines());
+      lyricRef.current = l;
+      setEditingTimeline(getTimelines(l));
     })();
   }, [lyric]);
 
-  // update lyric
+  // update lyric (with debounce to prevent frequent updates)
   useEffect(() => {
-    if (!lyric || !editingTimeline) return;
+    if (!lyricRef.current || !editingTimeline) return;
 
-    const fetchData = async () => {
+    const timeoutId = setTimeout(async () => {
+      if (!lyricRef.current) return;
+
       try {
         setUpdating(true);
 
-        const updated = await lyric.update({
+        const updated = await updateLyric(lyricRef.current, {
           timelines: editingTimeline || [],
         });
         setLyric(updated);
-        setParagraphByPosition(new Map(updated.paragraphByPosition));
+        lyricRef.current = updated;
         setUpdating(false);
       } catch (error) {
         console.error(error);
         setUpdating(false);
       }
-    };
+    }, 300); // 300ms のデバウンス
 
-    fetchData();
-  }, [lyric, editingTimeline]);
+    return () => clearTimeout(timeoutId);
+  }, [editingTimeline]);
 
   if (!lyric) return <div>Loading...</div>;
   if (updating) return <div>Updating...</div>;
@@ -169,29 +191,25 @@ export default function Index() {
           </span>
         </form>
 
-        <Preview
-          lyric={lyric}
-          paragraphByPosition={paragraphByPosition}
-          now={now}
-          setNow={setNow}
-        />
+        <Preview lyric={lyric} now={now} setNow={setNow} />
       </div>
     </main>
   );
 }
 
 function Editor(props: {
-  lyric: Lyric;
-  editingTimeline: LyricUpdateArgs["timelines"];
-  setEditingTimeline: (timelines: LyricUpdateArgs["timelines"]) => void;
+  lyric: LyricData;
+  editingTimeline: FunctionalLyricUpdateArgs["timelines"];
+  setEditingTimeline: (
+    timelines: FunctionalLyricUpdateArgs["timelines"],
+  ) => void;
 }) {
   const { lyric, editingTimeline, setEditingTimeline } = props;
 
   return editingTimeline
     ? editingTimeline.map((paragraph, paragraphIndex) => (
         <fieldset
-          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-          key={paragraphIndex}
+          key={`paragraph-${paragraphIndex}`}
           style={{
             marginBottom: "2rem",
           }}
@@ -202,10 +220,7 @@ function Editor(props: {
               style={{
                 marginTop: "1rem",
               }}
-              key={`${paragraphIndex}-${
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                lineIndex
-              }`}
+              key={`paragraph-${paragraphIndex}-line-${lineIndex}`}
             >
               <legend>Line {lineIndex + 1}</legend>
               {line.map((word, wordIndex) => (
@@ -224,9 +239,12 @@ function Editor(props: {
                     max={lyric.duration}
                     value={word.begin}
                     onChange={(e) => {
+                      if (!editingTimeline) return;
                       const newTimeline = [...editingTimeline];
-                      newTimeline[paragraphIndex][lineIndex][wordIndex].begin =
-                        Number(e.target.value);
+                      newTimeline[paragraphIndex][lineIndex][wordIndex] = {
+                        ...word,
+                        begin: Number(e.target.value),
+                      };
                       setEditingTimeline(newTimeline);
                     }}
                   />
@@ -235,6 +253,7 @@ function Editor(props: {
                     type="text"
                     value={word.text}
                     onChange={(e) => {
+                      if (!editingTimeline) return;
                       const newTimeline = [...editingTimeline];
                       newTimeline[paragraphIndex][lineIndex][wordIndex] = {
                         ...word,
@@ -249,9 +268,12 @@ function Editor(props: {
                     max={lyric.duration}
                     value={word.end}
                     onChange={(e) => {
+                      if (!editingTimeline) return;
                       const newTimeline = [...editingTimeline];
-                      newTimeline[paragraphIndex][lineIndex][wordIndex].end =
-                        Number(e.target.value);
+                      newTimeline[paragraphIndex][lineIndex][wordIndex] = {
+                        ...word,
+                        end: Number(e.target.value),
+                      };
                       setEditingTimeline(newTimeline);
                     }}
                   />
@@ -265,101 +287,97 @@ function Editor(props: {
 }
 
 function Preview(props: {
-  lyric: Lyric;
-  paragraphByPosition: Lyric["paragraphByPosition"];
+  lyric: LyricData;
   now: number;
   setNow: (now: number) => void;
 }) {
-  const { lyric, paragraphByPosition, now, setNow } = props;
+  const { lyric, now, setNow } = props;
 
-  const currentParagraph = lyric.currentParagraph(now);
-  const currentLine = lyric.currentLine(now);
-  const currentWord = lyric.currentWord(now);
-  const currentChar = lyric.currentChar(now);
+  const currentParagraph = getCurrentParagraph(lyric, now);
+  const currentLine = getCurrentLine(lyric, now);
+  const currentWord = getCurrentWord(lyric, now);
+  const currentChar = getCurrentChar(lyric, now);
 
   return (
     <ul style={{ listStyle: "none", padding: 0 }}>
-      {paragraphByPosition &&
-        Array.from(paragraphByPosition).map(([, paragraph]) => (
-          <li
-            style={{
-              marginTop: "2rem",
-              display: "flex",
-              opacity: currentParagraph?.id === paragraph.id ? 1 : 0.5,
-            }}
-            key={paragraph.id}
-          >
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {Array.from(paragraph.lineByPosition).map(([, line]) => (
-                <li
+      {lyric.paragraphs.map((paragraph) => (
+        <li
+          style={{
+            marginTop: "2rem",
+            display: "flex",
+            opacity: currentParagraph?.id === paragraph.id ? 1 : 0.5,
+          }}
+          key={paragraph.id}
+        >
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {paragraph.lines.map((line) => (
+              <li
+                style={{
+                  marginTop: "1rem",
+                  display: "flex",
+                  color: currentLine?.id === line.id ? "red" : "gray",
+                  transition: "0.1s ease-in-out",
+                }}
+                key={line.id}
+              >
+                <ul
                   style={{
-                    marginTop: "1rem",
-                    display: "flex",
-                    color: currentLine?.id === line.id ? "red" : "gray",
-                    transition: "0.1s ease-in-out",
+                    listStyle: "none",
+                    padding: 0,
+                    perspective: 500,
+                    transformStyle: "preserve-3d",
                   }}
-                  key={line.id}
                 >
-                  <ul
-                    style={{
-                      listStyle: "none",
-                      padding: 0,
-                      perspective: 500,
-                      transformStyle: "preserve-3d",
-                    }}
-                  >
-                    {Array.from(line.wordByPosition).map(([, word]) => {
-                      const isCurrentWord = currentWord?.id === word.id;
-                      return (
-                        // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-                        <li
-                          key={word.id}
-                          style={{
-                            transition: "0.1s ease-in-out",
-                            display: "inline-block",
-                            cursor: "pointer",
-                            fontSize: "2rem",
-                            transformStyle: "preserve-3d",
-                            transform: isCurrentWord
-                              ? "translateZ(100px)"
-                              : "translateZ(0px)",
-                            opacity: isCurrentWord ? 1 : 0.5,
-                            marginRight: word.timeline.hasWhitespace
-                              ? "0.2rem"
-                              : "",
-                          }}
-                          onClick={() => {
-                            setNow(word.begin());
-                          }}
-                        >
-                          {word.chars().map((char) => {
-                            return (
-                              <span
-                                key={char.id}
-                                style={{
-                                  display: "inline-block",
-                                  opacity:
-                                    currentChar?.id === char.id ? 1 : 0.5,
-                                  filter:
-                                    !isCurrentWord ||
-                                    currentChar?.id === char.id
-                                      ? "blur(0)"
-                                      : "blur(1px)",
-                                }}
-                              >
-                                {char.text}
-                              </span>
-                            );
-                          })}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
+                  {line.words.map((word) => {
+                    const isCurrentWord = currentWord?.id === word.id;
+                    return (
+                      // biome-ignore lint/a11y/useKeyWithClickEvents: explanation needed
+                      <li
+                        key={word.id}
+                        style={{
+                          transition: "0.1s ease-in-out",
+                          display: "inline-block",
+                          cursor: "pointer",
+                          fontSize: "2rem",
+                          transformStyle: "preserve-3d",
+                          transform: isCurrentWord
+                            ? "translateZ(100px)"
+                            : "translateZ(0px)",
+                          opacity: isCurrentWord ? 1 : 0.5,
+                          marginRight: word.timeline.hasWhitespace
+                            ? "0.2rem"
+                            : "",
+                        }}
+                        onClick={() => {
+                          setNow(word.timeline.begin);
+                        }}
+                      >
+                        {word.chars.map((char) => {
+                          return (
+                            <span
+                              key={char.id}
+                              style={{
+                                display: "inline-block",
+                                opacity: currentChar?.id === char.id ? 1 : 0.5,
+                                filter:
+                                  !isCurrentWord || currentChar?.id === char.id
+                                    ? "blur(0)"
+                                    : "blur(1px)",
+                              }}
+                            >
+                              {char.text}
+                            </span>
+                          );
+                        })}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
     </ul>
   );
 }
