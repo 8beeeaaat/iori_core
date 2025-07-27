@@ -63,6 +63,17 @@ export function getParagraphEnd(paragraph: Paragraph): number {
   return lastLine ? getLineEnd(lastLine) : 0;
 }
 
+export function getCharDuration(char: Char): number {
+  const begin = getCharBegin(char);
+  const end = getCharEnd(char);
+  if (begin >= end) {
+    throw new Error(
+      `Cannot calculate duration of invalid char: ${char.id} ${begin}-${end}`,
+    );
+  }
+  return end - begin;
+}
+
 export function getWordDuration(word: Word): number {
   const begin = getWordBegin(word);
   const end = getWordEnd(word);

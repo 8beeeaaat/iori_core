@@ -9,6 +9,7 @@ import {
   findParagraphAt,
   findWordAt,
   getCharBegin,
+  getCharDuration,
   getCharEnd,
   getChars,
   getLineBegin,
@@ -191,6 +192,11 @@ describe("helpers", () => {
   });
 
   describe("duration calculations", () => {
+    test("should calculate character duration", () => {
+      const duration = getCharDuration(char1);
+      expect(duration).toBe(0.2);
+    });
+
     test("should calculate word duration", () => {
       const duration = getWordDuration(word1);
       expect(duration).toBe(1);
