@@ -6,7 +6,7 @@ import {
   getCurrentParagraph,
   getCurrentWord,
   getTimelines,
-  type LyricData,
+  type Lyric,
   type LyricUpdateArgs,
   updateLyric,
   type WordTimeline,
@@ -88,12 +88,12 @@ const sampleTimelines: WordTimeline[][][] = [
 ];
 
 export default function Index() {
-  const [lyric, setLyric] = useState<LyricData>();
+  const [lyric, setLyric] = useState<Lyric>();
   const [editingTimeline, setEditingTimeline] =
     useState<LyricUpdateArgs["timelines"]>();
   const [updating, setUpdating] = useState(false);
   const [now, setNow] = useState(0);
-  const lyricRef = useRef<LyricData>(null);
+  const lyricRef = useRef<Lyric>(null);
 
   // init lyric
   useEffect(() => {
@@ -198,7 +198,7 @@ export default function Index() {
 }
 
 function Editor(props: {
-  lyric: LyricData;
+  lyric: Lyric;
   editingTimeline: LyricUpdateArgs["timelines"];
   setEditingTimeline: (timelines: LyricUpdateArgs["timelines"]) => void;
 }) {
@@ -285,7 +285,7 @@ function Editor(props: {
 }
 
 function Preview(props: {
-  lyric: LyricData;
+  lyric: Lyric;
   now: number;
   setNow: (now: number) => void;
 }) {

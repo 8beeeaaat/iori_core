@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { WordTimeline } from "../Constants";
 import { createLyric } from "../factories/createLyric";
-import type { CharData, LineData, LyricData, WordData } from "../types";
+import type { Char, Line, Lyric, Word } from "../types";
 import {
   getCurrentChar,
   getCurrentLine,
@@ -82,7 +82,7 @@ describe("current", () => {
     ],
   ];
 
-  let mockLyric: LyricData;
+  let mockLyric: Lyric;
 
   beforeEach(async () => {
     mockLyric = await createLyric({
@@ -230,7 +230,7 @@ describe("current", () => {
     });
 
     test("getCurrentParagraphFromLine should return undefined for non-existent line", () => {
-      const fakeLine: LineData = {
+      const fakeLine: Line = {
         id: "fake-line",
         position: 999,
         words: [],
@@ -250,7 +250,7 @@ describe("current", () => {
     });
 
     test("getCurrentLineFromWord should return undefined for non-existent word", () => {
-      const fakeWord: WordData = {
+      const fakeWord: Word = {
         id: "fake-word",
         lineID: "fake-line",
         position: 999,
@@ -277,7 +277,7 @@ describe("current", () => {
     });
 
     test("getCurrentWordFromChar should return undefined for non-existent character", () => {
-      const fakeChar: CharData = {
+      const fakeChar: Char = {
         id: "fake-char",
         wordID: "fake-word",
         text: "f",

@@ -1,9 +1,7 @@
-import type { CharPosition, GridPosition, LineData, WordData } from "../types";
+import type { CharPosition, GridPosition, Line, Word } from "../types";
 import { getChars, getLineWords } from "./helpers";
 
-export function getWordGridPositions(
-  line: LineData,
-): Map<string, GridPosition> {
+export function getWordGridPositions(line: Line): Map<string, GridPosition> {
   const words = getLineWords(line);
   const map = new Map<string, GridPosition>();
 
@@ -31,9 +29,9 @@ export function getWordGridPositions(
   return map;
 }
 
-export function getWordsByRow(line: LineData): Map<number, WordData[]> {
+export function getWordsByRow(line: Line): Map<number, Word[]> {
   const gridPositions = getWordGridPositions(line);
-  return Array.from(gridPositions.values()).reduce<Map<number, WordData[]>>(
+  return Array.from(gridPositions.values()).reduce<Map<number, Word[]>>(
     (acc, position) => {
       if (!acc.has(position.row)) {
         acc.set(position.row, []);
@@ -45,25 +43,25 @@ export function getWordsByRow(line: LineData): Map<number, WordData[]> {
   );
 }
 
-export function getRowWords(line: LineData, row: number): WordData[] {
+export function getRowWords(line: Line, row: number): Word[] {
   const wordsByRow = getWordsByRow(line);
   return wordsByRow.get(row) || [];
 }
 
 export function getWordRowPosition(
-  line: LineData,
+  line: Line,
   wordID: string,
 ): number | undefined {
   const gridPositions = getWordGridPositions(line);
   return gridPositions.get(wordID)?.row;
 }
 
-export function getMaxRowPosition(line: LineData): number {
+export function getMaxRowPosition(line: Line): number {
   const gridPositions = getWordGridPositions(line);
   return Math.max(...Array.from(gridPositions.values()).map((pos) => pos.row));
 }
 
-export function getCharPositions(line: LineData): Map<string, CharPosition> {
+export function getCharPositions(line: Line): Map<string, CharPosition> {
   const chars = getLineWords(line).flatMap((word) => getChars(word));
   const allWords = getLineWords(line);
   const wordPositionMap = getWordGridPositions(line);

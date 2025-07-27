@@ -1,10 +1,4 @@
-import type {
-  LineData,
-  LyricData,
-  ParagraphData,
-  TimeOptions,
-  WordData,
-} from "../types";
+import type { Line, Lyric, Paragraph, TimeOptions, Word } from "../types";
 import { getCurrentLine } from "./current";
 import {
   getLineBegin,
@@ -20,28 +14,28 @@ import {
 } from "./helpers";
 
 export function getNextParagraph(
-  lyric: LyricData,
+  lyric: Lyric,
   now: number,
   options: TimeOptions = { offset: lyric.offsetSec },
-): ParagraphData | undefined {
+): Paragraph | undefined {
   const offset = options.offset ?? 0;
   return getParagraphs(lyric).find((p) => getParagraphBegin(p) > now + offset);
 }
 
 export function getNextLine(
-  lyric: LyricData,
+  lyric: Lyric,
   now: number,
   options: TimeOptions = { offset: lyric.offsetSec },
-): LineData | undefined {
+): Line | undefined {
   const offset = options.offset ?? 0;
   return getLines(lyric).find((l) => getLineBegin(l) > now + offset);
 }
 
 export function getNextWord(
-  lyric: LyricData,
+  lyric: Lyric,
   now: number,
   options: TimeOptions = { offset: lyric.offsetSec },
-): WordData | undefined {
+): Word | undefined {
   const offset = options.offset ?? 0;
   const currentLine = getCurrentLine(lyric, now);
 
@@ -60,10 +54,10 @@ export function getNextWord(
 }
 
 export function getPrevParagraph(
-  lyric: LyricData,
+  lyric: Lyric,
   now: number,
   options: TimeOptions = { offset: lyric.offsetSec },
-): ParagraphData | undefined {
+): Paragraph | undefined {
   const offset = options.offset ?? 0;
   return getParagraphs(lyric)
     .reverse()
@@ -71,10 +65,10 @@ export function getPrevParagraph(
 }
 
 export function getPrevLine(
-  lyric: LyricData,
+  lyric: Lyric,
   now: number,
   options: TimeOptions = { offset: lyric.offsetSec },
-): LineData | undefined {
+): Line | undefined {
   const offset = options.offset ?? 0;
   return getLines(lyric)
     .reverse()
@@ -82,10 +76,10 @@ export function getPrevLine(
 }
 
 export function getPrevWord(
-  lyric: LyricData,
+  lyric: Lyric,
   now: number,
   options: TimeOptions = { offset: lyric.offsetSec },
-): WordData | undefined {
+): Word | undefined {
   const offset = options.offset ?? 0;
   const currentLine = getCurrentLine(lyric, now);
 
@@ -108,25 +102,22 @@ export function getPrevWord(
   return undefined;
 }
 
-export function getFirstWord(line: LineData): WordData | undefined {
+export function getFirstWord(line: Line): Word | undefined {
   return getLineWords(line)[0];
 }
 
-export function getLastWord(line: LineData): WordData | undefined {
+export function getLastWord(line: Line): Word | undefined {
   const words = getLineWords(line);
   return words[words.length - 1];
 }
 
-export function getLinePositionInLyric(
-  line: LineData,
-  lyric: LyricData,
-): number {
+export function getLinePositionInLyric(line: Line, lyric: Lyric): number {
   return getLines(lyric).findIndex((l) => l.id === line.id) + 1;
 }
 
 export function getLinePositionInParagraph(
-  line: LineData,
-  lyric: LyricData,
+  line: Line,
+  lyric: Lyric,
 ): number | undefined {
   for (const paragraph of getParagraphs(lyric)) {
     const lines = getParagraphLines(paragraph);

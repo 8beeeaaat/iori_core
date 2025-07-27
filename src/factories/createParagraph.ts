@@ -1,5 +1,5 @@
 import type { WordTimeline } from "../Constants";
-import type { ParagraphData } from "../types";
+import type { Paragraph } from "../types";
 import { createLine } from "./createLine";
 
 export type CreateParagraphArgs = {
@@ -21,7 +21,7 @@ export type CreateParagraphArgs = {
 
 export async function createParagraph(
   args: CreateParagraphArgs,
-): Promise<ParagraphData> {
+): Promise<Paragraph> {
   const id = `paragraph-${crypto.randomUUID()}`;
 
   let timelines = args.timelines;

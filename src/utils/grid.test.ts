@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import type { WordTimeline } from "../Constants";
 import { createLine } from "../factories/createLine";
-import type { CharData } from "../types";
+import type { Char } from "../types";
 import {
   getCharPositions,
   getMaxRowPosition,
@@ -282,7 +282,7 @@ describe("grid", () => {
       const charsByRow = new Map<
         number,
         Array<{
-          char: CharData;
+          char: Char;
           position: { row: number; column: number; inLinePosition: number };
         }>
       >();

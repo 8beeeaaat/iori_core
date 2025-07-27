@@ -1,5 +1,5 @@
 import { CHAR_TYPES, type CharType } from "../Constants";
-import type { CharData } from "../types";
+import type { Char } from "../types";
 
 export type CreateCharArgs = {
   wordID: string;
@@ -31,7 +31,7 @@ function getCharType(text: string): CharType {
   return CHAR_TYPES.OTHER;
 }
 
-export function createChar(args: CreateCharArgs): CharData {
+export function createChar(args: CreateCharArgs): Char {
   const id = `char-${crypto.randomUUID()}`;
   const type = getCharType(args.text);
 

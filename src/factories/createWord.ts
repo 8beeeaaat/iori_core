@@ -1,5 +1,5 @@
 import type { WordTimeline } from "../Constants";
-import type { WordData } from "../types";
+import type { Word } from "../types";
 import { createChar } from "./createChar";
 
 export type CreateWordArgs = {
@@ -14,7 +14,7 @@ function isWordTimeline(
   return (timeline as WordTimeline).wordID !== undefined;
 }
 
-export function createWord(args: CreateWordArgs): WordData {
+export function createWord(args: CreateWordArgs): Word {
   const id = isWordTimeline(args.timeline)
     ? args.timeline.wordID
     : `word-${crypto.randomUUID()}`;

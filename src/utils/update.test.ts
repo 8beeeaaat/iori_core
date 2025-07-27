@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import type { WordTimeline } from "../Constants";
 import { createLyric } from "../factories/createLyric";
-import type { LyricData, LyricUpdateArgs } from "../types";
+import type { Lyric, LyricUpdateArgs } from "../types";
 import { getTimelines, getTimelinesByLine, updateLyric } from "./update";
 
 // Mock crypto.randomUUID for consistent testing
@@ -74,7 +74,7 @@ describe("update", () => {
     ],
   ];
 
-  let originalLyric: LyricData;
+  let originalLyric: Lyric;
 
   beforeEach(async () => {
     originalLyric = await createLyric({
