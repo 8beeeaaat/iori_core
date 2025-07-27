@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import type { WordTimeline } from "../Constants";
 import { createLine } from "../factories/createLine";
+import { createLyric } from "../factories/createLyric";
 import type { Char } from "../types";
 import {
   getCharPositions,
@@ -8,6 +9,7 @@ import {
   getRowWords,
   getWordGridPositions,
   getWordRowPosition,
+  getWordsByLineIDAndRowPosition,
   getWordsByRow,
 } from "./grid";
 
@@ -358,6 +360,142 @@ describe("grid", () => {
 
       const maxRow = getMaxRowPosition(newlineLine);
       expect(maxRow).toBeGreaterThan(1);
+    });
+  });
+
+  describe("getWordsByLineIDAndRowPosition", () => {
+    test("should return map of words by line ID and row position", async () => {
+      const timelines = [
+        [
+          [
+            {
+              wordID: "word1",
+              text: "Hello",
+              begin: 0,
+              end: 1,
+              hasWhitespace: true,
+            },
+            {
+              wordID: "word2",
+              text: "world",
+              begin: 1.5,
+              end: 2.5,
+              hasNewLine: true,
+            },
+          ],
+          [
+            {
+              wordID: "word3",
+              text: "Next",
+              begin: 3,
+              end: 4,
+              hasWhitespace: true,
+            },
+            {
+              wordID: "word4",
+              text: "line",
+              begin: 4.5,
+              end: 5.5,
+            },
+          ],
+        ],
+      ];
+
+      const lyric = await createLyric({
+        resourceID: "test-lyric",
+        duration: 10,
+        timelines,
+      });
+
+      const wordsByLineAndRow = getWordsByLineIDAndRowPosition(lyric);
+
+      expect(wordsByLineAndRow.size).toBeGreaterThan(0);
+
+      // Check structure: Map<lineID, Map<row, Map<column, Word>>>
+      for (const [lineID, rowMap] of wordsByLineAndRow) {
+        expect(typeof lineID).toBe("string");
+        expect(rowMap instanceof Map).toBe(true);
+
+        for (const [row, columnMap] of rowMap) {
+          expect(typeof row).toBe("number");
+          expect(row).toBeGreaterThanOrEqual(1);
+          expect(columnMap instanceof Map).toBe(true);
+
+          for (const [column, word] of columnMap) {
+            expect(typeof column).toBe("number");
+            expect(column).toBeGreaterThanOrEqual(1);
+            expect(word).toHaveProperty("id");
+            expect(word).toHaveProperty("lineID");
+            expect(word).toHaveProperty("timeline");
+          }
+        }
+      }
+    });
+
+    test("should handle empty lyric", async () => {
+      const lyric = await createLyric({
+        resourceID: "empty-lyric",
+        duration: 10,
+        timelines: [],
+      });
+
+      const wordsByLineAndRow = getWordsByLineIDAndRowPosition(lyric);
+      expect(wordsByLineAndRow.size).toBe(0);
+    });
+
+    test("should maintain correct word order by position", async () => {
+      const timelines = [
+        [
+          [
+            {
+              wordID: "word1",
+              text: "First",
+              begin: 0,
+              end: 1,
+              hasWhitespace: true,
+            },
+            {
+              wordID: "word2",
+              text: "Second",
+              begin: 1.5,
+              end: 2.5,
+              hasWhitespace: true,
+            },
+            {
+              wordID: "word3",
+              text: "Third",
+              begin: 3,
+              end: 4,
+            },
+          ],
+        ],
+      ];
+
+      const lyric = await createLyric({
+        resourceID: "test-lyric",
+        duration: 10,
+        timelines,
+      });
+
+      const wordsByLineAndRow = getWordsByLineIDAndRowPosition(lyric);
+
+      // Get the first (and only) line
+      const firstLineEntry = Array.from(wordsByLineAndRow.entries())[0];
+      expect(firstLineEntry).toBeDefined();
+
+      const [_lineID, rowMap] = firstLineEntry;
+      const firstRowEntry = Array.from(rowMap.entries())[0];
+      expect(firstRowEntry).toBeDefined();
+
+      const [_row, columnMap] = firstRowEntry;
+
+      // Check that words are ordered by column
+      const columns = Array.from(columnMap.keys()).sort((a, b) => a - b);
+      expect(columns.length).toBeGreaterThan(0);
+
+      for (let i = 0; i < columns.length - 1; i++) {
+        expect(columns[i + 1]).toBeGreaterThan(columns[i]);
+      }
     });
   });
 });
