@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2025-07-27
+
+### Changed
+
+- Major TypeScript type naming refactoring for improved developer experience
+  - Removed `Data` suffix from all core types for cleaner, more intuitive naming
+  - `CharData` → `Char`, `WordData` → `Word`, `LineData` → `Line`, `ParagraphData` → `Paragraph`, `LyricData` → `Lyric`
+  - Updated all factory functions, utilities, tests, and examples to use the new type names
+  - Maintained backward compatibility through proper type exports
+
+### Technical
+
+- Comprehensive type system cleanup across 19 files
+- Reduced code complexity with 213 deletions and 174 additions
+- Enhanced code readability and maintainability with simplified type naming conventions
+- Improved TypeScript IntelliSense experience with shorter, more descriptive type names
+
 ## [0.3.1] - 2025-07-27
 
 ### Changed
