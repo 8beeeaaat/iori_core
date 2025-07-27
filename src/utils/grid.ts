@@ -80,7 +80,7 @@ export function getCharPositions(line: LineData): Map<string, CharPosition> {
     const inLinePosition = chars.findIndex((c) => c.id === char.id) + 1;
     const wordPosition = wordPositionMap.get(word.id);
     if (!wordPosition) {
-      throw new Error("wordPosition not found");
+      throw new Error(`wordPosition not found for word ID: ${word.id}`);
     }
 
     const sameRowWords = allWords.filter((w) => {
