@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2025-07-27
+
+### Changed
+
+- Improved type organization and naming for Lyric factory functions
+  - Moved `LyricCreateArgs` and `LyricUpdateArgs` from global types to factory-specific types
+  - Renamed to `CreateLyricArgs` and `UpdateLyricArgs` for better naming consistency
+  - Updated all imports and usage across tests, examples, and utility functions
+
+### Technical
+
+- Enhanced code organization by co-locating types with their corresponding factory functions
+- Improved type discoverability and maintainability through better naming conventions
+- Reduced global type namespace pollution by moving factory-specific types to appropriate modules
+
 ## [0.3.2] - 2025-07-27
 
 ### Changed
