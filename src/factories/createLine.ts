@@ -1,5 +1,5 @@
 import type { WordTimeline } from "../Constants";
-import type { LineData, WordData } from "../types";
+import type { Line, Word } from "../types";
 import { createWord } from "./createWord";
 
 export type CreateLineArgs = {
@@ -11,7 +11,7 @@ export type CreateLineArgs = {
 function confirmJointNearWord(
   timeline: WordTimeline,
   nextTimeline: WordTimeline | undefined,
-  lastWord: WordData | undefined,
+  lastWord: Word | undefined,
   jointNearWord: boolean,
 ): { isJoint: boolean; hasWhitespace: boolean } | undefined {
   const isWhitespace = /^\s+$/.test(timeline.text);
@@ -37,11 +37,11 @@ function confirmJointNearWord(
   return { isJoint: false, hasWhitespace };
 }
 
-export function createLine(args: CreateLineArgs): LineData {
+export function createLine(args: CreateLineArgs): Line {
   const id = `line-${crypto.randomUUID()}`;
   const sortedTimelines = args.timelines.sort((a, b) => a.begin - b.begin);
 
-  const words: WordData[] = [];
+  const words: Word[] = [];
 
   for (let index = 0; index < sortedTimelines.length; index++) {
     const timeline = sortedTimelines[index];

@@ -1,76 +1,69 @@
-import type {
-  CharData,
-  LineData,
-  LyricData,
-  ParagraphData,
-  TimeOptions,
-  WordData,
-} from "../types";
+import type { Char, Line, Lyric, Paragraph, TimeOptions, Word } from "../types";
 
-export function getWords(lyric: LyricData): WordData[] {
+export function getWords(lyric: Lyric): Word[] {
   return lyric.paragraphs.flatMap((paragraph) =>
     paragraph.lines.flatMap((line) => line.words),
   );
 }
 
-export function getLines(lyric: LyricData): LineData[] {
+export function getLines(lyric: Lyric): Line[] {
   return lyric.paragraphs
     .flatMap((paragraph) => paragraph.lines)
     .sort((a, b) => getLineBegin(a) - getLineBegin(b));
 }
 
-export function getParagraphs(lyric: LyricData): ParagraphData[] {
+export function getParagraphs(lyric: Lyric): Paragraph[] {
   return [...lyric.paragraphs].sort(
     (a, b) => getParagraphBegin(a) - getParagraphBegin(b),
   );
 }
 
-export function getChars(word: WordData): CharData[] {
+export function getChars(word: Word): Char[] {
   return [...word.chars];
 }
 
-export function getLineWords(line: LineData): WordData[] {
+export function getLineWords(line: Line): Word[] {
   return [...line.words];
 }
 
-export function getParagraphLines(paragraph: ParagraphData): LineData[] {
+export function getParagraphLines(paragraph: Paragraph): Line[] {
   return [...paragraph.lines];
 }
 
-export function getCharBegin(char: CharData): number {
+export function getCharBegin(char: Char): number {
   return char.begin;
 }
 
-export function getCharEnd(char: CharData): number {
+export function getCharEnd(char: Char): number {
   return char.end;
 }
 
-export function getWordBegin(word: WordData): number {
+export function getWordBegin(word: Word): number {
   return word.timeline.begin;
 }
 
-export function getWordEnd(word: WordData): number {
+export function getWordEnd(word: Word): number {
   return word.timeline.end;
 }
 
-export function getLineBegin(line: LineData): number {
+export function getLineBegin(line: Line): number {
   return line.words[0]?.timeline.begin || 0;
 }
 
-export function getLineEnd(line: LineData): number {
+export function getLineEnd(line: Line): number {
   return line.words[line.words.length - 1]?.timeline.end || 0;
 }
 
-export function getParagraphBegin(paragraph: ParagraphData): number {
+export function getParagraphBegin(paragraph: Paragraph): number {
   return paragraph.lines[0] ? getLineBegin(paragraph.lines[0]) : 0;
 }
 
-export function getParagraphEnd(paragraph: ParagraphData): number {
+export function getParagraphEnd(paragraph: Paragraph): number {
   const lastLine = paragraph.lines[paragraph.lines.length - 1];
   return lastLine ? getLineEnd(lastLine) : 0;
 }
 
-export function getWordDuration(word: WordData): number {
+export function getWordDuration(word: Word): number {
   const begin = getWordBegin(word);
   const end = getWordEnd(word);
   if (begin >= end) {
@@ -81,7 +74,7 @@ export function getWordDuration(word: WordData): number {
   return end - begin;
 }
 
-export function getLineDuration(line: LineData): number {
+export function getLineDuration(line: Line): number {
   const begin = getLineBegin(line);
   const end = getLineEnd(line);
   if (begin >= end) {
@@ -92,7 +85,7 @@ export function getLineDuration(line: LineData): number {
   return end - begin;
 }
 
-export function getParagraphDuration(paragraph: ParagraphData): number {
+export function getParagraphDuration(paragraph: Paragraph): number {
   const begin = getParagraphBegin(paragraph);
   const end = getParagraphEnd(paragraph);
   if (begin >= end) {
@@ -103,11 +96,11 @@ export function getParagraphDuration(paragraph: ParagraphData): number {
   return end - begin;
 }
 
-export function getWordText(word: WordData): string {
+export function getWordText(word: Word): string {
   return word.chars.map((char) => char.text).join("");
 }
 
-export function getLineText(line: LineData): string {
+export function getLineText(line: Line): string {
   return line.words
     .map(
       (word) =>
@@ -133,29 +126,23 @@ export function isCurrentTime(
 }
 
 export function findParagraphAt(
-  lyric: LyricData,
+  lyric: Lyric,
   position: number,
-): ParagraphData | undefined {
+): Paragraph | undefined {
   return lyric.paragraphs.find((p) => p.position === position);
 }
 
 export function findLineAt(
-  paragraph: ParagraphData,
+  paragraph: Paragraph,
   position: number,
-): LineData | undefined {
+): Line | undefined {
   return paragraph.lines.find((l) => l.position === position);
 }
 
-export function findWordAt(
-  line: LineData,
-  position: number,
-): WordData | undefined {
+export function findWordAt(line: Line, position: number): Word | undefined {
   return line.words.find((w) => w.position === position);
 }
 
-export function findCharAt(
-  word: WordData,
-  position: number,
-): CharData | undefined {
+export function findCharAt(word: Word, position: number): Char | undefined {
   return word.chars.find((c) => c.position === position);
 }

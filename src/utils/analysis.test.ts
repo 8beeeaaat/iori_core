@@ -3,7 +3,7 @@ import { CHAR_TYPES, type WordTimeline } from "../Constants";
 import { createLine } from "../factories/createLine";
 import { createLyric } from "../factories/createLyric";
 import { createWord } from "../factories/createWord";
-import type { CharData, LyricData } from "../types";
+import type { Char, Lyric } from "../types";
 import {
   calculateSpeed,
   getCurrentSummary,
@@ -79,7 +79,7 @@ describe("analysis", () => {
     ],
   ];
 
-  let mockLyric: LyricData;
+  let mockLyric: Lyric;
 
   beforeEach(async () => {
     mockLyric = await createLyric({
@@ -97,17 +97,17 @@ describe("analysis", () => {
         {
           duration: () => 1,
           chars: () => [
-            { type: CHAR_TYPES.ALPHABET } as CharData,
-            { type: CHAR_TYPES.ALPHABET } as CharData,
+            { type: CHAR_TYPES.ALPHABET } as Char,
+            { type: CHAR_TYPES.ALPHABET } as Char,
           ],
         },
         {
           duration: () => 2,
           chars: () => [
-            { type: CHAR_TYPES.KANJI } as CharData,
-            { type: CHAR_TYPES.KANJI } as CharData,
-            { type: CHAR_TYPES.KANJI } as CharData,
-            { type: CHAR_TYPES.KANJI } as CharData,
+            { type: CHAR_TYPES.KANJI } as Char,
+            { type: CHAR_TYPES.KANJI } as Char,
+            { type: CHAR_TYPES.KANJI } as Char,
+            { type: CHAR_TYPES.KANJI } as Char,
           ],
         },
       ];
@@ -121,18 +121,18 @@ describe("analysis", () => {
       const mockItems = [
         {
           duration: () => 1,
-          chars: () => [{ type: CHAR_TYPES.KANJI } as CharData],
+          chars: () => [{ type: CHAR_TYPES.KANJI } as Char],
         },
         {
           duration: () => 2,
           chars: () => [
-            { type: CHAR_TYPES.KANJI } as CharData,
-            { type: CHAR_TYPES.KANJI } as CharData,
+            { type: CHAR_TYPES.KANJI } as Char,
+            { type: CHAR_TYPES.KANJI } as Char,
           ],
         },
         {
           duration: () => 1,
-          chars: () => [{ type: CHAR_TYPES.KANJI } as CharData],
+          chars: () => [{ type: CHAR_TYPES.KANJI } as Char],
         },
       ];
 
@@ -145,13 +145,13 @@ describe("analysis", () => {
       const mockItems = [
         {
           duration: () => 1,
-          chars: () => [{ type: CHAR_TYPES.KANJI } as CharData],
+          chars: () => [{ type: CHAR_TYPES.KANJI } as Char],
         },
         {
           duration: () => 2,
           chars: () => [
-            { type: CHAR_TYPES.KANJI } as CharData,
-            { type: CHAR_TYPES.KANJI } as CharData,
+            { type: CHAR_TYPES.KANJI } as Char,
+            { type: CHAR_TYPES.KANJI } as Char,
           ],
         },
       ];
@@ -173,10 +173,10 @@ describe("analysis", () => {
         {
           duration: () => 1,
           chars: () => [
-            { type: CHAR_TYPES.ALPHABET } as CharData, // 0.5 weight
-            { type: CHAR_TYPES.NUMBER } as CharData, // 0.5 weight
-            { type: CHAR_TYPES.KANJI } as CharData, // 1.0 weight
-            { type: CHAR_TYPES.WHITESPACE } as CharData, // 0 weight (ignored)
+            { type: CHAR_TYPES.ALPHABET } as Char, // 0.5 weight
+            { type: CHAR_TYPES.NUMBER } as Char, // 0.5 weight
+            { type: CHAR_TYPES.KANJI } as Char, // 1.0 weight
+            { type: CHAR_TYPES.WHITESPACE } as Char, // 0 weight (ignored)
           ],
         },
       ];
@@ -477,7 +477,7 @@ describe("analysis", () => {
       const mockItems = [
         {
           duration: () => 0,
-          chars: () => [{ type: CHAR_TYPES.KANJI } as CharData],
+          chars: () => [{ type: CHAR_TYPES.KANJI } as Char],
         },
       ];
 

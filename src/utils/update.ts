@@ -1,10 +1,10 @@
 import { createLyric } from "../factories/createLyric";
-import type { LyricData, LyricUpdateArgs, WordTimeline } from "../types";
+import type { Lyric, LyricUpdateArgs, WordTimeline } from "../types";
 
 export async function updateLyric(
-  lyric: LyricData,
+  lyric: Lyric,
   args: LyricUpdateArgs,
-): Promise<LyricData> {
+): Promise<Lyric> {
   const resourceID = args.resourceID || lyric.resourceID;
   const duration = args.duration
     ? Number(args.duration.toFixed(2))
@@ -30,13 +30,13 @@ export async function updateLyric(
   });
 }
 
-export function getTimelines(lyric: LyricData): WordTimeline[][][] {
+export function getTimelines(lyric: Lyric): WordTimeline[][][] {
   return lyric.paragraphs.map((paragraph) =>
     paragraph.lines.map((line) => line.words.map((word) => word.timeline)),
   );
 }
 
-export function getTimelinesByLine(lyric: LyricData): WordTimeline[] {
+export function getTimelinesByLine(lyric: Lyric): WordTimeline[] {
   return lyric.paragraphs.flatMap((paragraph, paragraphIndex) =>
     paragraph.lines.map((line, lineIndex) => {
       const firstWord = line.words[0];

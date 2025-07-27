@@ -1,13 +1,13 @@
 import { CHAR_TYPES } from "../Constants";
 import type {
-  CharData,
-  LineData,
-  LyricData,
+  Char,
+  Line,
+  Lyric,
   LyricSummary,
-  ParagraphData,
+  Paragraph,
   TimeOptions,
   VoidPeriod,
-  WordData,
+  Word,
 } from "../types";
 import {
   getCurrentChar,
@@ -41,7 +41,7 @@ import {
 } from "./navigation";
 
 export function calculateSpeed(
-  items: { duration: () => number; chars?: () => CharData[] }[],
+  items: { duration: () => number; chars?: () => Char[] }[],
 ): number {
   const speeds = items.map((item) => {
     const duration = item.duration();
@@ -70,7 +70,7 @@ export function calculateSpeed(
   );
 }
 
-export function getWordSpeed(word: WordData): number {
+export function getWordSpeed(word: Word): number {
   const duration = getWordDuration(word);
   return (
     getChars(word).reduce((acc, char) => {
@@ -85,7 +85,7 @@ export function getWordSpeed(word: WordData): number {
   );
 }
 
-export function getLineSpeed(line: LineData): number {
+export function getLineSpeed(line: Line): number {
   const words = getLineWords(line).map((word) => ({
     duration: () => getWordDuration(word),
     chars: () => getChars(word),
@@ -93,7 +93,7 @@ export function getLineSpeed(line: LineData): number {
   return calculateSpeed(words);
 }
 
-export function getParagraphSpeed(paragraph: ParagraphData): number {
+export function getParagraphSpeed(paragraph: Paragraph): number {
   const lines = getParagraphLines(paragraph).map((line) => ({
     duration: () => getLineDuration(line),
     chars: () => getLineWords(line).flatMap((word) => getChars(word)),
@@ -101,7 +101,7 @@ export function getParagraphSpeed(paragraph: ParagraphData): number {
   return calculateSpeed(lines);
 }
 
-export function getLyricSpeed(lyric: LyricData): number {
+export function getLyricSpeed(lyric: Lyric): number {
   const paragraphs = getParagraphs(lyric).map((paragraph) => ({
     duration: () => getParagraphDuration(paragraph),
     chars: () =>
@@ -112,7 +112,7 @@ export function getLyricSpeed(lyric: LyricData): number {
   return calculateSpeed(paragraphs);
 }
 
-export function getVoidPeriods(lyric: LyricData): VoidPeriod[] {
+export function getVoidPeriods(lyric: Lyric): VoidPeriod[] {
   const words = getWords(lyric);
 
   return words.reduce<VoidPeriod[]>((acc, word, index) => {
@@ -150,14 +150,12 @@ export function getVoidPeriods(lyric: LyricData): VoidPeriod[] {
   }, []);
 }
 
-export function isVoidTime(lyric: LyricData, now: number): boolean {
+export function isVoidTime(lyric: Lyric, now: number): boolean {
   const voids = getVoidPeriods(lyric);
   return voids.some(({ begin, end }) => now >= begin && now <= end);
 }
 
-export function getParagraphAverageLineDuration(
-  paragraph: ParagraphData,
-): number {
+export function getParagraphAverageLineDuration(paragraph: Paragraph): number {
   const durations = getParagraphLines(paragraph).map((line) =>
     getLineDuration(line),
   );
@@ -167,7 +165,7 @@ export function getParagraphAverageLineDuration(
 }
 
 export function getCurrentSummary(
-  lyric: LyricData,
+  lyric: Lyric,
   now: number,
   options: TimeOptions = { offset: lyric.offsetSec },
 ): LyricSummary {

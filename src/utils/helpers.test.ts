@@ -2,13 +2,7 @@ import { describe, expect, test, vi } from "vitest";
 import { createChar } from "../factories/createChar";
 import { createLine } from "../factories/createLine";
 import { createWord } from "../factories/createWord";
-import type {
-  CharData,
-  LineData,
-  LyricData,
-  ParagraphData,
-  WordData,
-} from "../types";
+import type { Char, Line, Lyric, Paragraph, Word } from "../types";
 import {
   findCharAt,
   findLineAt,
@@ -43,7 +37,7 @@ vi.stubGlobal("crypto", {
 
 describe("helpers", () => {
   // Test data setup
-  const char1: CharData = createChar({
+  const char1: Char = createChar({
     wordID: "word1",
     position: 1,
     text: "H",
@@ -51,7 +45,7 @@ describe("helpers", () => {
     end: 0.2,
   });
 
-  const _char2: CharData = createChar({
+  const _char2: Char = createChar({
     wordID: "word1",
     position: 2,
     text: "i",
@@ -59,7 +53,7 @@ describe("helpers", () => {
     end: 0.4,
   });
 
-  const word1: WordData = createWord({
+  const word1: Word = createWord({
     lineID: "line1",
     position: 1,
     timeline: {
@@ -71,7 +65,7 @@ describe("helpers", () => {
     },
   });
 
-  const _word2: WordData = createWord({
+  const _word2: Word = createWord({
     lineID: "line1",
     position: 2,
     timeline: {
@@ -82,7 +76,7 @@ describe("helpers", () => {
     },
   });
 
-  const line1: LineData = createLine({
+  const line1: Line = createLine({
     position: 1,
     timelines: [
       { wordID: "word1", text: "Hi", begin: 0, end: 1, hasWhitespace: true },
@@ -90,24 +84,24 @@ describe("helpers", () => {
     ],
   });
 
-  const line2: LineData = createLine({
+  const line2: Line = createLine({
     position: 2,
     timelines: [{ wordID: "word3", text: "How", begin: 3, end: 4 }],
   });
 
-  const paragraph1: ParagraphData = {
+  const paragraph1: Paragraph = {
     id: "paragraph1",
     position: 1,
     lines: [line1, line2],
   };
 
-  const paragraph2: ParagraphData = {
+  const paragraph2: Paragraph = {
     id: "paragraph2",
     position: 2,
     lines: [line2],
   };
 
-  const mockLyric: LyricData = {
+  const mockLyric: Lyric = {
     id: "lyric1",
     resourceID: "test",
     duration: 10,
@@ -182,8 +176,8 @@ describe("helpers", () => {
     });
 
     test("should handle empty lines/paragraphs", () => {
-      const emptyLine: LineData = { id: "empty", position: 1, words: [] };
-      const emptyParagraph: ParagraphData = {
+      const emptyLine: Line = { id: "empty", position: 1, words: [] };
+      const emptyParagraph: Paragraph = {
         id: "empty",
         position: 1,
         lines: [],
@@ -203,7 +197,7 @@ describe("helpers", () => {
     });
 
     test("should throw error for invalid word duration", () => {
-      const invalidWord: WordData = {
+      const invalidWord: Word = {
         ...word1,
         timeline: { ...word1.timeline, begin: 2, end: 1 }, // Invalid: begin > end
       };
@@ -234,11 +228,11 @@ describe("helpers", () => {
     });
 
     test("should handle newlines in line text", () => {
-      const wordWithNewline: WordData = {
+      const wordWithNewline: Word = {
         ...word1,
         timeline: { ...word1.timeline, hasNewLine: true },
       };
-      const lineWithNewline: LineData = {
+      const lineWithNewline: Line = {
         ...line1,
         words: [wordWithNewline],
       };

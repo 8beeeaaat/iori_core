@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import type { WordTimeline } from "../Constants";
 import { createLyric } from "../factories/createLyric";
-import type { LyricData } from "../types";
+import type { Lyric } from "../types";
 import {
   getFirstWord,
   getLastWord,
@@ -79,7 +79,7 @@ describe("navigation", () => {
     ],
   ];
 
-  let mockLyric: LyricData;
+  let mockLyric: Lyric;
 
   beforeEach(async () => {
     mockLyric = await createLyric({

@@ -2,7 +2,7 @@ import type { CharType, WordTimeline } from "./Constants";
 
 export type { WordTimeline } from "./Constants";
 
-export type CharData = {
+export type Char = {
   readonly id: string;
   readonly wordID: string;
   readonly text: string;
@@ -12,32 +12,32 @@ export type CharData = {
   readonly end: number;
 };
 
-export type WordData = {
+export type Word = {
   readonly id: string;
   readonly lineID: string;
   readonly position: number;
   readonly timeline: WordTimeline;
-  readonly chars: readonly CharData[];
+  readonly chars: readonly Char[];
 };
 
-export type LineData = {
+export type Line = {
   readonly id: string;
   readonly position: number;
-  readonly words: readonly WordData[];
+  readonly words: readonly Word[];
 };
 
-export type ParagraphData = {
+export type Paragraph = {
   readonly id: string;
   readonly position: number;
-  readonly lines: readonly LineData[];
+  readonly lines: readonly Line[];
 };
 
-export type LyricData = {
+export type Lyric = {
   readonly id: string;
   readonly resourceID: string;
   readonly duration: number;
   readonly offsetSec: number;
-  readonly paragraphs: readonly ParagraphData[];
+  readonly paragraphs: readonly Paragraph[];
 };
 
 export type TimeOptions = {
@@ -48,7 +48,7 @@ export type TimeOptions = {
 export type GridPosition = {
   row: number;
   column: number;
-  word: WordData;
+  word: Word;
 };
 
 export type CharPosition = {
@@ -62,25 +62,25 @@ export type FunctionalRowStatus = {
   isCurrentRow: boolean;
   isPrevRow: boolean;
   isNextRow: boolean;
-  chars: CharData[];
+  chars: Char[];
 };
 
 export type LyricSummary = {
-  currentChar?: CharData;
-  currentLine?: LineData;
-  currentParagraph?: ParagraphData;
-  currentWord?: WordData;
+  currentChar?: Char;
+  currentLine?: Line;
+  currentParagraph?: Paragraph;
+  currentWord?: Word;
   isConnected: boolean;
   isParagraphFinishMotion: boolean;
   lastLineIndex?: number;
   lastLineIndexInParagraph?: number;
-  nextLine?: LineData;
-  nextWord?: WordData;
-  nextParagraph?: ParagraphData;
+  nextLine?: Line;
+  nextWord?: Word;
+  nextParagraph?: Paragraph;
   nextWaitingTime?: number;
-  prevLine?: LineData;
-  prevParagraph?: ParagraphData;
-  prevWord?: WordData;
+  prevLine?: Line;
+  prevParagraph?: Paragraph;
+  prevWord?: Word;
   lyricTextPerSecond?: number;
   paragraphTextPerSecond?: number;
   lineTextPerSecond?: number;
