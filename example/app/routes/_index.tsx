@@ -7,7 +7,7 @@ import {
   getCurrentWord,
   getTimelines,
   type Lyric,
-  type LyricUpdateArgs,
+  type UpdateLyricArgs,
   updateLyric,
   type WordTimeline,
 } from "@ioris/core";
@@ -90,7 +90,7 @@ const sampleTimelines: WordTimeline[][][] = [
 export default function Index() {
   const [lyric, setLyric] = useState<Lyric>();
   const [editingTimeline, setEditingTimeline] =
-    useState<LyricUpdateArgs["timelines"]>();
+    useState<UpdateLyricArgs["timelines"]>();
   const [updating, setUpdating] = useState(false);
   const [now, setNow] = useState(0);
   const lyricRef = useRef<Lyric>(null);
@@ -199,8 +199,8 @@ export default function Index() {
 
 function Editor(props: {
   lyric: Lyric;
-  editingTimeline: LyricUpdateArgs["timelines"];
-  setEditingTimeline: (timelines: LyricUpdateArgs["timelines"]) => void;
+  editingTimeline: UpdateLyricArgs["timelines"];
+  setEditingTimeline: (timelines: UpdateLyricArgs["timelines"]) => void;
 }) {
   const { lyric, editingTimeline, setEditingTimeline } = props;
 

@@ -1,7 +1,28 @@
-import type { Lyric, LyricCreateArgs } from "../types";
+import type { Lyric, WordTimeline } from "../types";
 import { createParagraph } from "./createParagraph";
 
-export async function createLyric(args: LyricCreateArgs): Promise<Lyric> {
+export type CreateLyricArgs = {
+  initID?: boolean;
+  id?: string;
+  resourceID: string;
+  duration: number;
+  timelines: WordTimeline[][][];
+  lineTokenizer?: (lineArgs: {
+    position: number;
+    timelines: WordTimeline[];
+  }) => Promise<
+    Map<
+      number,
+      { position: number; timelines: WordTimeline[]; jointNearWord?: boolean }
+    >
+  >;
+  paragraphTokenizer?: (
+    timelines: WordTimeline[][],
+  ) => Promise<WordTimeline[][]>;
+  offsetSec?: number;
+};
+
+export async function createLyric(args: CreateLyricArgs): Promise<Lyric> {
   const id = args.id
     ? args.id
     : args.initID

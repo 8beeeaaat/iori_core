@@ -1,5 +1,5 @@
-export { type CreateCharArgs, createChar } from "./createChar";
-export { type CreateLineArgs, createLine } from "./createLine";
-export { createLyric } from "./createLyric";
-export { type CreateParagraphArgs, createParagraph } from "./createParagraph";
-export { type CreateWordArgs, createWord } from "./createWord";
+export * from "./createChar";
+export * from "./createLine";
+export * from "./createLyric";
+export * from "./createParagraph";
+export * from "./createWord";

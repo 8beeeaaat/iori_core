@@ -5,12 +5,12 @@
  * after migrating from the class-based implementation.
  */
 import {
+  type CreateLyricArgs,
   createLyric,
   getCurrentLine,
   getCurrentParagraph,
   getCurrentSummary,
   getCurrentWord,
-  type LyricCreateArgs,
   type WordTimeline,
 } from "@ioris/core";
 
@@ -61,7 +61,7 @@ const sampleTimelines: WordTimeline[][][] = [
 
 async function functionalExample() {
   // Create lyric data using functional API
-  const lyricArgs: LyricCreateArgs = {
+  const lyricArgs: CreateLyricArgs = {
     resourceID: "example-song",
     duration: 10,
     timelines: sampleTimelines,

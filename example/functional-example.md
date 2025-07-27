@@ -5,14 +5,14 @@ The new functional API provides a cleaner, more predictable way to work with lyr
 ## Basic Usage
 
 ```typescript
-import { 
+import {
   createLyric,
   getCurrentParagraph,
   getCurrentLine,
   getCurrentWord,
   getCurrentChar,
   getCurrentSummary,
-  type FunctionalLyricCreateArgs,
+  type FunctionalCreateLyricArgs,
   type WordTimeline
 } from "@ioris/core";
 
@@ -28,7 +28,7 @@ const timelines: WordTimeline[][][] = [
         hasWhitespace: true,
       },
       {
-        wordID: "word2", 
+        wordID: "word2",
         text: "world!",
         begin: 1,
         end: 2,
@@ -62,7 +62,7 @@ const timelines: WordTimeline[][][] = [
 ];
 
 // Create lyric data
-const lyricArgs: FunctionalLyricCreateArgs = {
+const lyricArgs: FunctionalCreateLyricArgs = {
   resourceID: "example-song",
   duration: 10,
   timelines,
@@ -72,22 +72,22 @@ const lyricArgs: FunctionalLyricCreateArgs = {
 async function example() {
   // Create immutable lyric data
   const lyric = await createLyric(lyricArgs);
-  
+
   // Get current elements at specific time
   const currentTime = 0.5;
-  
+
   const currentParagraph = getCurrentParagraph(lyric, currentTime);
   console.log("Current paragraph:", currentParagraph?.position); // 1
-  
+
   const currentLine = getCurrentLine(lyric, currentTime);
   console.log("Current line:", currentLine?.position); // 1
-  
+
   const currentWord = getCurrentWord(lyric, currentTime);
   console.log("Current word:", currentWord?.timeline.text); // "Hello,"
-  
+
   const currentChar = getCurrentChar(lyric, currentTime);
   console.log("Current char:", currentChar?.text); // One of "H", "e", "l", etc.
-  
+
   // Get comprehensive summary
   const summary = getCurrentSummary(lyric, currentTime);
   console.log("Summary:", {
@@ -104,6 +104,7 @@ example();
 ## Key Benefits
 
 ### 1. Immutability
+
 All data structures are immutable (frozen), preventing unexpected mutations:
 
 ```typescript
@@ -116,17 +117,19 @@ console.log(Object.isFrozen(lyric.paragraphs[0].lines[0])); // true
 ```
 
 ### 2. Pure Functions
+
 All operations are pure functions that take data and return new data:
 
 ```typescript
 // Instead of: lyric.currentWord(now)
 const currentWord = getCurrentWord(lyric, now);
 
-// Instead of: lyric.nextLine(now)  
+// Instead of: lyric.nextLine(now)
 const nextLine = getNextLine(lyric, now);
 ```
 
 ### 3. Predictable Updates
+
 Updates return new immutable objects instead of mutating existing ones:
 
 ```typescript
@@ -143,10 +146,11 @@ console.log(updatedLyric.resourceID); // "new-song-id"
 ```
 
 ### 4. Better Performance
+
 No internal state means better predictability and easier optimization:
 
 ```typescript
-import { 
+import {
   getLyricSpeed,
   getVoidPeriods,
   isVoidTime
@@ -161,6 +165,7 @@ const isVoid = isVoidTime(lyric, 2.5);
 ## Migration from Class-based API
 
 ### Before (Class-based)
+
 ```typescript
 const lyric = new Lyric({ /* args */ });
 await lyric.init();
@@ -173,11 +178,12 @@ await lyric.update({ resourceID: "new-id" });
 ```
 
 ### After (Functional)
+
 ```typescript
 const lyric = await createLyric({ /* args */ });
 
 const currentWord = getCurrentWord(lyric, now);
-const nextLine = getNextLine(lyric, now); 
+const nextLine = getNextLine(lyric, now);
 const summary = getCurrentSummary(lyric, now);
 
 const updatedLyric = await updateLyric(lyric, { resourceID: "new-id" });
@@ -186,6 +192,7 @@ const updatedLyric = await updateLyric(lyric, { resourceID: "new-id" });
 ## Advanced Usage
 
 ### Custom Tokenizers
+
 ```typescript
 const lyric = await createLyric({
   resourceID: "advanced-song",
@@ -197,7 +204,7 @@ const lyric = await createLyric({
   },
   paragraphTokenizer: async (timelines) => {
     // Custom paragraph processing logic
-    return timelines.map(timeline => 
+    return timelines.map(timeline =>
       timeline.filter(word => word.text.trim().length > 0)
     );
   }
@@ -205,8 +212,9 @@ const lyric = await createLyric({
 ```
 
 ### Grid Operations
+
 ```typescript
-import { 
+import {
   getWordGridPositions,
   getWordsByRow,
   getCharPositions
