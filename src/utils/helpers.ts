@@ -85,7 +85,9 @@ export function getLineDuration(line: LineData): number {
   const begin = getLineBegin(line);
   const end = getLineEnd(line);
   if (begin >= end) {
-    throw new Error("Cannot calculate duration of invalid line");
+    throw new Error(
+      `Cannot calculate duration of invalid line: ${line.id} ${begin}-${end}`,
+    );
   }
   return end - begin;
 }
