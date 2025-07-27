@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import type { WordTimeline } from "../Constants";
-import type { FunctionalLyricCreateArgs } from "../types";
+import type { LyricCreateArgs } from "../types";
 import { createLyric } from "./createLyric";
 
 // Mock crypto.randomUUID for consistent testing
@@ -57,7 +57,7 @@ describe("createLyric", () => {
     ],
   ];
 
-  const baseArgs: FunctionalLyricCreateArgs = {
+  const baseArgs: LyricCreateArgs = {
     resourceID: "test-resource",
     duration: 10,
     timelines: basicTimelines,

@@ -1,13 +1,9 @@
 import { createLyric } from "../factories/createLyric";
-import type {
-  FunctionalLyricUpdateArgs,
-  LyricData,
-  WordTimeline,
-} from "../types";
+import type { LyricData, LyricUpdateArgs, WordTimeline } from "../types";
 
 export async function updateLyric(
   lyric: LyricData,
-  args: FunctionalLyricUpdateArgs,
+  args: LyricUpdateArgs,
 ): Promise<LyricData> {
   const resourceID = args.resourceID || lyric.resourceID;
   const duration = args.duration

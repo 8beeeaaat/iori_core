@@ -6,11 +6,11 @@
  */
 import {
   createLyric,
-  type FunctionalLyricCreateArgs,
   getCurrentLine,
   getCurrentParagraph,
   getCurrentSummary,
   getCurrentWord,
+  type LyricCreateArgs,
   type WordTimeline,
 } from "@ioris/core";
 
@@ -61,7 +61,7 @@ const sampleTimelines: WordTimeline[][][] = [
 
 async function functionalExample() {
   // Create lyric data using functional API
-  const lyricArgs: FunctionalLyricCreateArgs = {
+  const lyricArgs: LyricCreateArgs = {
     resourceID: "example-song",
     duration: 10,
     timelines: sampleTimelines,

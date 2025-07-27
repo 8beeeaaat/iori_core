@@ -5,7 +5,6 @@ import {
   createLyric,
   createParagraph,
   createWord,
-  type FunctionalLyricCreateArgs,
   getCurrentChar,
   getCurrentLine,
   getCurrentParagraph,
@@ -18,6 +17,7 @@ import {
   getTimelinesByLine,
   getVoidPeriods,
   isVoidTime,
+  type LyricCreateArgs,
   updateLyric,
   type WordTimeline,
 } from "./index";
@@ -59,7 +59,7 @@ const sampleTimelines: WordTimeline[][][] = [
   ],
 ];
 
-const createArgs: FunctionalLyricCreateArgs = {
+const createArgs: LyricCreateArgs = {
   resourceID: "test-song",
   duration: 10,
   timelines: sampleTimelines,

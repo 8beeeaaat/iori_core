@@ -1,13 +1,13 @@
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: sample */
 import {
   createLyric,
-  type FunctionalLyricUpdateArgs,
   getCurrentChar,
   getCurrentLine,
   getCurrentParagraph,
   getCurrentWord,
   getTimelines,
   type LyricData,
+  type LyricUpdateArgs,
   updateLyric,
   type WordTimeline,
 } from "@ioris/core";
@@ -90,7 +90,7 @@ const sampleTimelines: WordTimeline[][][] = [
 export default function Index() {
   const [lyric, setLyric] = useState<LyricData>();
   const [editingTimeline, setEditingTimeline] =
-    useState<FunctionalLyricUpdateArgs["timelines"]>();
+    useState<LyricUpdateArgs["timelines"]>();
   const [updating, setUpdating] = useState(false);
   const [now, setNow] = useState(0);
   const lyricRef = useRef<LyricData>(null);
@@ -199,90 +199,88 @@ export default function Index() {
 
 function Editor(props: {
   lyric: LyricData;
-  editingTimeline: FunctionalLyricUpdateArgs["timelines"];
-  setEditingTimeline: (
-    timelines: FunctionalLyricUpdateArgs["timelines"],
-  ) => void;
+  editingTimeline: LyricUpdateArgs["timelines"];
+  setEditingTimeline: (timelines: LyricUpdateArgs["timelines"]) => void;
 }) {
   const { lyric, editingTimeline, setEditingTimeline } = props;
 
   return editingTimeline
     ? editingTimeline.map((paragraph, paragraphIndex) => (
-        <fieldset
-          key={`paragraph-${paragraphIndex}`}
-          style={{
-            marginBottom: "2rem",
-          }}
-        >
-          <legend>Paragraph {paragraphIndex + 1}</legend>
-          {paragraph.map((line, lineIndex) => (
-            <fieldset
-              style={{
-                marginTop: "1rem",
-              }}
-              key={`paragraph-${paragraphIndex}-line-${lineIndex}`}
-            >
-              <legend>Line {lineIndex + 1}</legend>
-              {line.map((word, wordIndex) => (
-                <form
-                  key={`${paragraphIndex}-${lineIndex}-${word.wordID}`}
-                  style={{
-                    display: "grid",
-                    gap: "0.25rem",
-                    gridTemplateColumns: "4rem 1fr 4rem",
-                    marginTop: "1rem",
+      <fieldset
+        key={`paragraph-${paragraphIndex}`}
+        style={{
+          marginBottom: "2rem",
+        }}
+      >
+        <legend>Paragraph {paragraphIndex + 1}</legend>
+        {paragraph.map((line, lineIndex) => (
+          <fieldset
+            style={{
+              marginTop: "1rem",
+            }}
+            key={`paragraph-${paragraphIndex}-line-${lineIndex}`}
+          >
+            <legend>Line {lineIndex + 1}</legend>
+            {line.map((word, wordIndex) => (
+              <form
+                key={`${paragraphIndex}-${lineIndex}-${word.wordID}`}
+                style={{
+                  display: "grid",
+                  gap: "0.25rem",
+                  gridTemplateColumns: "4rem 1fr 4rem",
+                  marginTop: "1rem",
+                }}
+              >
+                <input
+                  type="number"
+                  min={0}
+                  max={lyric.duration}
+                  value={word.begin}
+                  onChange={(e) => {
+                    if (!editingTimeline) return;
+                    const newTimeline = [...editingTimeline];
+                    newTimeline[paragraphIndex][lineIndex][wordIndex] = {
+                      ...word,
+                      begin: Number(e.target.value),
+                    };
+                    setEditingTimeline(newTimeline);
                   }}
-                >
-                  <input
-                    type="number"
-                    min={0}
-                    max={lyric.duration}
-                    value={word.begin}
-                    onChange={(e) => {
-                      if (!editingTimeline) return;
-                      const newTimeline = [...editingTimeline];
-                      newTimeline[paragraphIndex][lineIndex][wordIndex] = {
-                        ...word,
-                        begin: Number(e.target.value),
-                      };
-                      setEditingTimeline(newTimeline);
-                    }}
-                  />
-                  <input
-                    key={word.wordID}
-                    type="text"
-                    value={word.text}
-                    onChange={(e) => {
-                      if (!editingTimeline) return;
-                      const newTimeline = [...editingTimeline];
-                      newTimeline[paragraphIndex][lineIndex][wordIndex] = {
-                        ...word,
-                        text: e.target.value,
-                      };
-                      setEditingTimeline(newTimeline);
-                    }}
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    max={lyric.duration}
-                    value={word.end}
-                    onChange={(e) => {
-                      if (!editingTimeline) return;
-                      const newTimeline = [...editingTimeline];
-                      newTimeline[paragraphIndex][lineIndex][wordIndex] = {
-                        ...word,
-                        end: Number(e.target.value),
-                      };
-                      setEditingTimeline(newTimeline);
-                    }}
-                  />
-                </form>
-              ))}
-            </fieldset>
-          ))}
-        </fieldset>
-      ))
+                />
+                <input
+                  key={word.wordID}
+                  type="text"
+                  value={word.text}
+                  onChange={(e) => {
+                    if (!editingTimeline) return;
+                    const newTimeline = [...editingTimeline];
+                    newTimeline[paragraphIndex][lineIndex][wordIndex] = {
+                      ...word,
+                      text: e.target.value,
+                    };
+                    setEditingTimeline(newTimeline);
+                  }}
+                />
+                <input
+                  type="number"
+                  min={0}
+                  max={lyric.duration}
+                  value={word.end}
+                  onChange={(e) => {
+                    if (!editingTimeline) return;
+                    const newTimeline = [...editingTimeline];
+                    newTimeline[paragraphIndex][lineIndex][wordIndex] = {
+                      ...word,
+                      end: Number(e.target.value),
+                    };
+                    setEditingTimeline(newTimeline);
+                  }}
+                />
+              </form>
+            ))}
+          </fieldset>
+        ))}
+      </fieldset>
+    ))
     : null;
 }
 

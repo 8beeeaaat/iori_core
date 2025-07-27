@@ -1,9 +1,7 @@
-import type { FunctionalLyricCreateArgs, LyricData } from "../types";
+import type { LyricCreateArgs, LyricData } from "../types";
 import { createParagraph } from "./createParagraph";
 
-export async function createLyric(
-  args: FunctionalLyricCreateArgs,
-): Promise<LyricData> {
+export async function createLyric(args: LyricCreateArgs): Promise<LyricData> {
   const id = args.id
     ? args.id
     : args.initID

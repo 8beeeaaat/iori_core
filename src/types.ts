@@ -92,7 +92,7 @@ export type VoidPeriod = {
   duration: number;
 };
 
-export type FunctionalLyricCreateArgs = {
+export type LyricCreateArgs = {
   initID?: boolean;
   id?: string;
   resourceID: string;
@@ -113,7 +113,7 @@ export type FunctionalLyricCreateArgs = {
   offsetSec?: number;
 };
 
-export type FunctionalLyricUpdateArgs = {
+export type LyricUpdateArgs = {
   resourceID?: string;
   duration?: number;
   timelines?: WordTimeline[][][];
