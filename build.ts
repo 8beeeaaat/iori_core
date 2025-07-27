@@ -1,7 +1,7 @@
-import { build } from "esbuild";
+import { type BuildOptions, build } from "esbuild";
 
 const entryFile = "./src/index.ts";
-const shared = {
+const shared: BuildOptions = {
   bundle: true,
   entryPoints: [entryFile],
   logLevel: "info",
@@ -12,5 +12,5 @@ const shared = {
 build({
   ...shared,
   format: "esm",
-  outfile: "./dist/index.js",
+  outfile: "./dist/index.mjs",
 });
