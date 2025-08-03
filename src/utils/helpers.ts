@@ -71,7 +71,7 @@ export function getCharDuration(char: Char): number {
   const begin = getCharBegin(char);
   const end = getCharEnd(char);
   if (begin >= end) {
-    throw new Error(
+    console.error(
       `Cannot calculate duration of invalid char: ${char.id} ${begin}-${end}`,
     );
   }
@@ -82,7 +82,7 @@ export function getWordDuration(word: Word): number {
   const begin = getWordBegin(word);
   const end = getWordEnd(word);
   if (begin >= end) {
-    throw new Error(
+    console.error(
       `Cannot calculate duration of invalid word: ${word.id} ${begin}-${end}`,
     );
   }
@@ -93,7 +93,7 @@ export function getLineDuration(line: Line): number {
   const begin = getLineBegin(line);
   const end = getLineEnd(line);
   if (begin >= end) {
-    throw new Error(
+    console.error(
       `Cannot calculate duration of invalid line: ${line.id} ${begin}-${end}`,
     );
   }
@@ -104,7 +104,7 @@ export function getParagraphDuration(paragraph: Paragraph): number {
   const begin = getParagraphBegin(paragraph);
   const end = getParagraphEnd(paragraph);
   if (begin >= end) {
-    throw new Error(
+    console.error(
       `Cannot calculate duration of invalid paragraph: ${paragraph.id} ${begin}-${end}`,
     );
   }
