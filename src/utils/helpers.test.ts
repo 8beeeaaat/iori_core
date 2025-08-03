@@ -208,7 +208,7 @@ describe("helpers", () => {
       expect(duration).toBe(1);
     });
 
-    test("should logging error for invalid word duration", () => {
+    test("should log error for invalid word duration", () => {
       const invalidWord: Word = {
         ...word1,
         timeline: { ...word1.timeline, begin: 2, end: 1 }, // Invalid: begin > end
