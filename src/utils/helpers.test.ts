@@ -208,13 +208,21 @@ describe("helpers", () => {
       expect(duration).toBe(1);
     });
 
-    test("should throw error for invalid word duration", () => {
+    test("should log error for invalid word duration", () => {
       const invalidWord: Word = {
         ...word1,
         timeline: { ...word1.timeline, begin: 2, end: 1 }, // Invalid: begin > end
       };
 
-      expect(() => getWordDuration(invalidWord)).toThrow();
+      // expect(() => getWordDuration(invalidWord)).toThrow();
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+      const duration = getWordDuration(invalidWord);
+      expect(duration).toBe(-1); // Should return -1 for invalid duration
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        `Cannot calculate duration of invalid word: ${invalidWord.id} 2-1`,
+      );
     });
 
     test("should calculate line duration", () => {

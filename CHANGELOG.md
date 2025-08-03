@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.7] - 2025-08-03
+
+### Fixed
+
+- **Improved error handling for invalid duration calculations**: Changed duration calculation functions to use console logging instead of throwing errors
+  - Duration functions now return -1 for invalid time ranges (where begin >= end) instead of throwing exceptions
+  - Applies to `getCharDuration`, `getWordDuration`, `getLineDuration`, and `getParagraphDuration` functions
+  - Enhances library stability by preventing crashes when encountering malformed timeline data
+  - Updated corresponding tests to verify new error handling behavior
+
+### Technical
+
+- Enhanced error handling resilience for duration calculation utilities
+- Improved library stability when processing invalid timeline data
+
 ## [0.3.6] - 2025-07-27
 
 ### Added
