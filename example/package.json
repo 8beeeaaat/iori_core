@@ -16,7 +16,7 @@
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
     "typescript": "^5.8.3",
-    "vite": "^7.0.6",
+    "vite": "^7.1.6",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "engines": {
