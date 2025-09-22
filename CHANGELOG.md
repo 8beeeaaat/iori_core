@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.8] - 2025-09-22
+
+### Changed
+
+- **Updated dependencies for enhanced security and performance**
+  - Updated `brace-expansion` dependency to address security vulnerabilities
+  - Upgraded `vite` from 7.0.6 to 7.1.6 in example project for improved build performance and bug fixes
+  - Ensured compatibility with latest development tools and build systems
+
+### Technical
+
+- Dependency updates for improved security posture
+- Enhanced example project build tooling with latest Vite version
+- Maintained compatibility across development and production environments
+
 ## [0.3.7] - 2025-08-03
 
 ### Fixed
