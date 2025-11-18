@@ -50,7 +50,7 @@
   "homepage": "https://github.com/8beeeaaat/iori_core#readme",
   "devDependencies": {
     "@biomejs/biome": "2.1.2",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.0.10",
     "esbuild": "^0.25.8",
     "globals": "^16.3.0",
     "jsdom": "^26.1.0",
