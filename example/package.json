@@ -1,22 +1,22 @@
 {
   "dependencies": {
     "@ioris/core": "file:..",
-    "@react-router/fs-routes": "^7.7.1",
-    "@react-router/node": "^7.7.1",
-    "@react-router/serve": "^7.7.1",
-    "isbot": "^5.1.28",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-router": "^7.7.1"
+    "@react-router/fs-routes": "^7.10.0",
+    "@react-router/node": "^7.10.0",
+    "@react-router/serve": "^7.10.0",
+    "isbot": "^5.1.32",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router": "^7.10.0"
   },
   "devDependencies": {
-    "@react-router/dev": "^7.7.1",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "@typescript-eslint/eslint-plugin": "^8.38.0",
-    "@typescript-eslint/parser": "^8.38.0",
-    "typescript": "^5.8.3",
-    "vite": "^7.1.6",
+    "@react-router/dev": "^7.10.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.6",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "engines": {
