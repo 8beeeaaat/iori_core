@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.9] - 2025-12-03
+
+### Changed
+
+- **Major devDependencies upgrade for improved development experience and security**
+  - Upgraded `@biomejs/biome` from 2.1.2 to 2.3.8 for enhanced code formatting and linting capabilities
+  - Upgraded `vitest` from 3.2.4 to 4.0.15 for improved testing performance and new features
+  - Upgraded `@vitest/coverage-v8` from 3.2.4 to 4.0.15 for better code coverage reporting
+  - Upgraded `esbuild` from 0.25.8 to 0.27.0 for faster build times and bug fixes
+  - Upgraded `typescript` from 5.8.3 to 5.9.3 with latest type checking improvements
+  - Upgraded `jsdom` from 26.1.0 to 27.2.0 for better DOM testing capabilities
+  - Upgraded `globals` from 16.3.0 to 16.5.0 for updated global type definitions
+  - Upgraded `tsx` from 4.20.3 to 4.21.0 for improved TypeScript execution
+  - Upgraded `rimraf` from 6.0.1 to 6.1.2 for reliable cross-platform file deletion
+
+### Technical
+
+- Comprehensive dependency modernization across the entire development toolchain
+- Enhanced security posture with latest stable versions of all build and test tools
+- Improved developer experience with cutting-edge TypeScript and testing capabilities
+- Optimized dependency tree for reduced installation time and smaller lock file footprint
+- Maintained full backward compatibility while leveraging new tool features
+
 ## [0.3.8] - 2025-09-22
 
 ### Changed
