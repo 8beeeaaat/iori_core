@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from "vitest";
 import { createChar } from "../factories/createChar";
 import { createLine } from "../factories/createLine";
 import { createWord } from "../factories/createWord";
-import type { Char, Line, Lyric, Paragraph, Word } from "../types";
+import type { Char, Line, Lyric, LyricIndex, Paragraph, Word } from "../types";
 import {
   findCharAt,
   findLineAt,
@@ -102,6 +102,7 @@ describe("helpers", () => {
     duration: 10,
     offsetSec: 0,
     paragraphs: [paragraph1, paragraph2],
+    _index: {} as LyricIndex, // Index not needed for these tests
   };
 
   describe("getWords", () => {
