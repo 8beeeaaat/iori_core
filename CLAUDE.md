@@ -38,8 +38,47 @@ const lyric = await createLyric({
 - **Navigation**: `getNextLine(lyric, now)`, `getPrevWord(lyric, now)`, etc.
 - **Updates**: `updateLyric(lyric, { timelines, duration, offsetSec })`
 - **Analysis**: `getCurrentSummary(lyric, now)` returns comprehensive state information
+- **Editing**: Lyric structure manipulation (see Editing API section below)
 
 All timing methods accept `now` (current playback time in seconds) and optional `offset`/`equal` parameters.
+
+### Editing API
+
+The library provides functions to manipulate lyric structure:
+
+**Shift operations** (タイミング移動):
+
+- `shiftWords(lyric, wordIDs, offsetSec)`: Move multiple words in time
+- `shiftLines(lyric, lineIDs, offsetSec)`: Move multiple lines in time
+- `shiftParagraphs(lyric, paragraphIDs, offsetSec)`: Move multiple paragraphs in time
+- `shiftRange(lyric, beginTime, endTime, offsetSec)`: Move all words within time range
+
+**Merge operations** (結合):
+
+- `mergeWords(lyric, wordIDs)`: Merge multiple words into one
+  - Words must be in the same line
+  - Returns `ValidationResult<Lyric>`
+- `mergeLines(lyric, lineIDs)`: Merge multiple lines into one
+  - Lines must be in the same paragraph
+  - Returns `ValidationResult<Lyric>`
+
+**Split operations** (分割):
+
+- `splitWord(lyric, wordID, options)`: Split a word into two
+  - `options.type: "position"` - Split by character index
+  - `options.type: "time"` - Split by time point
+  - Returns `ValidationResult<Lyric>`
+- `splitLine(lyric, lineID, options)`: Split a line into two
+  - `options.type: "word"` - Split at specified word
+  - `options.type: "time"` - Split by time point
+  - Returns `ValidationResult<Lyric>`
+
+All editing functions:
+
+- Return `ValidationResult<T>` for type-safe error handling
+- Preserve immutability (original lyric unchanged)
+- Automatically rebuild internal index (`_index`)
+- Recalculate `position` values (1-based)
 
 ## Development Commands
 
