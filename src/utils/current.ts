@@ -56,7 +56,10 @@ export function getCurrentWord(
   return [...currentLine.words]
     .sort((a, b) => b.timeline.begin - a.timeline.begin)
     .find((word) => {
-      return isCurrentTime(word.timeline.begin, word.timeline.end, now, { offset, equal });
+      return isCurrentTime(word.timeline.begin, word.timeline.end, now, {
+        offset,
+        equal,
+      });
     });
 }
 

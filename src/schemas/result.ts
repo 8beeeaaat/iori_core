@@ -52,7 +52,9 @@ export function failure(
 /**
  * 成功結果かどうかを判定（型ガード）
  */
-export function isSuccess<T>(result: ValidationResult<T>): result is Success<T> {
+export function isSuccess<T>(
+  result: ValidationResult<T>,
+): result is Success<T> {
   return result.success === true;
 }
 

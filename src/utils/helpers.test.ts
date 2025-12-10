@@ -207,7 +207,7 @@ describe("helpers", () => {
       // expect(() => getWordDuration(invalidWord)).toThrow();
       const consoleErrorSpy = vi
         .spyOn(console, "error")
-        .mockImplementation(() => { });
+        .mockImplementation(() => {});
       const duration = getWordDuration(invalidWord);
       expect(duration).toBe(-1); // Should return -1 for invalid duration
       expect(consoleErrorSpy).toHaveBeenCalledWith(

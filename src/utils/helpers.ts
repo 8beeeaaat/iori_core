@@ -88,7 +88,8 @@ export function getLineText(line: Line): string {
   return line.words
     .map(
       (word) =>
-        `${getWordText(word)}${!word.timeline.hasNewLine && word.timeline.hasWhitespace ? " " : ""}${word.timeline.hasNewLine ? "\n" : ""
+        `${getWordText(word)}${!word.timeline.hasNewLine && word.timeline.hasWhitespace ? " " : ""}${
+          word.timeline.hasNewLine ? "\n" : ""
         }`,
     )
     .join("");

@@ -151,9 +151,7 @@ export function isVoidTime(lyric: Lyric, now: number): boolean {
 }
 
 export function getParagraphAverageLineDuration(paragraph: Paragraph): number {
-  const durations = paragraph.lines.map((line) =>
-    getLineDuration(line),
-  );
+  const durations = paragraph.lines.map((line) => getLineDuration(line));
   return (
     durations.reduce((sum, duration) => sum + duration, 0) / durations.length
   );
