@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
-import { isFailure, isSuccess } from "../schemas/result";
-import type { Line, Lyric, LyricIndex, Paragraph, Word } from "../types";
+import { isFailure, isSuccess } from "../../schemas/result";
+import type { Line, Lyric, LyricIndex, Paragraph, Word } from "../../types";
 import { shiftLines, shiftParagraphs, shiftRange, shiftWords } from "./shift";
 
 // Mock crypto.randomUUID for consistent testing

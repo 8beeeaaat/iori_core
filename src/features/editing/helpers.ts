@@ -2,7 +2,7 @@
  * Editing API - Common helper functions
  */
 
-import type { Line, LyricIndex, Paragraph, Word } from "../types";
+import type { Line, LyricIndex, Paragraph, Word } from "../../types";
 
 /**
  * Rebuild LyricIndex

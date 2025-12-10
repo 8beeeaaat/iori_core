@@ -3,7 +3,14 @@
  */
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import type { Char, Line, Lyric, LyricIndex, Paragraph, Word } from "../types";
+import type {
+  Char,
+  Line,
+  Lyric,
+  LyricIndex,
+  Paragraph,
+  Word,
+} from "../../types";
 import { splitLine, splitWord } from "./split";
 
 // Mock UUID

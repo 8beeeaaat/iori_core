@@ -3,10 +3,10 @@
  * Merge multiple Word/Line into one
  */
 
-import { createWord } from "../factories/createWord";
-import type { ValidationResult } from "../schemas/result";
-import { failure, success } from "../schemas/result";
-import type { Line, Lyric, Word, WordTimeline } from "../types";
+import { createWord } from "../../factories/createWord";
+import type { ValidationResult } from "../../schemas/result";
+import { failure, success } from "../../schemas/result";
+import type { Line, Lyric, Word, WordTimeline } from "../../types";
 import { rebuildIndex, reindexPositions } from "./helpers";
 
 /**
