@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-12-11
+
+### Added
+
+- **Zod v4 integration**: Added Zod as a runtime dependency for schema validation
+  - New `WordTimeline` schema with comprehensive validation rules
+  - Automatic timeline overlap detection with O(n log n) algorithm
+  - Type-safe parsing functions `parseWordTimeline()` and `parseWordTimelines()`
+
+- **Result type pattern**: Introduced functional error handling with `ValidationResult<T>`
+  - `Success<T>` and `Failure` types for type-safe error propagation
+  - `success()` and `failure()` helper functions for creating results
+  - `isSuccess()` and `isFailure()` type guards for result checking
+
+- **ID Map (LyricIndex)**: Added O(1) reverse lookup capability to Lyric type
+  - `wordByCharId`: Map from Char ID to parent Word
+  - `lineByWordId`: Map from Word ID to parent Line
+  - `paragraphByLineId`: Map from Line ID to parent Paragraph
+  - `wordById`, `lineById`, `paragraphById`: Direct ID-to-element lookup
+  - Internal `_index` field in Lyric for efficient hierarchical navigation
+
+- **Editing API**: Comprehensive lyric manipulation functionality in `src/features/editing/`
+  - **Shift operations**:
+    - `shiftWords(lyric, wordIDs, offsetSec)`: Move multiple words in time
+    - `shiftLines(lyric, lineIDs, offsetSec)`: Move multiple lines in time
+    - `shiftParagraphs(lyric, paragraphIDs, offsetSec)`: Move multiple paragraphs in time
+    - `shiftRange(lyric, beginTime, endTime, offsetSec)`: Move all words within time range
+  - **Split operations**:
+    - `splitWord(lyric, wordID, options)`: Split a word by position or time
+    - `splitLine(lyric, lineID, options)`: Split a line by word or time
+  - **Merge operations**:
+    - `mergeWords(lyric, wordIDs)`: Merge multiple words into one (same line required)
+    - `mergeLines(lyric, lineIDs)`: Merge multiple lines into one (same paragraph required)
+  - All editing functions return `ValidationResult<Lyric>` for type-safe error handling
+  - Automatic index rebuilding and position recalculation after edits
+
+### Changed
+
+- **Documentation consolidation**: Merged CLAUDE.md and AGENTS.md into single comprehensive AGENTS.md
+  - CLAUDE.md now redirects to AGENTS.md
+  - Updated editing API documentation with detailed examples and usage patterns
+
+### Technical
+
+- Added `zod` ^4.1.13 as production dependency
+- New schema module at `src/schemas/` with `result.ts` and `timeline.schema.ts`
+- New features module at `src/features/editing/` with shift, split, merge, and helpers
+- Enhanced type definitions with `LyricIndex` for reverse lookup support
+- Comprehensive test coverage for all new functionality (358 tests passing)
+- All code comments translated to English for international collaboration
+
 ## [0.3.10] - 2025-12-11
 
 ### Added
