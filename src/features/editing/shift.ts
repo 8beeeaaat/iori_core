@@ -3,9 +3,9 @@
  * Batch timing shift for multiple Word/Line/Paragraph
  */
 
-import type { ValidationResult } from "../schemas/result";
-import { failure, success } from "../schemas/result";
-import type { Char, Lyric, Word } from "../types";
+import type { ValidationResult } from "../../schemas/result";
+import { failure, success } from "../../schemas/result";
+import type { Char, Lyric, Word } from "../../types";
 import { checkOverlaps, rebuildIndex } from "./helpers";
 
 /**
