@@ -30,7 +30,7 @@ export type CreateLyricArgs = {
 };
 
 /**
- * LyricIndexを構築する
+ * Build LyricIndex
  */
 function buildIndex(paragraphs: readonly Paragraph[]): LyricIndex {
   const wordByCharId = new Map<string, Word>();

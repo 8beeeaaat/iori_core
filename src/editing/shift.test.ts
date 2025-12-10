@@ -9,9 +9,9 @@ vi.stubGlobal("crypto", {
 });
 
 /**
- * テスト用に直接Lyricを構築する
- * createLyricはWordTimelineをマージするため、
- * 個別のWordを持つLyricを直接構築する
+ * Build Lyric directly for testing
+ * createLyric merges WordTimelines,
+ * so we build a Lyric with individual Words directly
  */
 function createTestLyric(): Lyric {
   // Create words
@@ -420,7 +420,7 @@ function createTestLyric(): Lyric {
 }
 
 /**
- * ヘルパー: Wordを取得
+ * Helper: Get Word
  */
 const getWord = (
   lyric: Lyric,

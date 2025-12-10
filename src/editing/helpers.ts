@@ -1,12 +1,12 @@
 /**
- * Editing API - 共通ヘルパー関数
+ * Editing API - Common helper functions
  */
 
 import type { Line, LyricIndex, Paragraph, Word } from "../types";
 
 /**
- * LyricIndexを再構築する
- * Paragraph配列から全てのインデックスマップを構築
+ * Rebuild LyricIndex
+ * Build all index maps from Paragraph array
  */
 export function rebuildIndex(paragraphs: readonly Paragraph[]): LyricIndex {
   const wordByCharId = new Map<string, Word>();
@@ -45,8 +45,8 @@ export function rebuildIndex(paragraphs: readonly Paragraph[]): LyricIndex {
 }
 
 /**
- * オーバーラップをチェックする
- * Word配列をソートして隣接するWordのタイムラインがオーバーラップしていないか確認
+ * Check for overlaps
+ * Sort Word array and check if adjacent Word timelines overlap
  */
 export function checkOverlaps(words: Word[]): {
   hasOverlap: boolean;
@@ -70,8 +70,8 @@ export function checkOverlaps(words: Word[]): {
 }
 
 /**
- * Position値を再割り当て
- * 配列のインデックスから1始まりのposition値を設定
+ * Reassign position values
+ * Set 1-based position values from array indices
  */
 export function reindexPositions<T extends { position: number }>(
   items: readonly T[],

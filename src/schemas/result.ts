@@ -1,6 +1,6 @@
 /**
- * Result型定義
- * Factory関数やバリデーション関数の戻り値として使用
+ * Result type definitions
+ * Used as return values for factory functions and validation functions
  */
 
 export type ValidationError = {
@@ -22,7 +22,7 @@ export type Failure = {
 export type ValidationResult<T> = Success<T> | Failure;
 
 /**
- * 成功結果を作成
+ * Create a success result
  */
 export function success<T>(data: T): Success<T> {
   return Object.freeze({
@@ -32,7 +32,7 @@ export function success<T>(data: T): Success<T> {
 }
 
 /**
- * 失敗結果を作成
+ * Create a failure result
  */
 export function failure(
   code: string,
@@ -50,7 +50,7 @@ export function failure(
 }
 
 /**
- * 成功結果かどうかを判定（型ガード）
+ * Check if the result is a success (type guard)
  */
 export function isSuccess<T>(
   result: ValidationResult<T>,
@@ -59,7 +59,7 @@ export function isSuccess<T>(
 }
 
 /**
- * 失敗結果かどうかを判定（型ガード）
+ * Check if the result is a failure (type guard)
  */
 export function isFailure<T>(result: ValidationResult<T>): result is Failure {
   return result.success === false;

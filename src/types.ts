@@ -33,7 +33,7 @@ export type Paragraph = {
 };
 
 /**
- * IDマップ - O(1)での逆引き検索用
+ * ID Map - For O(1) reverse lookup
  */
 export type LyricIndex = {
   /** Char ID → Word */
@@ -56,7 +56,7 @@ export type Lyric = {
   readonly duration: number;
   readonly offsetSec: number;
   readonly paragraphs: readonly Paragraph[];
-  /** 内部インデックス - O(1)での逆引き検索用 */
+  /** Internal index - For O(1) reverse lookup */
   readonly _index: LyricIndex;
 };
 

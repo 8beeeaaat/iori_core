@@ -1,21 +1,21 @@
 /**
- * Editing API - Merge functions のテスト
+ * Editing API - Merge functions tests
  */
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { Char, Line, Lyric, LyricIndex, Paragraph, Word } from "../types";
 import { mergeLines, mergeWords } from "./merge";
 
-// UUIDをモック
+// Mock UUID
 vi.stubGlobal("crypto", {
   randomUUID: vi.fn(() => "test-uuid-123"),
 });
 
 /**
- * テスト用のLyricを作成
+ * Create test Lyric
  */
 function createTestLyric(): Lyric {
-  // Charを手動構築
+  // Manually construct Char
   const c1: Char = Object.freeze({
     id: "c1",
     wordID: "w1",
@@ -76,7 +76,7 @@ function createTestLyric(): Lyric {
     end: 2.0,
   });
 
-  // Wordを手動構築
+  // Manually construct Word
   const w1: Word = Object.freeze({
     id: "w1",
     lineID: "l1",
@@ -133,7 +133,7 @@ function createTestLyric(): Lyric {
     ],
   });
 
-  // Lineを手動構築
+  // Manually construct Line
   const l1: Line = Object.freeze({
     id: "l1",
     position: 1,
@@ -170,7 +170,7 @@ function createTestLyric(): Lyric {
     ],
   });
 
-  // Paragraphを手動構築
+  // Manually construct Paragraph
   const p1: Paragraph = Object.freeze({
     id: "p1",
     position: 1,
@@ -183,7 +183,7 @@ function createTestLyric(): Lyric {
     lines: [l3],
   });
 
-  // Indexを手動構築
+  // Manually construct Index
   const _index: LyricIndex = Object.freeze({
     wordByCharId: new Map([
       ["c1", w1],
@@ -255,7 +255,7 @@ describe("Editing API - merge", () => {
       expect(mergedWord?.timeline.text).toBe("さく");
       expect(mergedWord?.timeline.begin).toBe(0.0);
       expect(mergedWord?.timeline.end).toBe(0.6);
-      expect(mergedWord?.id).toBe("w1"); // 最初のIDを維持
+      expect(mergedWord?.id).toBe("w1"); // Preserve first ID
     });
 
     test("should merge three continuous words", () => {
@@ -327,7 +327,7 @@ describe("Editing API - merge", () => {
       const originalWords = testLyric.paragraphs[0].lines[0].words;
       mergeWords(testLyric, ["w1", "w2"]);
 
-      // 元のLyricは変更されていない
+      // Original Lyric is unchanged
       expect(testLyric.paragraphs[0].lines[0].words).toBe(originalWords);
       expect(testLyric.paragraphs[0].lines[0].words.length).toBe(4);
     });
@@ -338,7 +338,7 @@ describe("Editing API - merge", () => {
       expect(result.success).toBe(true);
       if (!result.success) return;
 
-      // w2が削除され、w1のみ存在
+      // w2 is removed, only w1 exists
       expect(result.data._index.wordById.has("w1")).toBe(true);
       expect(result.data._index.wordById.has("w2")).toBe(false);
     });
@@ -356,7 +356,7 @@ describe("Editing API - merge", () => {
 
       const mergedLine = paragraph?.lines[0];
       expect(mergedLine?.words.length).toBe(5); // w1, w2, w3, w4, w5
-      expect(mergedLine?.id).toBe("l1"); // 最初のIDを維持
+      expect(mergedLine?.id).toBe("l1"); // Preserve first ID
     });
 
     test("should update all word lineIDs", () => {
@@ -413,7 +413,7 @@ describe("Editing API - merge", () => {
       const originalLines = testLyric.paragraphs[0].lines;
       mergeLines(testLyric, ["l1", "l2"]);
 
-      // 元のLyricは変更されていない
+      // Original Lyric is unchanged
       expect(testLyric.paragraphs[0].lines).toBe(originalLines);
       expect(testLyric.paragraphs[0].lines.length).toBe(2);
     });
@@ -424,11 +424,11 @@ describe("Editing API - merge", () => {
       expect(result.success).toBe(true);
       if (!result.success) return;
 
-      // l2が削除され、l1のみ存在
+      // l2 is removed, only l1 exists
       expect(result.data._index.lineById.has("l1")).toBe(true);
       expect(result.data._index.lineById.has("l2")).toBe(false);
 
-      // w5のlineIDがl1に更新されている
+      // w5's lineID is updated to l1
       const w5Line = result.data._index.lineByWordId.get("w5");
       expect(w5Line?.id).toBe("l1");
     });

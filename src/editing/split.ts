@@ -1,6 +1,6 @@
 /**
  * Editing API - Split functions
- * Word/Lineを複数に分割
+ * Split Word/Line into multiple parts
  */
 
 import { createWord } from "../factories/createWord";
@@ -10,20 +10,20 @@ import type { Line, Lyric, WordTimeline } from "../types";
 import { rebuildIndex, reindexPositions } from "./helpers";
 
 /**
- * Wordを文字位置で分割
+ * Split Word by character position
  */
 export type SplitWordByPositionOptions = {
   type: "position";
-  /** 分割位置（文字インデックス、0始まり） */
+  /** Split position (character index, 0-based) */
   charIndex: number;
 };
 
 /**
- * Wordを時間で分割
+ * Split Word by time
  */
 export type SplitWordByTimeOptions = {
   type: "time";
-  /** 分割時間（秒） */
+  /** Split time (seconds) */
   splitTime: number;
 };
 
@@ -32,22 +32,22 @@ export type SplitWordOptions =
   | SplitWordByTimeOptions;
 
 /**
- * Wordを2つに分割
+ * Split a Word into two
  *
- * @param lyric - 対象Lyric
- * @param wordID - 分割するWordのID
- * @param options - 分割オプション（位置または時間）
- * @returns 分割後のLyric
+ * @param lyric - Target Lyric
+ * @param wordID - ID of the Word to split
+ * @param options - Split options (position or time)
+ * @returns Lyric after splitting
  *
  * @example
- * // "さくらさく" → "さくら" + "さく" (文字位置で分割)
+ * // "さくらさく" → "さくら" + "さく" (split by character position)
  * const result = splitWord(lyric, "word-1", {
  *   type: "position",
  *   charIndex: 3
  * });
  *
  * @example
- * // 時間で分割
+ * // Split by time
  * const result = splitWord(lyric, "word-1", {
  *   type: "time",
  *   splitTime: 1.5
@@ -58,13 +58,13 @@ export function splitWord(
   wordID: string,
   options: SplitWordOptions,
 ): ValidationResult<Lyric> {
-  // 1. Word存在チェック
+  // 1. Check word existence
   const word = lyric._index.wordById.get(wordID);
   if (!word) {
     return failure("WORD_NOT_FOUND", `Word not found: ${wordID}`, { wordID });
   }
 
-  // 2. 分割位置の決定
+  // 2. Determine split position
   let splitCharIndex: number;
 
   if (options.type === "position") {
@@ -78,7 +78,7 @@ export function splitWord(
       );
     }
   } else {
-    // time指定の場合、該当する文字を探す
+    // For time option, find the corresponding character
     const charIdx = word.chars.findIndex(
       (char) => char.begin <= options.splitTime && options.splitTime < char.end,
     );
@@ -94,12 +94,12 @@ export function splitWord(
     splitCharIndex = charIdx;
   }
 
-  // 3. 2つのWordTimelineを作成
+  // 3. Create two WordTimelines
   const firstChars = word.chars.slice(0, splitCharIndex);
   const secondChars = word.chars.slice(splitCharIndex);
 
   const firstTimeline: WordTimeline = {
-    wordID: word.id, // 元のIDを継承
+    wordID: word.id, // Inherit original ID
     text: firstChars.map((c) => c.text).join(""),
     begin: word.timeline.begin,
     end: firstChars[firstChars.length - 1].end,
@@ -108,7 +108,7 @@ export function splitWord(
   };
 
   const secondTimeline: WordTimeline = {
-    wordID: `word-${crypto.randomUUID()}`, // 新しいID
+    wordID: `word-${crypto.randomUUID()}`, // New ID
     text: secondChars.map((c) => c.text).join(""),
     begin: secondChars[0].begin,
     end: word.timeline.end,
@@ -116,7 +116,7 @@ export function splitWord(
     hasNewLine: word.timeline.hasNewLine,
   };
 
-  // 4. 新しいParagraphs構築
+  // 4. Build new paragraphs
   const line = lyric._index.lineByWordId.get(wordID);
 
   const newParagraphs = lyric.paragraphs.map((paragraph) => {
@@ -128,12 +128,12 @@ export function splitWord(
       const wordIndex = l.words.findIndex((w) => w.id === wordID);
       const firstWord = createWord({
         lineID: l.id,
-        position: wordIndex + 1, // 仮position、後で再計算
+        position: wordIndex + 1, // Temporary position, recalculated later
         timeline: firstTimeline,
       });
       const secondWord = createWord({
         lineID: l.id,
-        position: wordIndex + 2, // 仮position、後で再計算
+        position: wordIndex + 2, // Temporary position, recalculated later
         timeline: secondTimeline,
       });
 
@@ -144,7 +144,7 @@ export function splitWord(
         ...l.words.slice(wordIndex + 1),
       ];
 
-      // position再計算
+      // Recalculate positions
       const reindexedWords = reindexPositions(newWords);
 
       return Object.freeze({
@@ -171,42 +171,42 @@ export function splitWord(
 }
 
 /**
- * LineをWord位置で分割
+ * Split Line by Word position
  */
 export type SplitLineByWordOptions = {
   type: "word";
-  /** 分割する位置（2つ目のLineの最初のWordのID） */
+  /** Split position (ID of the first Word of the second Line) */
   splitWordID: string;
 };
 
 /**
- * Lineを時間で分割
+ * Split Line by time
  */
 export type SplitLineByTimeOptions = {
   type: "time";
-  /** 分割時間（秒） */
+  /** Split time (seconds) */
   splitTime: number;
 };
 
 export type SplitLineOptions = SplitLineByWordOptions | SplitLineByTimeOptions;
 
 /**
- * Lineを2つに分割
+ * Split a Line into two
  *
- * @param lyric - 対象Lyric
- * @param lineID - 分割するLineのID
- * @param options - 分割オプション（位置または時間）
- * @returns 分割後のLyric
+ * @param lyric - Target Lyric
+ * @param lineID - ID of the Line to split
+ * @param options - Split options (position or time)
+ * @returns Lyric after splitting
  *
  * @example
- * // Word IDで分割
+ * // Split by Word ID
  * const result = splitLine(lyric, "line-1", {
  *   type: "word",
  *   splitWordID: "word-3"
  * });
  *
  * @example
- * // 時間で分割
+ * // Split by time
  * const result = splitLine(lyric, "line-1", {
  *   type: "time",
  *   splitTime: 2.0
@@ -217,13 +217,13 @@ export function splitLine(
   lineID: string,
   options: SplitLineOptions,
 ): ValidationResult<Lyric> {
-  // 1. Line存在チェック
+  // 1. Check line existence
   const line = lyric._index.lineById.get(lineID);
   if (!line) {
     return failure("LINE_NOT_FOUND", `Line not found: ${lineID}`, { lineID });
   }
 
-  // 2. 分割位置の決定
+  // 2. Determine split position
   let splitWordIndex: number;
 
   if (options.type === "word") {
@@ -237,7 +237,7 @@ export function splitLine(
       );
     }
   } else {
-    // time指定の場合
+    // For time option
     const wordIdx = line.words.findIndex(
       (w) =>
         w.timeline.begin <= options.splitTime &&
@@ -255,13 +255,13 @@ export function splitLine(
     splitWordIndex = wordIdx;
   }
 
-  // 3. 2つのLineを作成
+  // 3. Create two Lines
   const firstWords = line.words.slice(0, splitWordIndex);
   const secondWords = line.words.slice(splitWordIndex);
 
   const newLineID = `line-${crypto.randomUUID()}`;
 
-  // Word の lineID 更新と position 再計算
+  // Update word lineID and recalculate positions
   const firstLineWords = firstWords.map((w) =>
     Object.freeze({ ...w, lineID: line.id }),
   );
@@ -271,17 +271,17 @@ export function splitLine(
 
   const firstLine: Line = Object.freeze({
     id: line.id,
-    position: line.position, // 仮position、後で再計算
+    position: line.position, // Temporary position, recalculated later
     words: reindexPositions(firstLineWords),
   });
 
   const secondLine: Line = Object.freeze({
     id: newLineID,
-    position: line.position + 1, // 仮position、後で再計算
+    position: line.position + 1, // Temporary position, recalculated later
     words: reindexPositions(secondLineWords),
   });
 
-  // 4. 新しいParagraphs構築
+  // 4. Build new paragraphs
   const paragraph = lyric._index.paragraphByLineId.get(lineID);
 
   const newParagraphs = lyric.paragraphs.map((p) => {
@@ -297,7 +297,7 @@ export function splitLine(
       ...p.lines.slice(lineIndex + 1),
     ];
 
-    // position再計算
+    // Recalculate positions
     const reindexedLines = reindexPositions(newLines);
 
     return Object.freeze({
