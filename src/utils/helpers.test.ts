@@ -8,25 +8,18 @@ import {
   findLineAt,
   findParagraphAt,
   findWordAt,
-  getCharBegin,
   getCharDuration,
-  getCharEnd,
   getLineBegin,
   getLineChars,
   getLineDuration,
   getLineEnd,
   getLines,
   getLineText,
-  getLineWords,
   getParagraphBegin,
   getParagraphDuration,
   getParagraphEnd,
-  getParagraphLines,
   getParagraphs,
-  getWordBegin,
-  getWordChars,
   getWordDuration,
-  getWordEnd,
   getWords,
   getWordText,
   isCurrentTime,
@@ -140,9 +133,8 @@ describe("helpers", () => {
   });
 
   describe("getters", () => {
-    test("getChars should return all characters", () => {
-      const chars = getWordChars(word1);
-      expect(chars).toHaveLength(2);
+    test("word.chars should return all characters", () => {
+      expect(word1.chars).toHaveLength(2);
     });
 
     test("getLineChars should return all characters in a line", () => {
@@ -150,26 +142,24 @@ describe("helpers", () => {
       expect(chars).toHaveLength(7);
     });
 
-    test("getLineWords should return line words", () => {
-      const words = getLineWords(line1);
-      expect(words).toHaveLength(2);
+    test("line.words should return line words", () => {
+      expect(line1.words).toHaveLength(2);
     });
 
-    test("getParagraphLines should return paragraph lines", () => {
-      const lines = getParagraphLines(paragraph1);
-      expect(lines).toHaveLength(2);
+    test("paragraph.lines should return paragraph lines", () => {
+      expect(paragraph1.lines).toHaveLength(2);
     });
   });
 
   describe("time getters", () => {
     test("should get character timing", () => {
-      expect(getCharBegin(char1)).toBe(0);
-      expect(getCharEnd(char1)).toBe(0.2);
+      expect(char1.begin).toBe(0);
+      expect(char1.end).toBe(0.2);
     });
 
     test("should get word timing", () => {
-      expect(getWordBegin(word1)).toBe(0);
-      expect(getWordEnd(word1)).toBe(1);
+      expect(word1.timeline.begin).toBe(0);
+      expect(word1.timeline.end).toBe(1);
     });
 
     test("should get line timing", () => {
@@ -217,7 +207,7 @@ describe("helpers", () => {
       // expect(() => getWordDuration(invalidWord)).toThrow();
       const consoleErrorSpy = vi
         .spyOn(console, "error")
-        .mockImplementation(() => {});
+        .mockImplementation(() => { });
       const duration = getWordDuration(invalidWord);
       expect(duration).toBe(-1); // Should return -1 for invalid duration
       expect(consoleErrorSpy).toHaveBeenCalledWith(

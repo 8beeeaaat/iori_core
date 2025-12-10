@@ -18,48 +18,21 @@ export function getParagraphs(lyric: Lyric): Paragraph[] {
   );
 }
 
-export function getWordChars(word: Word): Char[] {
-  return [...word.chars];
-}
-
 export function getLineChars(line: Line): Char[] {
-  return line.words.flatMap((word) => getWordChars(word));
-}
-
-export function getLineWords(line: Line): Word[] {
-  return [...line.words];
-}
-
-export function getParagraphLines(paragraph: Paragraph): Line[] {
-  return [...paragraph.lines];
-}
-
-export function getCharBegin(char: Char): number {
-  return char.begin;
-}
-
-export function getCharEnd(char: Char): number {
-  return char.end;
-}
-
-export function getWordBegin(word: Word): number {
-  return word.timeline.begin;
-}
-
-export function getWordEnd(word: Word): number {
-  return word.timeline.end;
+  return line.words.flatMap((word) => [...word.chars]);
 }
 
 export function getLineBegin(line: Line): number {
-  return line.words[0]?.timeline.begin || 0;
+  return line.words[0]?.timeline.begin ?? 0;
 }
 
 export function getLineEnd(line: Line): number {
-  return line.words[line.words.length - 1]?.timeline.end || 0;
+  return line.words[line.words.length - 1]?.timeline.end ?? 0;
 }
 
 export function getParagraphBegin(paragraph: Paragraph): number {
-  return paragraph.lines[0] ? getLineBegin(paragraph.lines[0]) : 0;
+  const firstLine = paragraph.lines[0];
+  return firstLine ? getLineBegin(firstLine) : 0;
 }
 
 export function getParagraphEnd(paragraph: Paragraph): number {
@@ -68,25 +41,21 @@ export function getParagraphEnd(paragraph: Paragraph): number {
 }
 
 export function getCharDuration(char: Char): number {
-  const begin = getCharBegin(char);
-  const end = getCharEnd(char);
-  if (begin >= end) {
+  if (char.begin >= char.end) {
     console.error(
-      `Cannot calculate duration of invalid char: ${char.id} ${begin}-${end}`,
+      `Cannot calculate duration of invalid char: ${char.id} ${char.begin}-${char.end}`,
     );
   }
-  return end - begin;
+  return char.end - char.begin;
 }
 
 export function getWordDuration(word: Word): number {
-  const begin = getWordBegin(word);
-  const end = getWordEnd(word);
-  if (begin >= end) {
+  if (word.timeline.begin >= word.timeline.end) {
     console.error(
-      `Cannot calculate duration of invalid word: ${word.id} ${begin}-${end}`,
+      `Cannot calculate duration of invalid word: ${word.id} ${word.timeline.begin}-${word.timeline.end}`,
     );
   }
-  return end - begin;
+  return word.timeline.end - word.timeline.begin;
 }
 
 export function getLineDuration(line: Line): number {
@@ -119,8 +88,7 @@ export function getLineText(line: Line): string {
   return line.words
     .map(
       (word) =>
-        `${getWordText(word)}${!word.timeline.hasNewLine && word.timeline.hasWhitespace ? " " : ""}${
-          word.timeline.hasNewLine ? "\n" : ""
+        `${getWordText(word)}${!word.timeline.hasNewLine && word.timeline.hasWhitespace ? " " : ""}${word.timeline.hasNewLine ? "\n" : ""
         }`,
     )
     .join("");

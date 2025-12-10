@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { type ValidationResult, failure, success } from "./result";
+import { failure, success, type ValidationResult } from "./result";
 
 /**
  * 単一のWordTimelineスキーマ

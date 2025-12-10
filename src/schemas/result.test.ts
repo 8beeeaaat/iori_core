@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
 import {
-  type ValidationResult,
   failure,
   isFailure,
   isSuccess,
   success,
+  type ValidationResult,
 } from "./result";
 
 describe("ValidationResult", () => {
