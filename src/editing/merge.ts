@@ -1,6 +1,6 @@
 /**
  * Editing API - Merge functions
- * 複数のWord/Lineを1つに結合
+ * Merge multiple Word/Line into one
  */
 
 import { createWord } from "../factories/createWord";
@@ -10,21 +10,21 @@ import type { Line, Lyric, Word, WordTimeline } from "../types";
 import { rebuildIndex, reindexPositions } from "./helpers";
 
 /**
- * 複数のWordを1つに結合
+ * Merge multiple Words into one
  *
- * @param lyric - 対象Lyric
- * @param wordIDs - 結合するWordのID配列（2つ以上、同じLine内）
- * @returns 結合後のLyric
+ * @param lyric - Target Lyric
+ * @param wordIDs - Array of Word IDs to merge (2 or more, within the same Line)
+ * @returns Lyric after merging
  *
  * @example
- * // "さ", "く", "ら" → "さくら"
+ * // "さ", "く", "ら" → "さくら"(Japanese hiragana merge)
  * const result = mergeWords(lyric, ["word-1", "word-2", "word-3"]);
  */
 export function mergeWords(
   lyric: Lyric,
   wordIDs: string[],
 ): ValidationResult<Lyric> {
-  // 1. 最低2つ必要
+  // 1. At least 2 required
   if (wordIDs.length < 2) {
     return failure(
       "INSUFFICIENT_WORDS",
@@ -33,14 +33,14 @@ export function mergeWords(
     );
   }
 
-  // 2. ID存在チェック
+  // 2. Check ID existence
   for (const wordId of wordIDs) {
     if (!lyric._index.wordById.has(wordId)) {
       return failure("WORD_NOT_FOUND", `Word not found: ${wordId}`, { wordId });
     }
   }
 
-  // 3. 全て同じLineに属するか確認
+  // 3. Verify all words belong to the same line
   const words: Word[] = [];
   for (const id of wordIDs) {
     const word = lyric._index.wordById.get(id);
@@ -61,14 +61,14 @@ export function mergeWords(
     }
   }
 
-  // 4. 時系列順にソート
+  // 4. Sort chronologically
   const sortedWords = [...words].sort(
     (a, b) => a.timeline.begin - b.timeline.begin,
   );
 
-  // 5. 新しいWordTimelineを作成
+  // 5. Create new WordTimeline
   const mergedTimeline: WordTimeline = {
-    wordID: sortedWords[0].id, // 最初のWordのIDを継承
+    wordID: sortedWords[0].id, // Inherit ID from first word
     text: sortedWords.map((w) => w.timeline.text).join(""),
     begin: sortedWords[0].timeline.begin,
     end: sortedWords[sortedWords.length - 1].timeline.end,
@@ -76,7 +76,7 @@ export function mergeWords(
     hasNewLine: sortedWords[sortedWords.length - 1].timeline.hasNewLine,
   };
 
-  // 6. 新しいParagraphs構築
+  // 6. Build new paragraphs
   const wordIDSet = new Set(wordIDs);
   const newParagraphs = lyric.paragraphs.map((paragraph) => {
     const newLines = paragraph.lines.map((line) => {
@@ -84,29 +84,29 @@ export function mergeWords(
         return line;
       }
 
-      // 元のWord配列から最初のマージ対象Wordの位置を見つける
+      // Find the position of the first merge target word in the original array
       const firstWordIndex = line.words.findIndex(
         (w) => w.id === sortedWords[0].id,
       );
 
-      // マージされたWordを作成
+      // Create merged word
       const mergedWord = createWord({
         lineID: line.id,
-        position: firstWordIndex + 1, // 仮position、後で再計算
+        position: firstWordIndex + 1, // Temporary position, recalculated later
         timeline: mergedTimeline,
       });
 
-      // マージ対象以外のWordをフィルタ
+      // Filter out words that are merge targets
       const filteredWords = line.words.filter((w) => !wordIDSet.has(w.id));
 
-      // 元の位置にマージされたWordを挿入
+      // Insert merged word at the original position
       const newWords = [
         ...filteredWords.slice(0, firstWordIndex),
         mergedWord,
         ...filteredWords.slice(firstWordIndex),
       ];
 
-      // position再計算
+      // Recalculate positions
       const reindexedWords = reindexPositions(newWords);
 
       return Object.freeze({
@@ -121,7 +121,7 @@ export function mergeWords(
     });
   });
 
-  // 7. インデックス再構築
+  // 7. Rebuild index
   const _index = rebuildIndex(newParagraphs);
 
   return success(
@@ -134,21 +134,21 @@ export function mergeWords(
 }
 
 /**
- * 複数のLineを1つに結合
+ * Merge multiple Lines into one
  *
- * @param lyric - 対象Lyric
- * @param lineIDs - 結合するLineのID配列（2つ以上、同じParagraph内）
- * @returns 結合後のLyric
+ * @param lyric - Target Lyric
+ * @param lineIDs - Array of Line IDs to merge (2 or more, within the same Paragraph)
+ * @returns Lyric after merging
  *
  * @example
- * // Line1 + Line2 → 1つのLineに
+ * // Line1 + Line2 → merged into one Line
  * const result = mergeLines(lyric, ["line-1", "line-2"]);
  */
 export function mergeLines(
   lyric: Lyric,
   lineIDs: string[],
 ): ValidationResult<Lyric> {
-  // 1. 最低2つ必要
+  // 1. At least 2 required
   if (lineIDs.length < 2) {
     return failure(
       "INSUFFICIENT_LINES",
@@ -157,14 +157,14 @@ export function mergeLines(
     );
   }
 
-  // 2. ID存在チェック
+  // 2. Check ID existence
   for (const lineId of lineIDs) {
     if (!lyric._index.lineById.has(lineId)) {
       return failure("LINE_NOT_FOUND", `Line not found: ${lineId}`, { lineId });
     }
   }
 
-  // 3. 全て同じParagraphに属するか確認
+  // 3. Verify all lines belong to the same paragraph
   const lines: Line[] = [];
   for (const id of lineIDs) {
     const line = lyric._index.lineById.get(id);
@@ -185,20 +185,20 @@ export function mergeLines(
     }
   }
 
-  // 4. position順にソート（最初のWord.beginで判定）
+  // 4. Sort by position (determined by first Word.begin)
   const sortedLines = [...lines].sort((a, b) => {
     const aBegin = a.words[0]?.timeline.begin ?? 0;
     const bBegin = b.words[0]?.timeline.begin ?? 0;
     return aBegin - bBegin;
   });
 
-  // 5. 全Wordを結合
+  // 5. Combine all words
   const allWords: Word[] = [];
-  const mergedLineID = sortedLines[0].id; // 最初のLineのIDを継承
+  const mergedLineID = sortedLines[0].id; // Inherit ID from first line
 
   for (const line of sortedLines) {
     for (const word of line.words) {
-      // lineIDを更新
+      // Update lineID
       const updatedWord = Object.freeze({
         ...word,
         lineID: mergedLineID,
@@ -207,39 +207,39 @@ export function mergeLines(
     }
   }
 
-  // position再計算
+  // Recalculate positions
   const reindexedWords = reindexPositions(allWords);
 
-  // 6. マージされたLineを作成
+  // 6. Create merged line
   const mergedLine: Line = Object.freeze({
     id: mergedLineID,
-    position: sortedLines[0].position, // 仮position、後で再計算
+    position: sortedLines[0].position, // Temporary position, recalculated later
     words: reindexedWords,
   });
 
-  // 7. 新しいParagraphs構築
+  // 7. Build new paragraphs
   const lineIDSet = new Set(lineIDs);
   const newParagraphs = lyric.paragraphs.map((paragraph) => {
     if (paragraph.id !== firstParagraph?.id) {
       return paragraph;
     }
 
-    // 元のLine配列から最初のマージ対象Lineの位置を見つける
+    // Find the position of the first merge target line in the original array
     const firstLineIndex = paragraph.lines.findIndex(
       (l) => l.id === sortedLines[0].id,
     );
 
-    // マージ対象以外のLineをフィルタ
+    // Filter out lines that are merge targets
     const filteredLines = paragraph.lines.filter((l) => !lineIDSet.has(l.id));
 
-    // 元の位置にマージされたLineを挿入
+    // Insert merged line at the original position
     const newLines = [
       ...filteredLines.slice(0, firstLineIndex),
       mergedLine,
       ...filteredLines.slice(firstLineIndex),
     ];
 
-    // position再計算
+    // Recalculate positions
     const reindexedLines = reindexPositions(newLines);
 
     return Object.freeze({
@@ -248,7 +248,7 @@ export function mergeLines(
     });
   });
 
-  // 8. インデックス再構築
+  // 8. Rebuild index
   const _index = rebuildIndex(newParagraphs);
 
   return success(

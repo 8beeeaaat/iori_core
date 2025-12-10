@@ -1,6 +1,6 @@
 /**
  * Editing API - Shift functions
- * 複数のWord/Line/Paragraphを一括でタイミング移動
+ * Batch timing shift for multiple Word/Line/Paragraph
  */
 
 import type { ValidationResult } from "../schemas/result";
@@ -9,7 +9,7 @@ import type { Char, Lyric, Word } from "../types";
 import { checkOverlaps, rebuildIndex } from "./helpers";
 
 /**
- * Charをシフトする（内部ヘルパー）
+ * Shift a Char (internal helper)
  */
 function shiftChar(char: Char, offset: number): Char {
   return Object.freeze({
@@ -20,7 +20,7 @@ function shiftChar(char: Char, offset: number): Char {
 }
 
 /**
- * Wordをシフトする（内部ヘルパー）
+ * Shift a Word (internal helper)
  */
 function shiftWord(word: Word, offset: number): Word {
   const newChars = word.chars.map((char) => shiftChar(char, offset));
@@ -37,7 +37,7 @@ function shiftWord(word: Word, offset: number): Word {
 }
 
 /**
- * 複数のWordを一括タイミング移動
+ * Batch timing shift for multiple Words
  */
 export function shiftWords(
   lyric: Lyric,
@@ -113,7 +113,7 @@ export function shiftWords(
 }
 
 /**
- * 複数のLineを一括タイミング移動
+ * Batch timing shift for multiple Lines
  */
 export function shiftLines(
   lyric: Lyric,
@@ -142,7 +142,7 @@ export function shiftLines(
 }
 
 /**
- * 複数のParagraphを一括タイミング移動
+ * Batch timing shift for multiple Paragraphs
  */
 export function shiftParagraphs(
   lyric: Lyric,
@@ -177,7 +177,7 @@ export function shiftParagraphs(
 }
 
 /**
- * 時間範囲内の全要素を移動
+ * Shift all elements within a time range
  */
 export function shiftRange(
   lyric: Lyric,

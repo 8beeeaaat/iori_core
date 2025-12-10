@@ -1,13 +1,13 @@
 /**
- * WordTimeline Zodスキーマ
- * タイムラインのバリデーションとオーバーラップ検出
+ * WordTimeline Zod Schema
+ * Timeline validation and overlap detection
  */
 
 import { z } from "zod";
 import { failure, success, type ValidationResult } from "./result";
 
 /**
- * 単一のWordTimelineスキーマ
+ * Single WordTimeline schema
  */
 export const wordTimelineSchema = z
   .object({
@@ -30,14 +30,14 @@ export type WordTimelineInput = z.input<typeof wordTimelineSchema>;
 export type WordTimelineOutput = z.output<typeof wordTimelineSchema>;
 
 /**
- * WordTimeline配列スキーマ（オーバーラップ検出付き）
+ * WordTimeline array schema (with overlap detection)
  */
 export const wordTimelinesSchema = z
   .array(wordTimelineSchema)
   .superRefine((timelines, ctx) => {
     if (timelines.length < 2) return;
 
-    // O(n log n)でソートして重複検出
+    // Sort and detect overlap in O(n log n)
     const sorted = [...timelines].sort((a, b) => a.begin - b.begin);
 
     for (let i = 0; i < sorted.length - 1; i++) {
@@ -58,7 +58,7 @@ export type WordTimelinesInput = z.input<typeof wordTimelinesSchema>;
 export type WordTimelinesOutput = z.output<typeof wordTimelinesSchema>;
 
 /**
- * WordTimelineをパースしてResult型で返す
+ * Parse WordTimeline and return as Result type
  */
 export function parseWordTimeline(
   input: unknown,
@@ -77,7 +77,7 @@ export function parseWordTimeline(
 }
 
 /**
- * WordTimeline配列をパースしてResult型で返す
+ * Parse WordTimeline array and return as Result type
  */
 export function parseWordTimelines(
   input: unknown,
@@ -88,7 +88,7 @@ export function parseWordTimelines(
     return success(result.data);
   }
 
-  // オーバーラップエラーの場合は専用のエラーコードを返す
+  // Return dedicated error code for overlap errors
   const hasOverlapError = result.error.issues.some(
     (e) => e.code === "custom" && e.message.includes("overlap"),
   );
