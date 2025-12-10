@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.10] - 2025-12-11
+
+### Added
+
+- **AGENTS.md documentation**: Comprehensive guide for Claude Code agent usage patterns and strategies
+  - Documents built-in agent types (Explore, General-purpose, Code Review) and their optimal use cases for the project
+  - Provides project-specific subagent patterns (Immutability Validator, Time Logic Analyzer, Factory Pattern Reviewer, Test Coverage Agent)
+  - Includes detailed workflow patterns for feature development, bug fixes, and refactoring using Test-Driven Development approach
+  - Offers tool usage guidelines tailored to TypeScript library development with strict immutability requirements
+  - Contains context management best practices for efficient agent invocations
+  - Lists anti-patterns and common mistakes to avoid when working with agents on this codebase
+  - Provides custom subagent definition examples for team collaboration
+
+### Changed
+
+- **Minor dependency updates for improved stability**
+  - Updated `esbuild` from 0.27.0 to 0.27.1 for bug fixes
+  - Updated `jsdom` from 27.2.0 to 27.3.0 for enhanced DOM testing capabilities
+  - Maintained compatibility and stability across all development tools
+
+### Technical
+
+- Enhanced developer experience with comprehensive agent workflow documentation
+- Improved onboarding for team members working with Claude Code on this project
+- Standardized AI-assisted development patterns for consistent code quality
+- Provided clear guidelines for maintaining immutability and functional programming patterns with AI assistance
+
 ## [0.3.9] - 2025-12-03
 
 ### Changed
