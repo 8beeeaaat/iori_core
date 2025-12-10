@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
+import { isFailure, isSuccess } from "./result";
 import {
   parseWordTimeline,
   parseWordTimelines,
   wordTimelineSchema,
   wordTimelinesSchema,
 } from "./timeline.schema";
-import { isFailure, isSuccess } from "./result";
 
 describe("wordTimelineSchema", () => {
   describe("valid input", () => {

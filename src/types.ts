@@ -32,12 +32,32 @@ export type Paragraph = {
   readonly lines: readonly Line[];
 };
 
+/**
+ * IDマップ - O(1)での逆引き検索用
+ */
+export type LyricIndex = {
+  /** Char ID → Word */
+  readonly wordByCharId: ReadonlyMap<string, Word>;
+  /** Word ID → Line */
+  readonly lineByWordId: ReadonlyMap<string, Line>;
+  /** Line ID → Paragraph */
+  readonly paragraphByLineId: ReadonlyMap<string, Paragraph>;
+  /** Word ID → Word */
+  readonly wordById: ReadonlyMap<string, Word>;
+  /** Line ID → Line */
+  readonly lineById: ReadonlyMap<string, Line>;
+  /** Paragraph ID → Paragraph */
+  readonly paragraphById: ReadonlyMap<string, Paragraph>;
+};
+
 export type Lyric = {
   readonly id: string;
   readonly resourceID: string;
   readonly duration: number;
   readonly offsetSec: number;
   readonly paragraphs: readonly Paragraph[];
+  /** 内部インデックス - O(1)での逆引き検索用 */
+  readonly _index: LyricIndex;
 };
 
 export type TimeOptions = {

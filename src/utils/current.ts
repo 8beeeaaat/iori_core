@@ -1,18 +1,11 @@
 import type { Char, Line, Lyric, Paragraph, TimeOptions, Word } from "../types";
 import {
-  getCharBegin,
-  getCharEnd,
   getLineBegin,
   getLineEnd,
   getLines,
-  getLineWords,
   getParagraphBegin,
   getParagraphEnd,
-  getParagraphLines,
   getParagraphs,
-  getWordBegin,
-  getWordChars,
-  getWordEnd,
   isCurrentTime,
 } from "./helpers";
 
@@ -42,7 +35,7 @@ export function getCurrentLine(
   const currentParagraph = getCurrentParagraph(lyric, now, { offset, equal });
   if (!currentParagraph) return undefined;
 
-  return getParagraphLines(currentParagraph).find((line) => {
+  return currentParagraph.lines.find((line) => {
     const begin = getLineBegin(line);
     const end = getLineEnd(line);
     return isCurrentTime(begin, end, now, { offset, equal });
@@ -60,12 +53,10 @@ export function getCurrentWord(
   const currentLine = getCurrentLine(lyric, now, { offset, equal });
   if (!currentLine) return undefined;
 
-  return getLineWords(currentLine)
-    .sort((a, b) => getWordBegin(b) - getWordBegin(a))
+  return [...currentLine.words]
+    .sort((a, b) => b.timeline.begin - a.timeline.begin)
     .find((word) => {
-      const begin = getWordBegin(word);
-      const end = getWordEnd(word);
-      return isCurrentTime(begin, end, now, { offset, equal });
+      return isCurrentTime(word.timeline.begin, word.timeline.end, now, { offset, equal });
     });
 }
 
@@ -80,12 +71,10 @@ export function getCurrentChar(
   const currentWord = getCurrentWord(lyric, now, { offset, equal });
   if (!currentWord) return undefined;
 
-  return getWordChars(currentWord)
-    .sort((a, b) => getCharBegin(b) - getCharBegin(a))
+  return [...currentWord.chars]
+    .sort((a, b) => b.begin - a.begin)
     .find((char) => {
-      const begin = getCharBegin(char);
-      const end = getCharEnd(char);
-      return isCurrentTime(begin, end, now, { offset, equal });
+      return isCurrentTime(char.begin, char.end, now, { offset, equal });
     });
 }
 
@@ -94,7 +83,7 @@ export function getCurrentParagraphFromLine(
   lyric: Lyric,
 ): Paragraph | undefined {
   return getParagraphs(lyric).find((paragraph) =>
-    getParagraphLines(paragraph).some((l) => l.id === line.id),
+    paragraph.lines.some((l) => l.id === line.id),
   );
 }
 
@@ -103,7 +92,7 @@ export function getCurrentLineFromWord(
   lyric: Lyric,
 ): Line | undefined {
   return getLines(lyric).find((line) =>
-    getLineWords(line).some((w) => w.id === word.id),
+    line.words.some((w) => w.id === word.id),
   );
 }
 
@@ -112,9 +101,9 @@ export function getCurrentWordFromChar(
   lyric: Lyric,
 ): Word | undefined {
   for (const paragraph of getParagraphs(lyric)) {
-    for (const line of getParagraphLines(paragraph)) {
-      for (const word of getLineWords(line)) {
-        if (getWordChars(word).some((c) => c.id === char.id)) {
+    for (const line of paragraph.lines) {
+      for (const word of line.words) {
+        if (word.chars.some((c) => c.id === char.id)) {
           return word;
         }
       }

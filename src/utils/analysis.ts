@@ -20,15 +20,10 @@ import {
   getLineDuration,
   getLineEnd,
   getLines,
-  getLineWords,
   getParagraphDuration,
   getParagraphEnd,
-  getParagraphLines,
   getParagraphs,
-  getWordBegin,
-  getWordChars,
   getWordDuration,
-  getWordEnd,
   getWords,
 } from "./helpers";
 import {
@@ -73,7 +68,7 @@ export function calculateSpeed(
 export function getWordSpeed(word: Word): number {
   const duration = getWordDuration(word);
   return (
-    getWordChars(word).reduce((acc, char) => {
+    word.chars.reduce((acc, char) => {
       if (char.type === CHAR_TYPES.WHITESPACE) return acc;
       return (
         acc +
@@ -86,17 +81,17 @@ export function getWordSpeed(word: Word): number {
 }
 
 export function getLineSpeed(line: Line): number {
-  const words = getLineWords(line).map((word) => ({
+  const words = line.words.map((word) => ({
     duration: () => getWordDuration(word),
-    chars: () => getWordChars(word),
+    chars: () => [...word.chars],
   }));
   return calculateSpeed(words);
 }
 
 export function getParagraphSpeed(paragraph: Paragraph): number {
-  const lines = getParagraphLines(paragraph).map((line) => ({
+  const lines = paragraph.lines.map((line) => ({
     duration: () => getLineDuration(line),
-    chars: () => getLineWords(line).flatMap((word) => getWordChars(word)),
+    chars: () => line.words.flatMap((word) => [...word.chars]),
   }));
   return calculateSpeed(lines);
 }
@@ -105,8 +100,8 @@ export function getLyricSpeed(lyric: Lyric): number {
   const paragraphs = getParagraphs(lyric).map((paragraph) => ({
     duration: () => getParagraphDuration(paragraph),
     chars: () =>
-      getParagraphLines(paragraph).flatMap((line) =>
-        getLineWords(line).flatMap((word) => getWordChars(word)),
+      paragraph.lines.flatMap((line) =>
+        line.words.flatMap((word) => [...word.chars]),
       ),
   }));
   return calculateSpeed(paragraphs);
@@ -119,29 +114,29 @@ export function getVoidPeriods(lyric: Lyric): VoidPeriod[] {
     const isFirstWord = index === 0;
     const isLastWord = index === words.length - 1;
 
-    if (isFirstWord && getWordBegin(word) > 0) {
+    if (isFirstWord && word.timeline.begin > 0) {
       acc.push({
         begin: 0,
-        end: getWordBegin(word),
-        duration: Number(getWordBegin(word).toFixed(2)),
+        end: word.timeline.begin,
+        duration: Number(word.timeline.begin.toFixed(2)),
       });
     }
 
-    if (isLastWord && lyric.duration - getWordEnd(word) > 0) {
+    if (isLastWord && lyric.duration - word.timeline.end > 0) {
       acc.push({
-        begin: getWordEnd(word),
+        begin: word.timeline.end,
         end: lyric.duration,
-        duration: Number((lyric.duration - getWordEnd(word)).toFixed(2)),
+        duration: Number((lyric.duration - word.timeline.end).toFixed(2)),
       });
     }
 
     const prevWord = words[index - 1];
-    if (prevWord && getWordBegin(word) - getWordEnd(prevWord) > 0) {
+    if (prevWord && word.timeline.begin - prevWord.timeline.end > 0) {
       acc.push({
-        begin: getWordEnd(prevWord),
-        end: getWordBegin(word),
+        begin: prevWord.timeline.end,
+        end: word.timeline.begin,
         duration: Number(
-          (getWordBegin(word) - getWordEnd(prevWord)).toFixed(2),
+          (word.timeline.begin - prevWord.timeline.end).toFixed(2),
         ),
       });
     }
@@ -156,7 +151,7 @@ export function isVoidTime(lyric: Lyric, now: number): boolean {
 }
 
 export function getParagraphAverageLineDuration(paragraph: Paragraph): number {
-  const durations = getParagraphLines(paragraph).map((line) =>
+  const durations = paragraph.lines.map((line) =>
     getLineDuration(line),
   );
   return (
@@ -176,7 +171,7 @@ export function getCurrentSummary(
   const currentLine = getCurrentLine(lyric, now, options);
 
   const lastLineIndexInParagraph = currentParagraph
-    ? getParagraphLines(currentParagraph).length - 1
+    ? currentParagraph.lines.length - 1
     : undefined;
 
   const nextLine = getNextLine(lyric, now, options);

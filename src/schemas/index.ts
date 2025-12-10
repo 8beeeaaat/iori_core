@@ -3,23 +3,18 @@
  */
 
 export {
-  type ValidationResult,
-  type ValidationError,
-  type Success,
-  type Failure,
-  success,
   failure,
-  isSuccess,
   isFailure,
+  isSuccess, success, type Failure, type Success, type ValidationError,
+  type ValidationResult
 } from "./result";
 
 export {
-  wordTimelineSchema,
-  wordTimelinesSchema,
   parseWordTimeline,
-  parseWordTimelines,
-  type WordTimelineInput,
+  parseWordTimelines, wordTimelineSchema,
+  wordTimelinesSchema, type WordTimelineInput,
   type WordTimelineOutput,
   type WordTimelinesInput,
-  type WordTimelinesOutput,
+  type WordTimelinesOutput
 } from "./timeline.schema";
+

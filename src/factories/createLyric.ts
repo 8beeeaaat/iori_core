@@ -1,4 +1,4 @@
-import type { Lyric, WordTimeline } from "../types";
+import type { Line, Lyric, LyricIndex, Paragraph, Word, WordTimeline } from "../types";
 import { createParagraph } from "./createParagraph";
 
 export type CreateLyricArgs = {
@@ -22,6 +22,45 @@ export type CreateLyricArgs = {
   offsetSec?: number;
 };
 
+/**
+ * LyricIndexを構築する
+ */
+function buildIndex(paragraphs: readonly Paragraph[]): LyricIndex {
+  const wordByCharId = new Map<string, Word>();
+  const lineByWordId = new Map<string, Line>();
+  const paragraphByLineId = new Map<string, Paragraph>();
+  const wordById = new Map<string, Word>();
+  const lineById = new Map<string, Line>();
+  const paragraphById = new Map<string, Paragraph>();
+
+  for (const paragraph of paragraphs) {
+    paragraphById.set(paragraph.id, paragraph);
+
+    for (const line of paragraph.lines) {
+      lineById.set(line.id, line);
+      paragraphByLineId.set(line.id, paragraph);
+
+      for (const word of line.words) {
+        wordById.set(word.id, word);
+        lineByWordId.set(word.id, line);
+
+        for (const char of word.chars) {
+          wordByCharId.set(char.id, word);
+        }
+      }
+    }
+  }
+
+  return Object.freeze({
+    wordByCharId,
+    lineByWordId,
+    paragraphByLineId,
+    wordById,
+    lineById,
+    paragraphById,
+  });
+}
+
 export async function createLyric(args: CreateLyricArgs): Promise<Lyric> {
   const id = args.id
     ? args.id
@@ -40,6 +79,7 @@ export async function createLyric(args: CreateLyricArgs): Promise<Lyric> {
   });
 
   const paragraphs = await Promise.all(paragraphPromises);
+  const _index = buildIndex(paragraphs);
 
   return Object.freeze({
     id,
@@ -47,5 +87,6 @@ export async function createLyric(args: CreateLyricArgs): Promise<Lyric> {
     duration: Number(args.duration.toFixed(2)),
     offsetSec: args.offsetSec ?? 0,
     paragraphs,
+    _index,
   });
 }

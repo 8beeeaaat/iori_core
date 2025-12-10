@@ -4,13 +4,9 @@ import {
   getLineBegin,
   getLineEnd,
   getLines,
-  getLineWords,
   getParagraphBegin,
   getParagraphEnd,
-  getParagraphLines,
   getParagraphs,
-  getWordBegin,
-  getWordEnd,
 } from "./helpers";
 
 export function getNextParagraph(
@@ -40,9 +36,9 @@ export function getNextWord(
   const currentLine = getCurrentLine(lyric, now);
 
   if (currentLine) {
-    const nextWordInLine = getLineWords(currentLine)
-      .sort((a, b) => getWordBegin(a) - getWordBegin(b))
-      .find((word) => getWordBegin(word) > now + offset);
+    const nextWordInLine = [...currentLine.words]
+      .sort((a, b) => a.timeline.begin - b.timeline.begin)
+      .find((word) => word.timeline.begin > now + offset);
 
     if (nextWordInLine) {
       return nextWordInLine;
@@ -50,7 +46,7 @@ export function getNextWord(
   }
 
   const nextLine = getNextLine(lyric, now, { offset });
-  return nextLine ? getLineWords(nextLine)[0] : undefined;
+  return nextLine ? nextLine.words[0] : undefined;
 }
 
 export function getPrevParagraph(
@@ -84,9 +80,9 @@ export function getPrevWord(
   const currentLine = getCurrentLine(lyric, now);
 
   if (currentLine) {
-    const prevWordInLine = getLineWords(currentLine)
-      .sort((a, b) => getWordBegin(b) - getWordBegin(a))
-      .find((word) => getWordEnd(word) < now + offset);
+    const prevWordInLine = [...currentLine.words]
+      .sort((a, b) => b.timeline.begin - a.timeline.begin)
+      .find((word) => word.timeline.end < now + offset);
 
     if (prevWordInLine) {
       return prevWordInLine;
@@ -95,20 +91,18 @@ export function getPrevWord(
 
   const prevLine = getPrevLine(lyric, now, { offset });
   if (prevLine) {
-    const words = getLineWords(prevLine);
-    return words[words.length - 1];
+    return prevLine.words[prevLine.words.length - 1];
   }
 
   return undefined;
 }
 
 export function getFirstWord(line: Line): Word | undefined {
-  return getLineWords(line)[0];
+  return line.words[0];
 }
 
 export function getLastWord(line: Line): Word | undefined {
-  const words = getLineWords(line);
-  return words[words.length - 1];
+  return line.words[line.words.length - 1];
 }
 
 export function getLinePositionInLyric(line: Line, lyric: Lyric): number {
@@ -120,8 +114,7 @@ export function getLinePositionInParagraph(
   lyric: Lyric,
 ): number | undefined {
   for (const paragraph of getParagraphs(lyric)) {
-    const lines = getParagraphLines(paragraph);
-    const index = lines.findIndex((l) => l.id === line.id);
+    const index = paragraph.lines.findIndex((l) => l.id === line.id);
     if (index !== -1) {
       return index + 1;
     }
