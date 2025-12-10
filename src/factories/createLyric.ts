@@ -1,4 +1,11 @@
-import type { Line, Lyric, LyricIndex, Paragraph, Word, WordTimeline } from "../types";
+import type {
+  Line,
+  Lyric,
+  LyricIndex,
+  Paragraph,
+  Word,
+  WordTimeline,
+} from "../types";
 import { createParagraph } from "./createParagraph";
 
 export type CreateLyricArgs = {

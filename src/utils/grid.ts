@@ -68,9 +68,7 @@ export function getCharPositions(line: Line): Map<string, CharPosition> {
   const map = new Map<string, CharPosition>();
 
   for (const char of chars) {
-    const word = allWords.find((w) =>
-      w.chars.some((c) => c.id === char.id),
-    );
+    const word = allWords.find((w) => w.chars.some((c) => c.id === char.id));
     if (!word) {
       throw new Error(`word not found for character ID: ${char.id}`);
     }
