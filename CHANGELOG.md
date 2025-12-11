@@ -48,6 +48,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`Lyric.duration` auto-calculation**: Duration is now automatically calculated from timelines
+  - Removed `duration` parameter from `CreateLyricArgs` - no longer required as input
+  - Removed `duration` option from `UpdateLyricArgs` - recalculated automatically on timeline updates
+  - Duration is computed as `lastWord.end - firstWord.begin` (returns `0` for empty timelines)
+  - Duration values are rounded to 2 decimal places
+
+- **`getVoidPeriods()` simplification**: No longer counts void period after the last word
+  - Only gaps before the first word and between words are now detected
+  - Trailing silence after lyrics end is no longer considered a void period
+
 - **Documentation consolidation**: Merged CLAUDE.md and AGENTS.md into single comprehensive AGENTS.md
   - CLAUDE.md now redirects to AGENTS.md
   - Updated editing API documentation with detailed examples and usage patterns

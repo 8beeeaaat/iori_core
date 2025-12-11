@@ -3,7 +3,6 @@ import type { Lyric, WordTimeline } from "../types";
 
 export type UpdateLyricArgs = {
   resourceID?: string;
-  duration?: number;
   timelines?: WordTimeline[][][];
   offsetSec?: number;
 };
@@ -13,26 +12,13 @@ export async function updateLyric(
   args: UpdateLyricArgs,
 ): Promise<Lyric> {
   const resourceID = args.resourceID || lyric.resourceID;
-  const duration = args.duration
-    ? Number(args.duration.toFixed(2))
-    : lyric.duration;
   const offsetSec =
     args.offsetSec !== undefined ? args.offsetSec : lyric.offsetSec;
-
-  if (args.timelines === undefined) {
-    return {
-      ...lyric,
-      resourceID,
-      duration,
-      offsetSec,
-    };
-  }
 
   return await createLyric({
     id: lyric.id,
     resourceID,
-    duration,
-    timelines: args.timelines,
+    timelines: args.timelines ?? getTimelines(lyric),
     offsetSec,
   });
 }

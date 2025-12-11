@@ -1,8 +1,13 @@
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { WordTimeline } from "../Constants";
 import { createLyric } from "../factories/createLyric";
-import type { Lyric, UpdateLyricArgs } from "../types";
-import { getTimelines, getTimelinesByLine, updateLyric } from "./update";
+import type { Lyric } from "../types";
+import {
+  getTimelines,
+  getTimelinesByLine,
+  type UpdateLyricArgs,
+  updateLyric,
+} from "./update";
 
 // Mock crypto.randomUUID for consistent testing
 vi.stubGlobal("crypto", {
@@ -79,7 +84,6 @@ describe("update", () => {
   beforeEach(async () => {
     originalLyric = await createLyric({
       resourceID: "test-resource",
-      duration: 15,
       timelines: originalTimelines,
       offsetSec: 1,
       initID: true,
@@ -95,22 +99,8 @@ describe("update", () => {
       const updatedLyric = await updateLyric(originalLyric, updateArgs);
 
       expect(updatedLyric.resourceID).toBe("new-resource");
-      expect(updatedLyric.duration).toBe(originalLyric.duration);
+      expect(updatedLyric.duration).toBe(originalLyric.duration); // Auto-calculated
       expect(updatedLyric.offsetSec).toBe(originalLyric.offsetSec);
-      expect(updatedLyric.paragraphs).toBe(originalLyric.paragraphs); // Same reference
-    });
-
-    test("should update duration only", async () => {
-      const updateArgs: UpdateLyricArgs = {
-        duration: 20.123456,
-      };
-
-      const updatedLyric = await updateLyric(originalLyric, updateArgs);
-
-      expect(updatedLyric.resourceID).toBe(originalLyric.resourceID);
-      expect(updatedLyric.duration).toBe(20.12); // Rounded to 2 decimal places
-      expect(updatedLyric.offsetSec).toBe(originalLyric.offsetSec);
-      expect(updatedLyric.paragraphs).toBe(originalLyric.paragraphs); // Same reference
     });
 
     test("should update offsetSec only", async () => {
@@ -121,9 +111,8 @@ describe("update", () => {
       const updatedLyric = await updateLyric(originalLyric, updateArgs);
 
       expect(updatedLyric.resourceID).toBe(originalLyric.resourceID);
-      expect(updatedLyric.duration).toBe(originalLyric.duration);
+      expect(updatedLyric.duration).toBe(originalLyric.duration); // Auto-calculated
       expect(updatedLyric.offsetSec).toBe(2.5);
-      expect(updatedLyric.paragraphs).toBe(originalLyric.paragraphs); // Same reference
     });
 
     test("should handle offsetSec = 0", async () => {
@@ -136,19 +125,17 @@ describe("update", () => {
       expect(updatedLyric.offsetSec).toBe(0);
     });
 
-    test("should update multiple properties without timelines", async () => {
+    test("should update multiple properties", async () => {
       const updateArgs: UpdateLyricArgs = {
         resourceID: "multi-update",
-        duration: 25.5,
         offsetSec: -1,
       };
 
       const updatedLyric = await updateLyric(originalLyric, updateArgs);
 
       expect(updatedLyric.resourceID).toBe("multi-update");
-      expect(updatedLyric.duration).toBe(25.5);
+      expect(updatedLyric.duration).toBe(originalLyric.duration); // Auto-calculated
       expect(updatedLyric.offsetSec).toBe(-1);
-      expect(updatedLyric.paragraphs).toBe(originalLyric.paragraphs); // Same reference
     });
 
     test("should recreate lyric when timelines are provided", async () => {
@@ -173,7 +160,7 @@ describe("update", () => {
 
       expect(updatedLyric.id).toBe(originalLyric.id); // Preserves original ID
       expect(updatedLyric.resourceID).toBe(originalLyric.resourceID);
-      expect(updatedLyric.duration).toBe(originalLyric.duration);
+      expect(updatedLyric.duration).toBe(2); // Auto-calculated from new timelines (0 to 2)
       expect(updatedLyric.offsetSec).toBe(originalLyric.offsetSec);
       expect(updatedLyric.paragraphs).not.toBe(originalLyric.paragraphs); // New reference
       expect(updatedLyric.paragraphs[0].lines[0].words[0].timeline.text).toBe(
@@ -197,7 +184,6 @@ describe("update", () => {
 
       const updateArgs: UpdateLyricArgs = {
         resourceID: "complete-resource",
-        duration: 30,
         offsetSec: 5,
         timelines: newTimelines,
       };
@@ -206,7 +192,7 @@ describe("update", () => {
 
       expect(updatedLyric.id).toBe(originalLyric.id);
       expect(updatedLyric.resourceID).toBe("complete-resource");
-      expect(updatedLyric.duration).toBe(30);
+      expect(updatedLyric.duration).toBe(3); // Auto-calculated from timelines (0 to 3)
       expect(updatedLyric.offsetSec).toBe(5);
       expect(updatedLyric.paragraphs[0].lines[0].words[0].timeline.text).toBe(
         "Complete",
@@ -262,7 +248,6 @@ describe("update", () => {
     test("should handle empty lyric", async () => {
       const emptyLyric = await createLyric({
         resourceID: "empty",
-        duration: 10,
         timelines: [],
         initID: true,
       });
@@ -311,7 +296,6 @@ describe("update", () => {
 
       const _singleWordLyric = createLyric({
         resourceID: "single",
-        duration: 5,
         timelines: singleWordTimelines,
         initID: true,
       }).then(async (lyric) => {
@@ -397,16 +381,6 @@ describe("update", () => {
       expect(updatedLyric.resourceID).toBe(originalLyric.resourceID);
       expect(updatedLyric.duration).toBe(originalLyric.duration);
       expect(updatedLyric.offsetSec).toBe(originalLyric.offsetSec);
-      expect(updatedLyric.paragraphs).toBe(originalLyric.paragraphs);
-    });
-
-    test("should handle extreme duration values", async () => {
-      const updateArgs: UpdateLyricArgs = {
-        duration: 999.999999,
-      };
-
-      const updatedLyric = await updateLyric(originalLyric, updateArgs);
-      expect(updatedLyric.duration).toBe(1000); // Rounded to 2 decimal places
     });
 
     test("should handle negative offsetSec", async () => {

@@ -87,7 +87,6 @@ describe("current", () => {
   beforeEach(async () => {
     mockLyric = await createLyric({
       resourceID: "test",
-      duration: 15,
       timelines: testTimelines,
       offsetSec: 0,
       initID: true,
@@ -309,7 +308,6 @@ describe("current", () => {
     test("should handle empty lyric", async () => {
       const emptyLyric = await createLyric({
         resourceID: "empty",
-        duration: 10,
         timelines: [],
         initID: true,
       });
