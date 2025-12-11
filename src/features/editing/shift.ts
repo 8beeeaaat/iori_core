@@ -205,3 +205,259 @@ export function shiftRange(
 
   return shiftWords(lyric, wordIDs, offsetSec);
 }
+
+/**
+ * Adjust the begin time of a Word
+ */
+export function adjustWordBegin(
+  lyric: Lyric,
+  wordID: string,
+  newBegin: number,
+): ValidationResult<Lyric> {
+  const word = lyric._index.wordById.get(wordID);
+  if (!word) {
+    return failure("WORD_NOT_FOUND", `Word not found: ${wordID}`, { wordID });
+  }
+
+  if (newBegin < 0) {
+    return failure("INVALID_TIME", "Begin time cannot be negative", {
+      wordID,
+      newBegin,
+    });
+  }
+
+  if (newBegin >= word.timeline.end) {
+    return failure(
+      "INVALID_TIME",
+      "Begin time must be less than end time",
+      { wordID, newBegin, currentEnd: word.timeline.end },
+    );
+  }
+
+  // Calculate how to adjust char timings proportionally
+  const oldDuration = word.timeline.end - word.timeline.begin;
+  const newDuration = word.timeline.end - newBegin;
+  const ratio = newDuration / oldDuration;
+
+  const newChars = word.chars.map((char) => {
+    const relativeBegin = char.begin - word.timeline.begin;
+    const relativeEnd = char.end - word.timeline.begin;
+    return Object.freeze({
+      ...char,
+      begin: Number((newBegin + relativeBegin * ratio).toFixed(2)),
+      end: Number((newBegin + relativeEnd * ratio).toFixed(2)),
+    });
+  });
+
+  const newWord = Object.freeze({
+    ...word,
+    timeline: Object.freeze({
+      ...word.timeline,
+      begin: Number(newBegin.toFixed(2)),
+    }),
+    chars: newChars,
+  });
+
+  // Build new paragraphs
+  const newParagraphs = lyric.paragraphs.map((paragraph) => {
+    const newLines = paragraph.lines.map((line) => {
+      const newWords = line.words.map((w) =>
+        w.id === wordID ? newWord : w,
+      );
+      return Object.freeze({ ...line, words: newWords });
+    });
+    return Object.freeze({ ...paragraph, lines: newLines });
+  });
+
+  // Check for overlaps
+  const allWords: Word[] = newParagraphs.flatMap((p) =>
+    p.lines.flatMap((l) => l.words as Word[]),
+  );
+  const overlapCheck = checkOverlaps(allWords);
+  if (overlapCheck.hasOverlap) {
+    return failure(
+      "OVERLAP_DETECTED",
+      `Timeline overlap between words: ${overlapCheck.details?.word1} and ${overlapCheck.details?.word2}`,
+      overlapCheck.details,
+    );
+  }
+
+  const _index = rebuildIndex(newParagraphs);
+
+  return success(
+    Object.freeze({
+      ...lyric,
+      paragraphs: newParagraphs,
+      _index,
+    }),
+  );
+}
+
+/**
+ * Adjust the end time of a Word
+ */
+export function adjustWordEnd(
+  lyric: Lyric,
+  wordID: string,
+  newEnd: number,
+): ValidationResult<Lyric> {
+  const word = lyric._index.wordById.get(wordID);
+  if (!word) {
+    return failure("WORD_NOT_FOUND", `Word not found: ${wordID}`, { wordID });
+  }
+
+  if (newEnd <= word.timeline.begin) {
+    return failure(
+      "INVALID_TIME",
+      "End time must be greater than begin time",
+      { wordID, newEnd, currentBegin: word.timeline.begin },
+    );
+  }
+
+  // Calculate how to adjust char timings proportionally
+  const oldDuration = word.timeline.end - word.timeline.begin;
+  const newDuration = newEnd - word.timeline.begin;
+  const ratio = newDuration / oldDuration;
+
+  const newChars = word.chars.map((char) => {
+    const relativeBegin = char.begin - word.timeline.begin;
+    const relativeEnd = char.end - word.timeline.begin;
+    return Object.freeze({
+      ...char,
+      begin: Number((word.timeline.begin + relativeBegin * ratio).toFixed(2)),
+      end: Number((word.timeline.begin + relativeEnd * ratio).toFixed(2)),
+    });
+  });
+
+  const newWord = Object.freeze({
+    ...word,
+    timeline: Object.freeze({
+      ...word.timeline,
+      end: Number(newEnd.toFixed(2)),
+    }),
+    chars: newChars,
+  });
+
+  // Build new paragraphs
+  const newParagraphs = lyric.paragraphs.map((paragraph) => {
+    const newLines = paragraph.lines.map((line) => {
+      const newWords = line.words.map((w) =>
+        w.id === wordID ? newWord : w,
+      );
+      return Object.freeze({ ...line, words: newWords });
+    });
+    return Object.freeze({ ...paragraph, lines: newLines });
+  });
+
+  // Check for overlaps
+  const allWords: Word[] = newParagraphs.flatMap((p) =>
+    p.lines.flatMap((l) => l.words as Word[]),
+  );
+  const overlapCheck = checkOverlaps(allWords);
+  if (overlapCheck.hasOverlap) {
+    return failure(
+      "OVERLAP_DETECTED",
+      `Timeline overlap between words: ${overlapCheck.details?.word1} and ${overlapCheck.details?.word2}`,
+      overlapCheck.details,
+    );
+  }
+
+  const _index = rebuildIndex(newParagraphs);
+
+  return success(
+    Object.freeze({
+      ...lyric,
+      paragraphs: newParagraphs,
+      _index,
+    }),
+  );
+}
+
+/**
+ * Adjust both begin and end times of a Word
+ */
+export function adjustWordTiming(
+  lyric: Lyric,
+  wordID: string,
+  newBegin: number,
+  newEnd: number,
+): ValidationResult<Lyric> {
+  const word = lyric._index.wordById.get(wordID);
+  if (!word) {
+    return failure("WORD_NOT_FOUND", `Word not found: ${wordID}`, { wordID });
+  }
+
+  if (newBegin < 0) {
+    return failure("INVALID_TIME", "Begin time cannot be negative", {
+      wordID,
+      newBegin,
+    });
+  }
+
+  if (newEnd <= newBegin) {
+    return failure(
+      "INVALID_TIME",
+      "End time must be greater than begin time",
+      { wordID, newBegin, newEnd },
+    );
+  }
+
+  // Calculate how to adjust char timings proportionally
+  const oldDuration = word.timeline.end - word.timeline.begin;
+  const newDuration = newEnd - newBegin;
+  const ratio = newDuration / oldDuration;
+
+  const newChars = word.chars.map((char) => {
+    const relativeBegin = char.begin - word.timeline.begin;
+    const relativeEnd = char.end - word.timeline.begin;
+    return Object.freeze({
+      ...char,
+      begin: Number((newBegin + relativeBegin * ratio).toFixed(2)),
+      end: Number((newBegin + relativeEnd * ratio).toFixed(2)),
+    });
+  });
+
+  const newWord = Object.freeze({
+    ...word,
+    timeline: Object.freeze({
+      ...word.timeline,
+      begin: Number(newBegin.toFixed(2)),
+      end: Number(newEnd.toFixed(2)),
+    }),
+    chars: newChars,
+  });
+
+  // Build new paragraphs
+  const newParagraphs = lyric.paragraphs.map((paragraph) => {
+    const newLines = paragraph.lines.map((line) => {
+      const newWords = line.words.map((w) =>
+        w.id === wordID ? newWord : w,
+      );
+      return Object.freeze({ ...line, words: newWords });
+    });
+    return Object.freeze({ ...paragraph, lines: newLines });
+  });
+
+  // Check for overlaps
+  const allWords: Word[] = newParagraphs.flatMap((p) =>
+    p.lines.flatMap((l) => l.words as Word[]),
+  );
+  const overlapCheck = checkOverlaps(allWords);
+  if (overlapCheck.hasOverlap) {
+    return failure(
+      "OVERLAP_DETECTED",
+      `Timeline overlap between words: ${overlapCheck.details?.word1} and ${overlapCheck.details?.word2}`,
+      overlapCheck.details,
+    );
+  }
+
+  const _index = rebuildIndex(newParagraphs);
+
+  return success(
+    Object.freeze({
+      ...lyric,
+      paragraphs: newParagraphs,
+      _index,
+    }),
+  );
+}
