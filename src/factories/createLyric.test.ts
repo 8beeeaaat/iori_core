@@ -59,7 +59,6 @@ describe("createLyric", () => {
 
   const baseArgs: CreateLyricArgs = {
     resourceID: "test-resource",
-    duration: 10,
     timelines: basicTimelines,
   };
 
@@ -67,7 +66,7 @@ describe("createLyric", () => {
     const lyric = await createLyric(baseArgs);
 
     expect(lyric.resourceID).toBe("test-resource");
-    expect(lyric.duration).toBe(10);
+    expect(lyric.duration).toBe(6); // Last end (6) - First begin (0)
     expect(lyric.offsetSec).toBe(0);
     expect(lyric.paragraphs).toHaveLength(2);
     expect(lyric.paragraphs[0].lines[0].words[0].timeline.text).toBe("Hello");
@@ -82,13 +81,12 @@ describe("createLyric", () => {
     expect(Array.isArray(lyric.paragraphs)).toBe(true);
   });
 
-  test("should round duration to 2 decimal places", async () => {
-    const lyric = await createLyric({
-      ...baseArgs,
-      duration: 10.123456,
-    });
+  test("should calculate duration from timelines", async () => {
+    // Duration is now auto-calculated: last end - first begin
+    const lyric = await createLyric(baseArgs);
 
-    expect(lyric.duration).toBe(10.12);
+    // basicTimelines: first begin=0, last end=6 => duration=6
+    expect(lyric.duration).toBe(6);
   });
 
   describe("ID handling", () => {
@@ -290,10 +288,10 @@ describe("createLyric", () => {
     );
   });
 
-  test("should handle zero duration", async () => {
+  test("should handle empty timelines with zero duration", async () => {
     const lyric = await createLyric({
-      ...baseArgs,
-      duration: 0,
+      resourceID: "test-resource",
+      timelines: [],
     });
 
     expect(lyric.duration).toBe(0);

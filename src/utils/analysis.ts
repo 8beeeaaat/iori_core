@@ -112,21 +112,12 @@ export function getVoidPeriods(lyric: Lyric): VoidPeriod[] {
 
   return words.reduce<VoidPeriod[]>((acc, word, index) => {
     const isFirstWord = index === 0;
-    const isLastWord = index === words.length - 1;
 
     if (isFirstWord && word.timeline.begin > 0) {
       acc.push({
         begin: 0,
         end: word.timeline.begin,
         duration: Number(word.timeline.begin.toFixed(2)),
-      });
-    }
-
-    if (isLastWord && lyric.duration - word.timeline.end > 0) {
-      acc.push({
-        begin: word.timeline.end,
-        end: lyric.duration,
-        duration: Number((lyric.duration - word.timeline.end).toFixed(2)),
       });
     }
 

@@ -403,7 +403,6 @@ describe("grid", () => {
 
       const lyric = await createLyric({
         resourceID: "test-lyric",
-        duration: 10,
         timelines,
       });
 
@@ -435,7 +434,6 @@ describe("grid", () => {
     test("should handle empty lyric", async () => {
       const lyric = await createLyric({
         resourceID: "empty-lyric",
-        duration: 10,
         timelines: [],
       });
 
@@ -473,7 +471,6 @@ describe("grid", () => {
 
       const lyric = await createLyric({
         resourceID: "test-lyric",
-        duration: 10,
         timelines,
       });
 

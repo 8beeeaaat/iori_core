@@ -84,7 +84,6 @@ describe("analysis", () => {
   beforeEach(async () => {
     mockLyric = await createLyric({
       resourceID: "test",
-      duration: 20,
       timelines: testTimelines,
       offsetSec: 0,
       initID: true,
@@ -295,14 +294,13 @@ describe("analysis", () => {
 
       const continuousLyric = await createLyric({
         resourceID: "continuous",
-        duration: 2,
         timelines: continuousTimelines,
         initID: true,
       });
 
       const voidPeriods = getVoidPeriods(continuousLyric);
-      // Should only have void at the end if duration > last word end
-      expect(voidPeriods.length).toBeLessThanOrEqual(1);
+      // No void periods - continuous from 0 and no end gap
+      expect(voidPeriods.length).toBe(0);
     });
   });
 
@@ -443,7 +441,6 @@ describe("analysis", () => {
     test("should handle empty lyric", async () => {
       const emptyLyric = await createLyric({
         resourceID: "empty",
-        duration: 10,
         timelines: [],
         initID: true,
       });

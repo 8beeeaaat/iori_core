@@ -12,7 +12,6 @@ export type CreateLyricArgs = {
   initID?: boolean;
   id?: string;
   resourceID: string;
-  duration: number;
   timelines: WordTimeline[][][];
   lineTokenizer?: (lineArgs: {
     position: number;
@@ -28,6 +27,19 @@ export type CreateLyricArgs = {
   ) => Promise<WordTimeline[][]>;
   offsetSec?: number;
 };
+
+/**
+ * Calculate duration from timelines (last end - first begin)
+ * Returns 0 if timelines is empty
+ */
+function calculateDuration(timelines: WordTimeline[][][]): number {
+  const allWords = timelines.flat(2);
+  if (allWords.length === 0) return 0;
+
+  const firstWord = allWords[0];
+  const lastWord = allWords[allWords.length - 1];
+  return Number((lastWord.end - firstWord.begin).toFixed(2));
+}
 
 /**
  * Build LyricIndex
@@ -87,11 +99,12 @@ export async function createLyric(args: CreateLyricArgs): Promise<Lyric> {
 
   const paragraphs = await Promise.all(paragraphPromises);
   const _index = buildIndex(paragraphs);
+  const duration = calculateDuration(args.timelines);
 
   return Object.freeze({
     id,
     resourceID: args.resourceID,
-    duration: Number(args.duration.toFixed(2)),
+    duration,
     offsetSec: args.offsetSec ?? 0,
     paragraphs,
     _index,

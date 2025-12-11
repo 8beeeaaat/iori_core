@@ -84,7 +84,6 @@ describe("navigation", () => {
   beforeEach(async () => {
     mockLyric = await createLyric({
       resourceID: "test",
-      duration: 15,
       timelines: testTimelines,
       offsetSec: 0,
       initID: true,
@@ -321,7 +320,6 @@ describe("navigation", () => {
     test("should handle empty lyric", async () => {
       const emptyLyric = await createLyric({
         resourceID: "empty",
-        duration: 10,
         timelines: [],
         initID: true,
       });
@@ -361,7 +359,6 @@ describe("navigation", () => {
 
       const singleLyric = await createLyric({
         resourceID: "single",
-        duration: 5,
         timelines: singleTimeline,
         initID: true,
       });

@@ -61,7 +61,6 @@ const sampleTimelines: WordTimeline[][][] = [
 
 const createArgs: CreateLyricArgs = {
   resourceID: "test-song",
-  duration: 10,
   timelines: sampleTimelines,
   initID: true,
 };
@@ -149,7 +148,7 @@ describe("Functional API - Factory Functions", () => {
 
     expect(lyric.id).toMatch(/^lyric-/);
     expect(lyric.resourceID).toBe("test-song");
-    expect(lyric.duration).toBe(10);
+    expect(lyric.duration).toBe(5); // Last end (5) - First begin (0)
     expect(lyric.paragraphs).toHaveLength(2);
     expect(lyric.paragraphs[0].lines[0].words).toHaveLength(2);
   });
@@ -207,7 +206,7 @@ describe("Functional API - Analysis", () => {
   it("should find void periods", async () => {
     const lyric = await createLyric(createArgs);
     const voids = getVoidPeriods(lyric);
-    expect(voids).toHaveLength(2); // Gap between paragraphs and end
+    expect(voids).toHaveLength(1); // Only gap between paragraphs (no end gap now)
     expect(voids[0].begin).toBe(2);
     expect(voids[0].end).toBe(3);
   });
@@ -235,11 +234,10 @@ describe("Functional API - Updates", () => {
     const lyric = await createLyric(createArgs);
     const updatedLyric = await updateLyric(lyric, {
       resourceID: "updated-song",
-      duration: 15,
     });
 
     expect(updatedLyric.resourceID).toBe("updated-song");
-    expect(updatedLyric.duration).toBe(15);
+    expect(updatedLyric.duration).toBe(5); // Duration is auto-calculated from timelines
     expect(updatedLyric.id).toBe(lyric.id); // ID should remain same
   });
 
