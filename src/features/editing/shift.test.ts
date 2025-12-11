@@ -657,11 +657,7 @@ describe("Editing API - shift", () => {
 });
 
 // Import new functions
-import {
-  adjustWordBegin,
-  adjustWordEnd,
-  adjustWordTiming,
-} from "./shift";
+import { adjustWordBegin, adjustWordEnd, adjustWordTiming } from "./shift";
 
 describe("adjust timing functions", () => {
   describe("adjustWordBegin", () => {
