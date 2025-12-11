@@ -32,6 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `shiftLines(lyric, lineIDs, offsetSec)`: Move multiple lines in time
     - `shiftParagraphs(lyric, paragraphIDs, offsetSec)`: Move multiple paragraphs in time
     - `shiftRange(lyric, beginTime, endTime, offsetSec)`: Move all words within time range
+  - **Timing adjustment operations** (NEW):
+    - `adjustWordBegin(lyric, wordID, newBegin)`: Adjust only the begin time of a word
+    - `adjustWordEnd(lyric, wordID, newEnd)`: Adjust only the end time of a word
+    - `adjustWordTiming(lyric, wordID, newBegin, newEnd)`: Adjust both begin and end times
+    - All adjust functions proportionally scale character timings within the word
   - **Split operations**:
     - `splitWord(lyric, wordID, options)`: Split a word by position or time
     - `splitLine(lyric, lineID, options)`: Split a line by word or time

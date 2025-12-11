@@ -655,3 +655,244 @@ describe("Editing API - shift", () => {
     });
   });
 });
+
+// Import new functions
+import {
+  adjustWordBegin,
+  adjustWordEnd,
+  adjustWordTiming,
+} from "./shift";
+
+describe("adjust timing functions", () => {
+  describe("adjustWordBegin", () => {
+    test("should adjust word begin time", () => {
+      const lyric = createTestLyric();
+
+      // w3 has begin: 3, end: 4
+      const result = adjustWordBegin(lyric, "w3", 2.5);
+
+      expect(isSuccess(result)).toBe(true);
+      if (result.success) {
+        const word = result.data._index.wordById.get("w3");
+        expect(word?.timeline.begin).toBe(2.5);
+        expect(word?.timeline.end).toBe(4); // end unchanged
+      }
+    });
+
+    test("should proportionally adjust char timings when begin changes", () => {
+      const lyric = createTestLyric();
+
+      // w3 has begin: 3, end: 4, duration: 1
+      // Change begin to 2, new duration: 2
+      const result = adjustWordBegin(lyric, "w3", 2);
+
+      expect(isSuccess(result)).toBe(true);
+      if (result.success) {
+        const word = result.data._index.wordById.get("w3");
+        // Chars should be scaled proportionally
+        // Original first char: 3-3.25 (relative: 0-0.25)
+        // New duration is 2x, so relative becomes: 0-0.5
+        // New absolute: 2-2.5
+        expect(word?.chars[0].begin).toBe(2);
+        expect(word?.chars[0].end).toBe(2.5);
+      }
+    });
+
+    test("should return error for negative begin time", () => {
+      const lyric = createTestLyric();
+
+      const result = adjustWordBegin(lyric, "w1", -1);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("INVALID_TIME");
+      }
+    });
+
+    test("should return error if begin >= end", () => {
+      const lyric = createTestLyric();
+
+      // w3 has end: 4
+      const result = adjustWordBegin(lyric, "w3", 4);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("INVALID_TIME");
+      }
+    });
+
+    test("should return error for unknown word ID", () => {
+      const lyric = createTestLyric();
+
+      const result = adjustWordBegin(lyric, "unknown", 1);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("WORD_NOT_FOUND");
+      }
+    });
+
+    test("should return error for overlap", () => {
+      const lyric = createTestLyric();
+
+      // w3 starts at 3, w2 ends at 2
+      // If we move w3's begin to 1.5, it overlaps with w2 (1-2)
+      const result = adjustWordBegin(lyric, "w3", 1.5);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("OVERLAP_DETECTED");
+      }
+    });
+  });
+
+  describe("adjustWordEnd", () => {
+    test("should adjust word end time", () => {
+      const lyric = createTestLyric();
+
+      // w3 has begin: 3, end: 4
+      const result = adjustWordEnd(lyric, "w3", 4.5);
+
+      expect(isSuccess(result)).toBe(true);
+      if (result.success) {
+        const word = result.data._index.wordById.get("w3");
+        expect(word?.timeline.begin).toBe(3); // begin unchanged
+        expect(word?.timeline.end).toBe(4.5);
+      }
+    });
+
+    test("should proportionally adjust char timings when end changes", () => {
+      const lyric = createTestLyric();
+
+      // w3 has begin: 3, end: 4, duration: 1
+      // Change end to 5, new duration: 2
+      const result = adjustWordEnd(lyric, "w3", 5);
+
+      expect(isSuccess(result)).toBe(true);
+      if (result.success) {
+        const word = result.data._index.wordById.get("w3");
+        // Chars should be scaled proportionally
+        // Original first char: 3-3.25 (relative: 0-0.25)
+        // New duration is 2x, so relative becomes: 0-0.5
+        // New absolute: 3-3.5
+        expect(word?.chars[0].begin).toBe(3);
+        expect(word?.chars[0].end).toBe(3.5);
+      }
+    });
+
+    test("should return error if end <= begin", () => {
+      const lyric = createTestLyric();
+
+      // w3 has begin: 3
+      const result = adjustWordEnd(lyric, "w3", 3);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("INVALID_TIME");
+      }
+    });
+
+    test("should return error for unknown word ID", () => {
+      const lyric = createTestLyric();
+
+      const result = adjustWordEnd(lyric, "unknown", 5);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("WORD_NOT_FOUND");
+      }
+    });
+
+    test("should return error for overlap", () => {
+      const lyric = createTestLyric();
+
+      // w4 starts at 5, if we extend w3's end to 5.5, it overlaps
+      const result = adjustWordEnd(lyric, "w3", 5.5);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("OVERLAP_DETECTED");
+      }
+    });
+  });
+
+  describe("adjustWordTiming", () => {
+    test("should adjust both begin and end times", () => {
+      const lyric = createTestLyric();
+
+      // w3 has begin: 3, end: 4
+      const result = adjustWordTiming(lyric, "w3", 2.5, 3.5);
+
+      expect(isSuccess(result)).toBe(true);
+      if (result.success) {
+        const word = result.data._index.wordById.get("w3");
+        expect(word?.timeline.begin).toBe(2.5);
+        expect(word?.timeline.end).toBe(3.5);
+      }
+    });
+
+    test("should proportionally adjust char timings", () => {
+      const lyric = createTestLyric();
+
+      // w3 has begin: 3, end: 4, duration: 1
+      // Change to begin: 2, end: 4, duration: 2
+      const result = adjustWordTiming(lyric, "w3", 2, 4);
+
+      expect(isSuccess(result)).toBe(true);
+      if (result.success) {
+        const word = result.data._index.wordById.get("w3");
+        // Chars should be scaled proportionally
+        // Original first char: 3-3.25 (relative: 0-0.25)
+        // New duration is 2x, so relative becomes: 0-0.5
+        // New absolute: 2-2.5
+        expect(word?.chars[0].begin).toBe(2);
+        expect(word?.chars[0].end).toBe(2.5);
+      }
+    });
+
+    test("should return error for negative begin", () => {
+      const lyric = createTestLyric();
+
+      const result = adjustWordTiming(lyric, "w3", -1, 4);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("INVALID_TIME");
+      }
+    });
+
+    test("should return error if end <= begin", () => {
+      const lyric = createTestLyric();
+
+      const result = adjustWordTiming(lyric, "w3", 4, 3);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("INVALID_TIME");
+      }
+    });
+
+    test("should return error for unknown word ID", () => {
+      const lyric = createTestLyric();
+
+      const result = adjustWordTiming(lyric, "unknown", 2, 4);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("WORD_NOT_FOUND");
+      }
+    });
+
+    test("should return error for overlap", () => {
+      const lyric = createTestLyric();
+
+      // Move w3 to overlap with w2 (1-2)
+      const result = adjustWordTiming(lyric, "w3", 1.5, 2.5);
+
+      expect(isFailure(result)).toBe(true);
+      if (!result.success) {
+        expect(result.error.code).toBe("OVERLAP_DETECTED");
+      }
+    });
+  });
+});

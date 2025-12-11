@@ -4,6 +4,14 @@
  */
 
 export { mergeLines, mergeWords } from "./merge";
-export { shiftLines, shiftParagraphs, shiftRange, shiftWords } from "./shift";
+export {
+  adjustWordBegin,
+  adjustWordEnd,
+  adjustWordTiming,
+  shiftLines,
+  shiftParagraphs,
+  shiftRange,
+  shiftWords,
+} from "./shift";
 export type { SplitLineOptions, SplitWordOptions } from "./split";
 export { splitLine, splitWord } from "./split";
