@@ -58,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New schema module at `src/schemas/` with `result.ts` and `timeline.schema.ts`
 - New features module at `src/features/editing/` with shift, split, merge, and helpers
 - Enhanced type definitions with `LyricIndex` for reverse lookup support
-- Comprehensive test coverage for all new functionality (358 tests passing)
+- Comprehensive test coverage for all new functionality (389 tests passing)
 - All code comments translated to English for international collaboration
 
 ## [0.3.10] - 2025-12-11
