@@ -2,6 +2,9 @@
  * Editing API - Common helper functions
  */
 
+import type { ValidationResult } from "../../schemas/result";
+import { failure, success } from "../../schemas/result";
+import { wordTimelinesSchema } from "../../schemas/timeline.schema";
 import type { Line, LyricIndex, Paragraph, Word } from "../../types";
 
 /**
@@ -45,28 +48,46 @@ export function rebuildIndex(paragraphs: readonly Paragraph[]): LyricIndex {
 }
 
 /**
- * Check for overlaps
- * Sort Word array and check if adjacent Word timelines overlap
+ * Validate that Word array has no timeline overlaps using wordTimelinesSchema
+ * Reuses the existing Zod schema from timeline.schema.ts
  */
-export function checkOverlaps(words: Word[]): {
-  hasOverlap: boolean;
-  details?: { word1: string; word2: string };
-} {
-  const sorted = [...words].sort((a, b) => a.timeline.begin - b.timeline.begin);
+export function checkOverlaps(words: Word[]): ValidationResult<Word[]> {
+  // Convert Word[] to WordTimeline[] format for schema validation
+  const timelines = words.map((w) => w.timeline);
 
-  for (let i = 0; i < sorted.length - 1; i++) {
-    const current = sorted[i];
-    const next = sorted[i + 1];
+  const result = wordTimelinesSchema.safeParse(timelines);
 
-    if (current.timeline.end > next.timeline.begin) {
-      return {
-        hasOverlap: true,
-        details: { word1: current.id, word2: next.id },
-      };
+  if (result.success) {
+    return success(words);
+  }
+
+  // Extract overlap details from Zod error message
+  const overlapIssue = result.error.issues.find(
+    (issue) =>
+      issue.code === "custom" && issue.message.includes("Timeline overlap"),
+  );
+
+  if (overlapIssue) {
+    // Find overlapping words by comparing sorted timelines
+    const sorted = [...words].sort(
+      (a, b) => a.timeline.begin - b.timeline.begin,
+    );
+    for (let i = 0; i < sorted.length - 1; i++) {
+      if (sorted[i].timeline.end > sorted[i + 1].timeline.begin) {
+        return failure(
+          "OVERLAP_DETECTED",
+          `Timeline overlap between words: ${sorted[i].id} and ${sorted[i + 1].id}`,
+          { word1: sorted[i].id, word2: sorted[i + 1].id },
+        );
+      }
     }
   }
 
-  return { hasOverlap: false };
+  return failure(
+    "VALIDATION_ERROR",
+    result.error.issues.map((e) => e.message).join(", "),
+    { issues: result.error.issues },
+  );
 }
 
 /**

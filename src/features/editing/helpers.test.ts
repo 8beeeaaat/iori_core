@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import { createLine } from "../../factories/createLine";
 import { createWord } from "../../factories/createWord";
+import { isFailure, isSuccess } from "../../schemas/result";
 import type { Line, Paragraph, Word } from "../../types";
 import { checkOverlaps, rebuildIndex, reindexPositions } from "./helpers";
 
@@ -110,8 +111,14 @@ describe("helpers", () => {
         });
 
         const result = checkOverlaps([word1, word2]);
-        expect(result.hasOverlap).toBe(true);
-        expect(result.details).toEqual({ word1: word1.id, word2: word2.id });
+        expect(isFailure(result)).toBe(true);
+        if (isFailure(result)) {
+          expect(result.error.code).toBe("OVERLAP_DETECTED");
+          expect(result.error.details).toEqual({
+            word1: word1.id,
+            word2: word2.id,
+          });
+        }
       });
 
       test("should not detect overlaps for adjacent non-overlapping words", () => {
@@ -138,8 +145,7 @@ describe("helpers", () => {
         });
 
         const result = checkOverlaps([word1, word2]);
-        expect(result.hasOverlap).toBe(false);
-        expect(result.details).toBeUndefined();
+        expect(isSuccess(result)).toBe(true);
       });
 
       test("should handle exact boundary (end === next begin)", () => {
@@ -166,7 +172,7 @@ describe("helpers", () => {
         });
 
         const result = checkOverlaps([word1, word2]);
-        expect(result.hasOverlap).toBe(false);
+        expect(isSuccess(result)).toBe(true);
       });
 
       test("should sort words before checking", () => {
@@ -194,7 +200,7 @@ describe("helpers", () => {
 
         // Pass in wrong order
         const result = checkOverlaps([word1, word2]);
-        expect(result.hasOverlap).toBe(true);
+        expect(isFailure(result)).toBe(true);
       });
 
       test("should handle single word", () => {
@@ -210,12 +216,12 @@ describe("helpers", () => {
         });
 
         const result = checkOverlaps([word]);
-        expect(result.hasOverlap).toBe(false);
+        expect(isSuccess(result)).toBe(true);
       });
 
       test("should handle empty array", () => {
         const result = checkOverlaps([]);
-        expect(result.hasOverlap).toBe(false);
+        expect(isSuccess(result)).toBe(true);
       });
     });
 

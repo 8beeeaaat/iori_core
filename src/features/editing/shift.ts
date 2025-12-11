@@ -87,18 +87,14 @@ export function shiftWords(
     });
   });
 
-  // Get all words and check for overlaps
+  // Get all words and validate no overlaps using Zod
   const allWords: Word[] = newParagraphs.flatMap((p) =>
     p.lines.flatMap((l) => l.words as Word[]),
   );
 
-  const overlapCheck = checkOverlaps(allWords);
-  if (overlapCheck.hasOverlap) {
-    return failure(
-      "OVERLAP_DETECTED",
-      `Timeline overlap between words: ${overlapCheck.details?.word1} and ${overlapCheck.details?.word2}`,
-      overlapCheck.details,
-    );
+  const overlapResult = checkOverlaps(allWords);
+  if (!overlapResult.success) {
+    return overlapResult;
   }
 
   const _index = rebuildIndex(newParagraphs);
@@ -227,11 +223,11 @@ export function adjustWordBegin(
   }
 
   if (newBegin >= word.timeline.end) {
-    return failure(
-      "INVALID_TIME",
-      "Begin time must be less than end time",
-      { wordID, newBegin, currentEnd: word.timeline.end },
-    );
+    return failure("INVALID_TIME", "Begin time must be less than end time", {
+      wordID,
+      newBegin,
+      currentEnd: word.timeline.end,
+    });
   }
 
   // Calculate how to adjust char timings proportionally
@@ -261,25 +257,19 @@ export function adjustWordBegin(
   // Build new paragraphs
   const newParagraphs = lyric.paragraphs.map((paragraph) => {
     const newLines = paragraph.lines.map((line) => {
-      const newWords = line.words.map((w) =>
-        w.id === wordID ? newWord : w,
-      );
+      const newWords = line.words.map((w) => (w.id === wordID ? newWord : w));
       return Object.freeze({ ...line, words: newWords });
     });
     return Object.freeze({ ...paragraph, lines: newLines });
   });
 
-  // Check for overlaps
+  // Validate no overlaps using Zod
   const allWords: Word[] = newParagraphs.flatMap((p) =>
     p.lines.flatMap((l) => l.words as Word[]),
   );
-  const overlapCheck = checkOverlaps(allWords);
-  if (overlapCheck.hasOverlap) {
-    return failure(
-      "OVERLAP_DETECTED",
-      `Timeline overlap between words: ${overlapCheck.details?.word1} and ${overlapCheck.details?.word2}`,
-      overlapCheck.details,
-    );
+  const overlapResult = checkOverlaps(allWords);
+  if (!overlapResult.success) {
+    return overlapResult;
   }
 
   const _index = rebuildIndex(newParagraphs);
@@ -307,11 +297,11 @@ export function adjustWordEnd(
   }
 
   if (newEnd <= word.timeline.begin) {
-    return failure(
-      "INVALID_TIME",
-      "End time must be greater than begin time",
-      { wordID, newEnd, currentBegin: word.timeline.begin },
-    );
+    return failure("INVALID_TIME", "End time must be greater than begin time", {
+      wordID,
+      newEnd,
+      currentBegin: word.timeline.begin,
+    });
   }
 
   // Calculate how to adjust char timings proportionally
@@ -341,25 +331,19 @@ export function adjustWordEnd(
   // Build new paragraphs
   const newParagraphs = lyric.paragraphs.map((paragraph) => {
     const newLines = paragraph.lines.map((line) => {
-      const newWords = line.words.map((w) =>
-        w.id === wordID ? newWord : w,
-      );
+      const newWords = line.words.map((w) => (w.id === wordID ? newWord : w));
       return Object.freeze({ ...line, words: newWords });
     });
     return Object.freeze({ ...paragraph, lines: newLines });
   });
 
-  // Check for overlaps
+  // Validate no overlaps using Zod
   const allWords: Word[] = newParagraphs.flatMap((p) =>
     p.lines.flatMap((l) => l.words as Word[]),
   );
-  const overlapCheck = checkOverlaps(allWords);
-  if (overlapCheck.hasOverlap) {
-    return failure(
-      "OVERLAP_DETECTED",
-      `Timeline overlap between words: ${overlapCheck.details?.word1} and ${overlapCheck.details?.word2}`,
-      overlapCheck.details,
-    );
+  const overlapResult = checkOverlaps(allWords);
+  if (!overlapResult.success) {
+    return overlapResult;
   }
 
   const _index = rebuildIndex(newParagraphs);
@@ -395,11 +379,11 @@ export function adjustWordTiming(
   }
 
   if (newEnd <= newBegin) {
-    return failure(
-      "INVALID_TIME",
-      "End time must be greater than begin time",
-      { wordID, newBegin, newEnd },
-    );
+    return failure("INVALID_TIME", "End time must be greater than begin time", {
+      wordID,
+      newBegin,
+      newEnd,
+    });
   }
 
   // Calculate how to adjust char timings proportionally
@@ -430,25 +414,19 @@ export function adjustWordTiming(
   // Build new paragraphs
   const newParagraphs = lyric.paragraphs.map((paragraph) => {
     const newLines = paragraph.lines.map((line) => {
-      const newWords = line.words.map((w) =>
-        w.id === wordID ? newWord : w,
-      );
+      const newWords = line.words.map((w) => (w.id === wordID ? newWord : w));
       return Object.freeze({ ...line, words: newWords });
     });
     return Object.freeze({ ...paragraph, lines: newLines });
   });
 
-  // Check for overlaps
+  // Validate no overlaps using Zod
   const allWords: Word[] = newParagraphs.flatMap((p) =>
     p.lines.flatMap((l) => l.words as Word[]),
   );
-  const overlapCheck = checkOverlaps(allWords);
-  if (overlapCheck.hasOverlap) {
-    return failure(
-      "OVERLAP_DETECTED",
-      `Timeline overlap between words: ${overlapCheck.details?.word1} and ${overlapCheck.details?.word2}`,
-      overlapCheck.details,
-    );
+  const overlapResult = checkOverlaps(allWords);
+  if (!overlapResult.success) {
+    return overlapResult;
   }
 
   const _index = rebuildIndex(newParagraphs);
